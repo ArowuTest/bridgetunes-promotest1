@@ -1,0 +1,47 @@
+[
+  {
+    "msisdn": "8031234567",
+    "topupAmount": 500,
+    "optIn": true,
+    "date": "2025-04-10",
+    "commission": 15,
+    "points": 50,
+    "lastDigit": "7"
+  },
+  {
+    "msisdn": "8051234568",
+    "topupAmount": 1000,
+    "optIn": true,
+    "date": "2025-04-11",
+    "commission": 25,
+    "points": 100,
+    "lastDigit": "8"
+  },
+  {
+    "msisdn": "8071234569",
+    "topupAmount": 200,
+    "optIn": true,
+    "date": "2025-04-12",
+    "commission": 10,
+    "points": 20,
+    "lastDigit": "9"
+  },
+  {
+    "msisdn": "8091234560",
+    "topupAmount": 100,
+    "optIn": true,
+    "date": "2025-04-13",
+    "commission": 5,
+    "points": 10,
+    "lastDigit": "0"
+  },
+  {
+    "msisdn": "8031234561",
+    "topupAmount": 2000,
+    "optIn": true,
+    "date": "2025-04-14",
+    "commission": 25,
+    "points": 200,
+    "lastDigit": "1"
+  }
+]
