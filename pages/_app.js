@@ -1,3 +1,4 @@
+// pages/_app.js
 import { ThemeProvider } from 'styled-components';
 import GlobalStyles from '../components/GlobalStyles';
 import theme from '../theme';
