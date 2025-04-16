@@ -1,16 +1,15 @@
-// pages/_app.js
+// pages/_app.js - simplified version
 import { ThemeProvider } from 'styled-components';
-import GlobalStyles from '../components/GlobalStyles';
 import theme from '../theme';
 
 function MyApp({ Component, pageProps }) {
   return (
     <ThemeProvider theme={theme}>
-      <GlobalStyles />
       <Component {...pageProps} />
     </ThemeProvider>
   );
 }
 
 export default MyApp;
+
 
