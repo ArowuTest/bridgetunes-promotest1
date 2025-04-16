@@ -1,135 +1,203 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import styled, { keyframes } from 'styled-components';
 
-const DrawAnimation = ({ onComplete, prizeCategory, isVisible }) => {
-  const [animationState, setAnimationState] = useState('idle'); // idle, spinning, slowing, complete
-  const [selectedNumber, setSelectedNumber] = useState(null);
-  const [displayNumbers, setDisplayNumbers] = useState([]);
-  const animationRef = useRef(null);
-  const spinningSpeed = useRef(50); // ms between number changes
-  const spinningDuration = 3000; // total spinning time in ms
-  const slowingDuration = 2000; // time to slow down in ms
+// Animations
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
+const numberChange = keyframes`
+  0%, 100% {
+    transform: translateY(0);
+  }
+  10% {
+    transform: translateY(-100%);
+  }
+  20% {
+    transform: translateY(-200%);
+  }
+  30% {
+    transform: translateY(-300%);
+  }
+  40% {
+    transform: translateY(-400%);
+  }
+  50% {
+    transform: translateY(-500%);
+  }
+  60% {
+    transform: translateY(-600%);
+  }
+  70% {
+    transform: translateY(-700%);
+  }
+  80% {
+    transform: translateY(-800%);
+  }
+  90% {
+    transform: translateY(-900%);
+  }
+`;
+
+// Styled Components
+const AnimationContainer = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  height: 300px;
+  margin: 0 auto;
+  background-color: ${props => props.theme.colors.gray100};
+  border-radius: ${props => props.theme.radii.lg};
+  box-shadow: ${props => props.theme.shadows.md};
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const SpinningCircle = styled.div`
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 8px solid ${props => props.theme.colors.bridgetunesBlue};
+  border-top-color: ${props => props.theme.colors.mtnYellow};
+  animation: ${spin} 3s linear infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const InnerCircle = styled.div`
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: ${props => props.theme.colors.white};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: ${props => props.theme.shadows.sm};
+`;
+
+const NumberContainer = styled.div`
+  font-size: 3rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+  display: flex;
+  overflow: hidden;
+`;
+
+const NumberColumn = styled.div`
+  height: 4.5rem;
+  overflow: hidden;
+`;
+
+const NumberScroller = styled.div`
+  animation: ${numberChange} 0.5s infinite;
+  animation-timing-function: steps(1);
+`;
+
+const NumberDigit = styled.div`
+  height: 4.5rem;
+  line-height: 4.5rem;
+`;
+
+const WinnerDisplay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  animation: ${fadeIn} 0.5s ease-in-out;
+`;
+
+const WinnerTitle = styled.h2`
+  font-size: ${props => props.theme.fontSizes['2xl']};
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.bridgetunesBlue};
+  margin-bottom: 1rem;
+`;
+
+const WinnerNumber = styled.div`
+  font-size: ${props => props.theme.fontSizes['3xl']};
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.mtnYellow};
+  margin-bottom: 1rem;
+`;
+
+const PrizeAmount = styled.div`
+  font-size: ${props => props.theme.fontSizes['xl']};
+  font-weight: ${props => props.theme.fontWeights.semibold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+`;
+
+const DrawAnimation = ({ stage, winningNumber, prizeAmount }) => {
+  const [displayWinner, setDisplayWinner] = useState(false);
   
-  // Generate a pool of random numbers for the animation
   useEffect(() => {
-    if (isVisible && animationState === 'idle') {
-      // Start with a pool of random numbers
-      const numbers = Array.from({ length: 100 }, () => 
-        Math.floor(Math.random() * 10000000).toString().padStart(8, '0')
-      );
-      setDisplayNumbers(numbers);
-      setAnimationState('spinning');
+    if (stage === 'complete' && winningNumber) {
+      const timer = setTimeout(() => {
+        setDisplayWinner(true);
+      }, 3000);
       
-      // Schedule the slowing down phase
-      setTimeout(() => {
-        setAnimationState('slowing');
-      }, spinningDuration);
+      return () => clearTimeout(timer);
+    } else {
+      setDisplayWinner(false);
     }
-  }, [isVisible, animationState]);
+  }, [stage, winningNumber]);
   
-  // Handle the animation states
-  useEffect(() => {
-    let interval;
-    
-    if (animationState === 'spinning') {
-      // Fast spinning phase
-      interval = setInterval(() => {
-        setDisplayNumbers(prev => {
-          const newNumbers = [...prev];
-          newNumbers.unshift(newNumbers.pop());
-          return newNumbers;
-        });
-      }, spinningSpeed.current);
-    } 
-    else if (animationState === 'slowing') {
-      // Gradually slow down
-      let elapsed = 0;
-      const slowingInterval = 50; // ms
-      
-      interval = setInterval(() => {
-        elapsed += slowingInterval;
-        const progress = Math.min(elapsed / slowingDuration, 1);
-        const newSpeed = spinningSpeed.current + (progress * 200); // Gradually increase delay
-        
-        clearInterval(interval);
-        
-        if (progress >= 1) {
-          // Animation complete
-          const winningNumber = displayNumbers[0];
-          setSelectedNumber(winningNumber);
-          setAnimationState('complete');
-          
-          // Notify parent component
-          setTimeout(() => {
-            onComplete(winningNumber);
-          }, 1000);
-        } else {
-          // Continue slowing down
-          interval = setInterval(() => {
-            setDisplayNumbers(prev => {
-              const newNumbers = [...prev];
-              newNumbers.unshift(newNumbers.pop());
-              return newNumbers;
-            });
-          }, newSpeed);
-        }
-      }, slowingInterval);
-    }
-    
-    return () => clearInterval(interval);
-  }, [animationState, onComplete]);
-  
-  // Different styles based on prize category
-  const getBallColor = () => {
-    switch(prizeCategory) {
-      case 'jackpot':
-        return 'bg-gradient-to-br from-yellow-300 to-yellow-600 border-yellow-400';
-      case 'second':
-        return 'bg-gradient-to-br from-gray-300 to-gray-500 border-gray-400';
-      case 'third':
-        return 'bg-gradient-to-br from-amber-600 to-amber-800 border-amber-700';
-      default:
-        return 'bg-gradient-to-br from-blue-300 to-blue-500 border-blue-400';
-    }
+  // Generate random digits for animation
+  const renderNumberScroller = () => {
+    return (
+      <NumberScroller>
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => (
+          <NumberDigit key={digit}>{digit}</NumberDigit>
+        ))}
+      </NumberScroller>
+    );
   };
-  
-  const getSize = () => {
-    switch(prizeCategory) {
-      case 'jackpot':
-        return 'w-64 h-64 text-3xl';
-      case 'second':
-        return 'w-56 h-56 text-2xl';
-      case 'third':
-        return 'w-48 h-48 text-xl';
-      default:
-        return 'w-40 h-40 text-lg';
-    }
-  };
-  
-  if (!isVisible) return null;
   
   return (
-    <div className="flex flex-col items-center justify-center p-4">
-      <div className={`relative ${getSize()} rounded-full ${getBallColor()} border-8 flex items-center justify-center shadow-lg animate-spin-slow overflow-hidden`}>
-        <div className="absolute inset-0 rounded-full bg-black bg-opacity-10"></div>
-        <div className="z-10 font-mono font-bold text-black">
-          {displayNumbers[0]}
-        </div>
-      </div>
-      
-      <div className="mt-6 text-center">
-        <h3 className="text-xl font-bold mb-2">
-          {prizeCategory === 'jackpot' ? 'Grand Prize Winner' : 
-           prizeCategory === 'second' ? 'Second Prize Winner' :
-           prizeCategory === 'third' ? 'Third Prize Winner' : 'Consolation Prize Winner'}
-        </h3>
-        <p className="text-gray-600">
-          {animationState === 'spinning' && 'Selecting winner...'}
-          {animationState === 'slowing' && 'Finalizing selection...'}
-          {animationState === 'complete' && 'Winner selected!'}
-        </p>
-      </div>
-    </div>
+    <AnimationContainer>
+      {!displayWinner ? (
+        <SpinningCircle>
+          <InnerCircle>
+            <NumberContainer>
+              <NumberColumn>{renderNumberScroller()}</NumberColumn>
+              <NumberColumn>{renderNumberScroller()}</NumberColumn>
+              <NumberColumn>{renderNumberScroller()}</NumberColumn>
+              <NumberColumn>{renderNumberScroller()}</NumberColumn>
+            </NumberContainer>
+          </InnerCircle>
+        </SpinningCircle>
+      ) : (
+        <WinnerDisplay>
+          <WinnerTitle>Winner!</WinnerTitle>
+          <WinnerNumber>{winningNumber}</WinnerNumber>
+          <PrizeAmount>Prize: ₦{prizeAmount.toLocaleString()}</PrizeAmount>
+        </WinnerDisplay>
+      )}
+    </AnimationContainer>
   );
 };
 
 export default DrawAnimation;
+
