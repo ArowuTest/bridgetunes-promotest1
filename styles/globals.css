@@ -94,6 +94,10 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--bridgetunes-light-blue);
 }
 
+.text-bridgetunes-dark {
+  color: var(--bridgetunes-dark);
+}
+
 .border-bridgetunes-blue {
   border-color: var(--bridgetunes-blue);
 }
@@ -101,29 +105,33 @@ h1, h2, h3, h4, h5, h6 {
 /* Co-branded header */
 .co-branded-header {
   background: linear-gradient(90deg, var(--bridgetunes-blue) 0%, var(--bridgetunes-dark) 100%);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Button styles */
 .btn-primary {
-  @apply bg-bridgetunes-blue text-white font-bold py-2 px-6 rounded-md hover:bg-bridgetunes-light-blue transition-colors;
+  @apply bg-bridgetunes-blue text-white font-semibold py-2 px-4 rounded-md shadow-sm hover:bg-bridgetunes-light-blue transition-colors;
 }
 
 .btn-secondary {
-  @apply bg-mtn-yellow text-mtn-black font-bold py-2 px-6 rounded-md hover:bg-yellow-500 transition-colors;
-}
-
-.btn-dark {
-  @apply bg-bridgetunes-dark text-white font-bold py-2 px-6 rounded-md hover:bg-gray-800 transition-colors;
+  @apply bg-mtn-yellow text-black font-semibold py-2 px-4 rounded-md shadow-sm hover:bg-yellow-400 transition-colors;
 }
 
 .btn-outline {
-  @apply border-2 border-bridgetunes-blue text-bridgetunes-blue font-bold py-2 px-6 rounded-md hover:bg-bridgetunes-blue hover:text-white transition-colors;
+  @apply border border-bridgetunes-blue text-bridgetunes-blue font-semibold py-2 px-4 rounded-md hover:bg-bridgetunes-blue hover:text-white transition-colors;
 }
 
-/* Form input styles */
+/* Form styles */
 .input-field {
-  @apply border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-bridgetunes-blue focus:border-transparent;
+  @apply border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-bridgetunes-blue focus:border-transparent;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.form-group {
+  @apply mb-4;
 }
 
 /* Card styles */
@@ -132,46 +140,28 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .card-header {
-  @apply p-4 border-b;
+  @apply px-6 py-4 bg-gray-50 border-b border-gray-200;
 }
 
 .card-body {
-  @apply p-6;
+  @apply px-6 py-4;
 }
 
 .card-footer {
-  @apply p-4 border-t;
+  @apply px-6 py-4 bg-gray-50 border-t border-gray-200;
 }
 
-/* Animation utilities */
-.animate-spin-slow {
-  animation: spin 3s linear infinite;
+/* Modern shadow effects */
+.shadow-soft {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Responsive container */
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-/* Additional utility classes */
-.shadow-yellow {
-  box-shadow: 0 4px 6px -1px rgba(255, 204, 0, 0.1), 0 2px 4px -1px rgba(255, 204, 0, 0.06);
+.shadow-medium {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .shadow-blue {
-  box-shadow: 0 4px 6px -1px rgba(0, 86, 179, 0.1), 0 2px 4px -1px rgba(0, 86, 179, 0.06);
+  box-shadow: 0 4px 14px 0 rgba(0, 86, 179, 0.2), 0 4px 4px -1px rgba(0, 86, 179, 0.06);
 }
 
 /* Ensure images display properly */
@@ -219,7 +209,7 @@ html, body {
 
 /* Table styles */
 .table-container {
-  @apply overflow-x-auto;
+  @apply overflow-x-auto rounded-lg shadow-sm;
 }
 
 .table {
@@ -257,9 +247,61 @@ html, body {
 }
 
 .footer-title {
-  @apply text-xl font-bold mb-4 text-mtn-yellow;
+  @apply text-lg font-bold mb-4 text-mtn-yellow;
 }
 
 .footer-link {
   @apply hover:text-mtn-yellow transition-colors;
+}
+
+/* Modern UI elements */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-primary {
+  @apply bg-bridgetunes-blue bg-opacity-10 text-bridgetunes-blue;
+}
+
+.badge-secondary {
+  @apply bg-mtn-yellow bg-opacity-10 text-mtn-black;
+}
+
+/* Animation styles */
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Draw animation container */
+.draw-animation-container {
+  @apply relative w-full max-w-md mx-auto h-64 bg-gray-100 rounded-lg shadow-md overflow-hidden;
+}
+
+/* Prize display */
+.prize-display {
+  @apply mt-6 p-4 bg-white rounded-lg shadow-sm border border-gray-200;
+}
+
+.prize-amount {
+  @apply text-2xl font-bold text-bridgetunes-blue;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .section-title {
+    @apply text-2xl;
+  }
+  
+  .prize-amount {
+    @apply text-xl;
+  }
 }
