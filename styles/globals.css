@@ -1,0 +1,99 @@
+/* Global styles for the Bridgetunes MyNumba Don Win prototype */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --mtn-yellow: #ffcc00;
+  --mtn-black: #000000;
+  --mtn-gray: #333333;
+  --mtn-light: #f5f5f5;
+}
+
+/* Custom color classes */
+.bg-mtn-yellow {
+  background-color: var(--mtn-yellow);
+}
+
+.bg-mtn-black {
+  background-color: var(--mtn-black);
+}
+
+.bg-mtn-gray {
+  background-color: var(--mtn-gray);
+}
+
+.bg-mtn-light {
+  background-color: var(--mtn-light);
+}
+
+.text-mtn-yellow {
+  color: var(--mtn-yellow);
+}
+
+.text-mtn-black {
+  color: var(--mtn-black);
+}
+
+.border-mtn-yellow {
+  border-color: var(--mtn-yellow);
+}
+
+/* Button styles */
+.btn-primary {
+  @apply bg-mtn-yellow text-mtn-black font-bold py-2 px-6 rounded-md hover:bg-yellow-500 transition-colors;
+}
+
+.btn-secondary {
+  @apply bg-mtn-black text-mtn-yellow font-bold py-2 px-6 rounded-md hover:bg-gray-800 transition-colors;
+}
+
+/* Form input styles */
+.input-field {
+  @apply border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-mtn-yellow focus:border-transparent;
+}
+
+/* Animation utilities */
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive container */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Additional utility classes */
+.shadow-yellow {
+  box-shadow: 0 4px 6px -1px rgba(255, 204, 0, 0.1), 0 2px 4px -1px rgba(255, 204, 0, 0.06);
+}
+
+/* Ensure images display properly */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure full height on mobile */
+html, body {
+  height: 100%;
+}
+
+/* Fix for mobile navigation */
+@media (max-width: 768px) {
+  .mobile-nav {
+    display: block;
+  }
+}
