@@ -1,5 +1,125 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import styled from 'styled-components';
+
+// Styled components
+const HeaderContainer = styled.header`
+  background-color: ${props => props.theme.colors.bridgetunesBlue};
+  color: ${props => props.theme.colors.white};
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: ${props => props.theme.shadows.md};
+`;
+
+const Container = styled.div`
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+`;
+
+const FlexContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const LogoContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const BrandText = styled.span`
+  font-size: ${props => props.theme.fontSizes['2xl']};
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.white};
+`;
+
+const BrandHighlight = styled.span`
+  color: ${props => props.theme.colors.mtnYellow};
+`;
+
+const Divider = styled.div`
+  height: 1.5rem;
+  width: 1px;
+  background-color: ${props => props.theme.colors.gray400};
+  margin: 0 0.75rem;
+`;
+
+const DesktopNav = styled.nav`
+  display: none;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    display: block;
+  }
+`;
+
+const NavList = styled.ul`
+  display: flex;
+  space-x: 1rem;
+`;
+
+const NavItem = styled.li`
+  margin: 0 0.5rem;
+`;
+
+const NavLink = styled.a`
+  padding: 0.5rem 0.75rem;
+  border-radius: ${props => props.theme.radii.md};
+  font-weight: ${props => props.theme.fontWeights.medium};
+  transition: color ${props => props.theme.transitions.default};
+  
+  &:hover {
+    color: ${props => props.theme.colors.mtnYellow};
+  }
+`;
+
+const MobileMenuButton = styled.button`
+  display: block;
+  color: ${props => props.theme.colors.white};
+  background: none;
+  border: none;
+  cursor: pointer;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    display: none;
+  }
+`;
+
+const MobileMenu = styled.div`
+  margin-top: 1rem;
+  background-color: ${props => props.theme.colors.bridgetunesBlue};
+  border-radius: ${props => props.theme.radii.lg};
+  box-shadow: ${props => props.theme.shadows.lg};
+  padding: 1rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    display: none;
+  }
+`;
+
+const MobileNavList = styled.ul`
+  display: flex;
+  flex-direction: column;
+`;
+
+const MobileNavItem = styled.li`
+  margin: 0.5rem 0;
+`;
+
+const MobileNavLink = styled.a`
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border-radius: ${props => props.theme.radii.md};
+  font-weight: ${props => props.theme.fontWeights.medium};
+  transition: color ${props => props.theme.transitions.default};
+  
+  &:hover {
+    color: ${props => props.theme.colors.mtnYellow};
+  }
+`;
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -9,95 +129,87 @@ const Header = () => {
   };
 
   return (
-    <header className="co-branded-header text-white py-3 sticky top-0 z-50 shadow-md">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
+    <HeaderContainer>
+      <Container>
+        <FlexContainer>
+          <LogoContainer>
             <Link href="/">
-              <a className="flex items-center">
+              <a>
                 {/* Bridgetunes Logo */}
-                <div className="mr-2">
-                  <span className="text-xl font-bold text-white">Bridge<span className="text-mtn-yellow">tunes</span></span>
-                </div>
+                <BrandText>Bridge<BrandHighlight>tunes</BrandHighlight></BrandText>
                 {/* Divider */}
-                <div className="h-6 w-px bg-gray-400 mx-2"></div>
+                <Divider />
                 {/* MTN Logo */}
-                <div>
-                  <span className="text-xl font-bold text-mtn-yellow">MTN</span>
-                </div>
+                <BrandText><BrandHighlight>MTN</BrandHighlight></BrandText>
               </a>
             </Link>
-          </div>
+          </LogoContainer>
           
           {/* Desktop Navigation */}
-          <nav className="hidden md:block">
-            <ul className="flex space-x-1">
-              <li>
+          <DesktopNav>
+            <NavList>
+              <NavItem>
                 <Link href="/">
-                  <a className="nav-link nav-link-light text-sm">Home</a>
+                  <NavLink>Home</NavLink>
                 </Link>
-              </li>
-              <li>
+              </NavItem>
+              <NavItem>
                 <Link href="/opt-in">
-                  <a className="nav-link nav-link-light text-sm">Opt-In</a>
+                  <NavLink>Opt-In</NavLink>
                 </Link>
-              </li>
-              <li>
+              </NavItem>
+              <NavItem>
                 <Link href="/draw-management">
-                  <a className="nav-link nav-link-light text-sm">Draw Management</a>
+                  <NavLink>Draw Management</NavLink>
                 </Link>
-              </li>
-              <li>
+              </NavItem>
+              <NavItem>
                 <Link href="/admin">
-                  <a className="nav-link nav-link-light text-sm">Admin Dashboard</a>
+                  <NavLink>Admin Dashboard</NavLink>
                 </Link>
-              </li>
-            </ul>
-          </nav>
+              </NavItem>
+            </NavList>
+          </DesktopNav>
           
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button 
-              onClick={toggleMobileMenu}
-              className="text-white focus:outline-none"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-        </div>
+          <MobileMenuButton onClick={toggleMobileMenu}>
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </MobileMenuButton>
+        </FlexContainer>
         
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-3 bg-bridgetunes-dark rounded-lg shadow-lg p-3">
-            <ul className="space-y-2">
-              <li>
+          <MobileMenu>
+            <MobileNavList>
+              <MobileNavItem>
                 <Link href="/">
-                  <a className="block nav-link nav-link-light text-sm" onClick={() => setMobileMenuOpen(false)}>Home</a>
+                  <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
                 </Link>
-              </li>
-              <li>
+              </MobileNavItem>
+              <MobileNavItem>
                 <Link href="/opt-in">
-                  <a className="block nav-link nav-link-light text-sm" onClick={() => setMobileMenuOpen(false)}>Opt-In</a>
+                  <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Opt-In</MobileNavLink>
                 </Link>
-              </li>
-              <li>
+              </MobileNavItem>
+              <MobileNavItem>
                 <Link href="/draw-management">
-                  <a className="block nav-link nav-link-light text-sm" onClick={() => setMobileMenuOpen(false)}>Draw Management</a>
+                  <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Draw Management</MobileNavLink>
                 </Link>
-              </li>
-              <li>
+              </MobileNavItem>
+              <MobileNavItem>
                 <Link href="/admin">
-                  <a className="block nav-link nav-link-light text-sm" onClick={() => setMobileMenuOpen(false)}>Admin Dashboard</a>
+                  <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Admin Dashboard</MobileNavLink>
                 </Link>
-              </li>
-            </ul>
-          </div>
+              </MobileNavItem>
+            </MobileNavList>
+          </MobileMenu>
         )}
-      </div>
-    </header>
+      </Container>
+    </HeaderContainer>
   );
 };
 
 export default Header;
+
