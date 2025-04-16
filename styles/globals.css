@@ -5,13 +5,42 @@
 @tailwind utilities;
 
 :root {
+  /* MTN Colors */
   --mtn-yellow: #ffcc00;
   --mtn-black: #000000;
   --mtn-gray: #333333;
   --mtn-light: #f5f5f5;
+  
+  /* Bridgetunes Colors (based on PDF) */
+  --bridgetunes-blue: #0056b3;
+  --bridgetunes-light-blue: #007bff;
+  --bridgetunes-dark: #212529;
+  --bridgetunes-light: #f8f9fa;
+  --bridgetunes-gray: #6c757d;
+  
+  /* Co-branded palette */
+  --primary: var(--bridgetunes-blue);
+  --secondary: var(--mtn-yellow);
+  --dark: var(--bridgetunes-dark);
+  --light: var(--bridgetunes-light);
+  --accent: var(--mtn-yellow);
 }
 
-/* Custom color classes */
+/* Typography */
+body {
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--bridgetunes-dark);
+  background-color: var(--bridgetunes-light);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+/* Custom color classes - MTN */
 .bg-mtn-yellow {
   background-color: var(--mtn-yellow);
 }
@@ -40,18 +69,78 @@
   border-color: var(--mtn-yellow);
 }
 
+/* Custom color classes - Bridgetunes */
+.bg-bridgetunes-blue {
+  background-color: var(--bridgetunes-blue);
+}
+
+.bg-bridgetunes-light-blue {
+  background-color: var(--bridgetunes-light-blue);
+}
+
+.bg-bridgetunes-dark {
+  background-color: var(--bridgetunes-dark);
+}
+
+.bg-bridgetunes-light {
+  background-color: var(--bridgetunes-light);
+}
+
+.text-bridgetunes-blue {
+  color: var(--bridgetunes-blue);
+}
+
+.text-bridgetunes-light-blue {
+  color: var(--bridgetunes-light-blue);
+}
+
+.border-bridgetunes-blue {
+  border-color: var(--bridgetunes-blue);
+}
+
+/* Co-branded header */
+.co-branded-header {
+  background: linear-gradient(90deg, var(--bridgetunes-blue) 0%, var(--bridgetunes-dark) 100%);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 /* Button styles */
 .btn-primary {
-  @apply bg-mtn-yellow text-mtn-black font-bold py-2 px-6 rounded-md hover:bg-yellow-500 transition-colors;
+  @apply bg-bridgetunes-blue text-white font-bold py-2 px-6 rounded-md hover:bg-bridgetunes-light-blue transition-colors;
 }
 
 .btn-secondary {
-  @apply bg-mtn-black text-mtn-yellow font-bold py-2 px-6 rounded-md hover:bg-gray-800 transition-colors;
+  @apply bg-mtn-yellow text-mtn-black font-bold py-2 px-6 rounded-md hover:bg-yellow-500 transition-colors;
+}
+
+.btn-dark {
+  @apply bg-bridgetunes-dark text-white font-bold py-2 px-6 rounded-md hover:bg-gray-800 transition-colors;
+}
+
+.btn-outline {
+  @apply border-2 border-bridgetunes-blue text-bridgetunes-blue font-bold py-2 px-6 rounded-md hover:bg-bridgetunes-blue hover:text-white transition-colors;
 }
 
 /* Form input styles */
 .input-field {
-  @apply border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-mtn-yellow focus:border-transparent;
+  @apply border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-bridgetunes-blue focus:border-transparent;
+}
+
+/* Card styles */
+.card {
+  @apply bg-white rounded-lg shadow-md overflow-hidden;
+}
+
+.card-header {
+  @apply p-4 border-b;
+}
+
+.card-body {
+  @apply p-6;
+}
+
+.card-footer {
+  @apply p-4 border-t;
 }
 
 /* Animation utilities */
@@ -73,11 +162,16 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
 /* Additional utility classes */
 .shadow-yellow {
   box-shadow: 0 4px 6px -1px rgba(255, 204, 0, 0.1), 0 2px 4px -1px rgba(255, 204, 0, 0.06);
+}
+
+.shadow-blue {
+  box-shadow: 0 4px 6px -1px rgba(0, 86, 179, 0.1), 0 2px 4px -1px rgba(0, 86, 179, 0.06);
 }
 
 /* Ensure images display properly */
@@ -91,9 +185,81 @@ html, body {
   height: 100%;
 }
 
-/* Fix for mobile navigation */
+/* Navigation styles */
+.nav-link {
+  @apply px-3 py-2 rounded-md font-medium transition-colors;
+}
+
+.nav-link-light {
+  @apply text-white hover:text-mtn-yellow;
+}
+
+.nav-link-dark {
+  @apply text-bridgetunes-dark hover:text-bridgetunes-blue;
+}
+
+.nav-link-active {
+  @apply bg-opacity-20 bg-white text-white font-bold;
+}
+
+/* Mobile navigation */
+.mobile-nav {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .mobile-nav {
     display: block;
   }
+  
+  .desktop-nav {
+    display: none;
+  }
+}
+
+/* Table styles */
+.table-container {
+  @apply overflow-x-auto;
+}
+
+.table {
+  @apply min-w-full divide-y divide-gray-200;
+}
+
+.table-header {
+  @apply bg-gray-50;
+}
+
+.table-header th {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.table-body {
+  @apply bg-white divide-y divide-gray-200;
+}
+
+.table-body td {
+  @apply px-6 py-4 whitespace-nowrap text-sm;
+}
+
+/* Section spacing */
+.section {
+  @apply py-12;
+}
+
+.section-title {
+  @apply text-3xl font-bold mb-8 text-center;
+}
+
+/* Footer styles */
+.footer {
+  @apply bg-bridgetunes-dark text-white py-12;
+}
+
+.footer-title {
+  @apply text-xl font-bold mb-4 text-mtn-yellow;
+}
+
+.footer-link {
+  @apply hover:text-mtn-yellow transition-colors;
 }
