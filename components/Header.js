@@ -133,7 +133,7 @@ const Header = () => {
       <Container>
         <FlexContainer>
           <LogoContainer>
-            <Link href="/">
+            <Link href="/" passHref legacyBehavior>
               <a>
                 {/* Bridgetunes Logo */}
                 <BrandText>Bridge<BrandHighlight>tunes</BrandHighlight></BrandText>
@@ -149,22 +149,22 @@ const Header = () => {
           <DesktopNav>
             <NavList>
               <NavItem>
-                <Link href="/">
+                <Link href="/" passHref legacyBehavior>
                   <NavLink>Home</NavLink>
                 </Link>
               </NavItem>
               <NavItem>
-                <Link href="/opt-in">
+                <Link href="/opt-in" passHref legacyBehavior>
                   <NavLink>Opt-In</NavLink>
                 </Link>
               </NavItem>
               <NavItem>
-                <Link href="/draw-management">
+                <Link href="/draw-management" passHref legacyBehavior>
                   <NavLink>Draw Management</NavLink>
                 </Link>
               </NavItem>
               <NavItem>
-                <Link href="/admin">
+                <Link href="/admin" passHref legacyBehavior>
                   <NavLink>Admin Dashboard</NavLink>
                 </Link>
               </NavItem>
@@ -184,22 +184,22 @@ const Header = () => {
           <MobileMenu>
             <MobileNavList>
               <MobileNavItem>
-                <Link href="/">
+                <Link href="/" passHref legacyBehavior>
                   <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
                 </Link>
               </MobileNavItem>
               <MobileNavItem>
-                <Link href="/opt-in">
+                <Link href="/opt-in" passHref legacyBehavior>
                   <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Opt-In</MobileNavLink>
                 </Link>
               </MobileNavItem>
               <MobileNavItem>
-                <Link href="/draw-management">
+                <Link href="/draw-management" passHref legacyBehavior>
                   <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Draw Management</MobileNavLink>
                 </Link>
               </MobileNavItem>
               <MobileNavItem>
-                <Link href="/admin">
+                <Link href="/admin" passHref legacyBehavior>
                   <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Admin Dashboard</MobileNavLink>
                 </Link>
               </MobileNavItem>
@@ -212,4 +212,5 @@ const Header = () => {
 };
 
 export default Header;
+
 
