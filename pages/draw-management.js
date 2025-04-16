@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import DrawAnimation from '../components/DrawAnimation';
 
 export default function DrawManagement() {
   const [selectedDay, setSelectedDay] = useState('monday');
@@ -12,6 +13,24 @@ export default function DrawManagement() {
   const [isLoading, setIsLoading] = useState(false);
   const [animationStage, setAnimationStage] = useState('none'); // none, jackpot, second, third, consolation
   const [msisdnData, setMsisdnData] = useState([]);
+
+  // Prize structure based on the Excel file
+  const prizeStructure = {
+    daily: {
+      jackpot: 1000000,
+      second: 350000,
+      third: 150000,
+      consolation1: 75000,
+      consolation2: 75000
+    },
+    saturday: {
+      jackpot: 3000000,
+      second: 1000000,
+      third: 500000,
+      consolation1: 100000,
+      consolation2: 100000
+    }
+  };
 
   // Default day-digit mapping
   const dayDigitMap = {
@@ -85,17 +104,17 @@ export default function DrawManagement() {
   };
 
   // Handle animation completion for each prize category
-  const handleAnimationComplete = (category, winningNumber) => {
-    console.log(`${category} animation complete with number: ${winningNumber}`);
+  const handleAnimationComplete = (winningNumber) => {
+    console.log(`Animation complete with number: ${winningNumber}`);
     
-    // Move to next animation stage
-    if (category === 'jackpot') {
+    // Move to next animation stage based on current stage
+    if (animationStage === 'jackpot') {
       setAnimationStage('second');
-    } else if (category === 'second') {
+    } else if (animationStage === 'second') {
       setAnimationStage('third');
-    } else if (category === 'third') {
+    } else if (animationStage === 'third') {
       setAnimationStage('consolation');
-    } else if (category === 'consolation') {
+    } else if (animationStage === 'consolation') {
       setAnimationStage('complete');
       
       // Finalize draw results
@@ -192,8 +211,23 @@ export default function DrawManagement() {
     return `${msisdn.substring(0, 5)}****${msisdn.substring(msisdn.length - 2)}`;
   };
 
+  // Format currency for display
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  // Get current prize structure based on selected day
+  const getCurrentPrizeStructure = () => {
+    return selectedDay === 'saturday' ? prizeStructure.saturday : prizeStructure.daily;
+  };
+
   return (
-    <div className="min-h-screen bg-mtn-light">
+    <div className="min-h-screen bg-bridgetunes-light">
       <head>
         <title>Draw Management | MyNumba Don Win | Bridgetunes</title>
         <meta name="description" content="Manage draws for MyNumba Don Win promotion by Bridgetunes" />
@@ -205,11 +239,11 @@ export default function DrawManagement() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8">Draw Management</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-bridgetunes-dark">Draw Management</h1>
         
         {/* Draw Configuration */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-2xl font-bold mb-4">Configure Draw</h2>
+        <div className="card p-6 mb-8">
+          <h2 className="text-2xl font-bold mb-4 text-bridgetunes-blue">Configure Draw</h2>
           
           {/* Day Selection */}
           <div className="mb-6">
@@ -237,7 +271,7 @@ export default function DrawManagement() {
               <label className="block text-sm font-medium text-gray-700">Select Ending Digits</label>
               <div className="space-x-2">
                 <button 
-                  className="text-sm bg-mtn-black text-white py-1 px-3 rounded hover:bg-gray-800 transition-colors"
+                  className="text-sm bg-bridgetunes-dark text-white py-1 px-3 rounded hover:bg-gray-800 transition-colors"
                   onClick={selectAllDigits}
                 >
                   Select All
@@ -267,21 +301,78 @@ export default function DrawManagement() {
             </div>
           </div>
           
-          {/* Summary */}
-          <div className="bg-gray-100 rounded-md p-4 mb-6">
-            <h3 className="font-bold mb-2">Draw Summary</h3>
-            <p>
-              <span className="font-medium">Day:</span> {selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)}
-            </p>
-            <p>
-              <span className="font-medium">Eligible Numbers:</span> Ending with {selectedDigits.join(', ')}
-            </p>
-            <p>
-              <span className="font-medium">Prize Categories:</span> {selectedDay === 'saturday' ? 'Weekly Mega Prizes' : 'Daily Prizes'}
-            </p>
-            <p className="mt-2 text-sm text-gray-600">
-              Managed by Bridgetunes in partnership with MTN Nigeria
-            </p>
+          {/* Prize Structure */}
+          <div className="mb-6">
+            <h3 className="text-lg font-bold mb-3 text-bridgetunes-blue">Prize Structure</h3>
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-bold text-bridgetunes-dark mb-2">
+                    {selectedDay === 'saturday' ? 'Saturday Mega Prizes' : 'Daily Prizes'}
+                  </h4>
+                  <ul className="space-y-2">
+                    <li className="flex justify-between">
+                      <span>Jackpot (1st Prize):</span>
+                      <span className="font-bold text-green-600">
+                        {formatCurrency(getCurrentPrizeStructure().jackpot)}
+                      </span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>2nd Prize:</span>
+                      <span className="font-bold text-green-600">
+                        {formatCurrency(getCurrentPrizeStructure().second)}
+                      </span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>3rd Prize:</span>
+                      <span className="font-bold text-green-600">
+                        {formatCurrency(getCurrentPrizeStructure().third)}
+                      </span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Consolation Prize #1:</span>
+                      <span className="font-bold text-green-600">
+                        {formatCurrency(getCurrentPrizeStructure().consolation1)}
+                      </span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Consolation Prize #2:</span>
+                      <span className="font-bold text-green-600">
+                        {formatCurrency(getCurrentPrizeStructure().consolation2)}
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-bridgetunes-dark mb-2">Draw Details</h4>
+                  <ul className="space-y-2">
+                    <li className="flex justify-between">
+                      <span>Day:</span>
+                      <span className="font-medium">{selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Eligible Numbers:</span>
+                      <span className="font-medium">Ending with {selectedDigits.join(', ')}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Total Prize Pool:</span>
+                      <span className="font-bold text-green-600">
+                        {formatCurrency(
+                          getCurrentPrizeStructure().jackpot +
+                          getCurrentPrizeStructure().second +
+                          getCurrentPrizeStructure().third +
+                          getCurrentPrizeStructure().consolation1 +
+                          getCurrentPrizeStructure().consolation2
+                        )}
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <p className="mt-4 text-sm text-gray-600 text-center">
+                Managed by Bridgetunes in partnership with MTN Nigeria
+              </p>
+            </div>
           </div>
           
           {/* Action Buttons */}
@@ -305,12 +396,12 @@ export default function DrawManagement() {
         
         {/* Draw Animation Section */}
         {isDrawInProgress && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-center">Draw in Progress</h2>
+          <div className="card p-6 mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-center text-bridgetunes-blue">Draw in Progress</h2>
             
             <div className="flex flex-col items-center justify-center">
               {/* Notary Verification Banner */}
-              <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full mb-6 flex items-center">
+              <div className="bg-blue-100 text-bridgetunes-blue px-4 py-2 rounded-full mb-6 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
@@ -323,18 +414,44 @@ export default function DrawManagement() {
                   Drawing from pool of <span className="font-bold">{eligibleParticipants.length}</span> eligible participants
                 </p>
                 <p className="text-sm text-gray-500">
-                  Numbers ending with: {selectedDigits.join(', ')}
+                  Numbers ending with: {selectedDigits.join(', ') }
                 </p>
               </div>
               
               {/* Draw Animations */}
               <div className="w-full max-w-3xl mx-auto">
-                {/* Animation components would be rendered here */}
-                <div className="text-center py-8">
-                  <div className="inline-block animate-spin-slow h-32 w-32 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-600 border-8 border-yellow-400 mb-4"></div>
-                  <h3 className="text-xl font-bold">Selecting Winners...</h3>
-                  <p className="text-gray-600">The draw is in progress</p>
-                </div>
+                {/* Render the appropriate animation based on current stage */}
+                {animationStage === 'jackpot' && (
+                  <DrawAnimation 
+                    prizeCategory="jackpot" 
+                    isVisible={true} 
+                    onComplete={handleAnimationComplete} 
+                  />
+                )}
+                
+                {animationStage === 'second' && (
+                  <DrawAnimation 
+                    prizeCategory="second" 
+                    isVisible={true} 
+                    onComplete={handleAnimationComplete} 
+                  />
+                )}
+                
+                {animationStage === 'third' && (
+                  <DrawAnimation 
+                    prizeCategory="third" 
+                    isVisible={true} 
+                    onComplete={handleAnimationComplete} 
+                  />
+                )}
+                
+                {animationStage === 'consolation' && (
+                  <DrawAnimation 
+                    prizeCategory="consolation" 
+                    isVisible={true} 
+                    onComplete={handleAnimationComplete} 
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -342,33 +459,33 @@ export default function DrawManagement() {
         
         {/* Eligible Participants */}
         {eligibleParticipants.length > 0 && !isDrawInProgress && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-4">Eligible Participants</h2>
+          <div className="card p-6 mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-bridgetunes-blue">Eligible Participants</h2>
             <div className="mb-4">
               <p className="text-lg">
                 <span className="font-bold">{eligibleParticipants.length}</span> participants eligible for this draw
               </p>
             </div>
             
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+            <div className="table-container">
+              <table className="table">
+                <thead className="table-header">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MSISDN</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Digit</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topup Amount</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
+                    <th>ID</th>
+                    <th>MSISDN</th>
+                    <th>Last Digit</th>
+                    <th>Topup Amount</th>
+                    <th>Points</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="table-body">
                   {eligibleParticipants.slice(0, 10).map((participant, index) => (
                     <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatMsisdn(participant.msisdn)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{participant.lastDigit}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₦{participant.topupAmount.toLocaleString()}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{participant.points}</td>
+                      <td className="font-medium text-gray-900">{index + 1}</td>
+                      <td>{formatMsisdn(participant.msisdn)}</td>
+                      <td>{participant.lastDigit}</td>
+                      <td>₦{participant.topupAmount.toLocaleString()}</td>
+                      <td>{participant.points}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -385,92 +502,107 @@ export default function DrawManagement() {
         
         {/* Draw Results */}
         {drawResults && animationStage === 'complete' && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8 animate-draw">
-            <h2 className="text-2xl font-bold mb-4">Draw Results</h2>
+          <div className="card p-6 mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-center text-bridgetunes-blue">Draw Results</h2>
             
-            <div className="mb-6">
-              <h3 className="text-xl font-bold mb-3 text-mtn-black">
-                {selectedDay === 'saturday' ? 'Weekly Mega Draw' : 'Daily Draw'} - {selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)}
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Main Winners */}
+              <div className="space-y-6">
                 {/* Jackpot Winner */}
-                <div className="bg-mtn-yellow rounded-lg p-4 shadow-md">
-                  <h4 className="text-lg font-bold mb-2">
-                    {selectedDay === 'saturday' ? 'Grand Prize - ₦1,000,000' : 'Jackpot - ₦100,000'}
-                  </h4>
-                  {drawResults.jackpot ? (
-                    <div>
-                      <p className="text-xl font-bold">{formatMsisdn(drawResults.jackpot.msisdn)}</p>
-                      <p className="text-sm">Topup: ₦{drawResults.jackpot.topupAmount.toLocaleString()}</p>
-                      <p className="text-sm">Points: {drawResults.jackpot.points}</p>
+                {drawResults.jackpot && (
+                  <div className="bg-gradient-to-r from-yellow-100 to-yellow-200 p-4 rounded-lg border-2 border-yellow-400">
+                    <h3 className="text-xl font-bold mb-2 text-center">
+                      {selectedDay === 'saturday' ? 'Grand Prize Winner' : 'Jackpot Winner'}
+                    </h3>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-bold">{formatMsisdn(drawResults.jackpot.msisdn)}</p>
+                        <p className="text-sm text-gray-600">Points: {drawResults.jackpot.points}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-xl">
+                          {formatCurrency(getCurrentPrizeStructure().jackpot)}
+                        </p>
+                      </div>
                     </div>
-                  ) : (
-                    <p>No eligible winner</p>
-                  )}
-                </div>
+                  </div>
+                )}
                 
-                {/* 2nd Prize Winner */}
-                <div className="bg-gray-100 rounded-lg p-4 shadow-md">
-                  <h4 className="text-lg font-bold mb-2">
-                    {selectedDay === 'saturday' ? '2nd Prize - ₦500,000' : '2nd Prize - ₦50,000'}
-                  </h4>
-                  {drawResults.second ? (
-                    <div>
-                      <p className="text-xl font-bold">{formatMsisdn(drawResults.second.msisdn)}</p>
-                      <p className="text-sm">Topup: ₦{drawResults.second.topupAmount.toLocaleString()}</p>
-                      <p className="text-sm">Points: {drawResults.second.points}</p>
+                {/* Second Prize Winner */}
+                {drawResults.second && (
+                  <div className="bg-gradient-to-r from-gray-100 to-gray-200 p-4 rounded-lg border-2 border-gray-400">
+                    <h3 className="text-xl font-bold mb-2 text-center">2nd Prize Winner</h3>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-bold">{formatMsisdn(drawResults.second.msisdn)}</p>
+                        <p className="text-sm text-gray-600">Points: {drawResults.second.points}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-xl">
+                          {formatCurrency(getCurrentPrizeStructure().second)}
+                        </p>
+                      </div>
                     </div>
-                  ) : (
-                    <p>No eligible winner</p>
-                  )}
-                </div>
+                  </div>
+                )}
                 
-                {/* 3rd Prize Winner */}
-                <div className="bg-gray-100 rounded-lg p-4 shadow-md">
-                  <h4 className="text-lg font-bold mb-2">
-                    {selectedDay === 'saturday' ? '3rd Prize - ₦250,000' : '3rd Prize - ₦25,000'}
-                  </h4>
-                  {drawResults.third ? (
-                    <div>
-                      <p className="text-xl font-bold">{formatMsisdn(drawResults.third.msisdn)}</p>
-                      <p className="text-sm">Topup: ₦{drawResults.third.topupAmount.toLocaleString()}</p>
-                      <p className="text-sm">Points: {drawResults.third.points}</p>
+                {/* Third Prize Winner */}
+                {drawResults.third && (
+                  <div className="bg-gradient-to-r from-amber-100 to-amber-200 p-4 rounded-lg border-2 border-amber-400">
+                    <h3 className="text-xl font-bold mb-2 text-center">3rd Prize Winner</h3>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-bold">{formatMsisdn(drawResults.third.msisdn)}</p>
+                        <p className="text-sm text-gray-600">Points: {drawResults.third.points}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-xl">
+                          {formatCurrency(getCurrentPrizeStructure().third)}
+                        </p>
+                      </div>
                     </div>
-                  ) : (
-                    <p>No eligible winner</p>
-                  )}
+                  </div>
+                )}
+              </div>
+              
+              {/* Consolation Winners */}
+              <div>
+                <h3 className="text-xl font-bold mb-4 text-bridgetunes-blue">Consolation Prize Winners</h3>
+                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MSISDN</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Prize</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {drawResults.consolation.map((winner, index) => (
+                        <tr key={index}>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm">{formatMsisdn(winner.msisdn)}</td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm">{winner.points}</td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-right font-medium">
+                            {formatCurrency(index < 1 ? getCurrentPrizeStructure().consolation1 : getCurrentPrizeStructure().consolation2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
             
-            {/* Consolation Prize Winners */}
-            <div>
-              <h3 className="text-xl font-bold mb-3">
-                Consolation Prizes ({selectedDay === 'saturday' ? '₦10,000 each' : '₦5,000 each'})
-              </h3>
-              
-              {drawResults.consolation.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                  {drawResults.consolation.map((winner, index) => (
-                    <div key={index} className="bg-gray-50 rounded p-3 shadow-sm">
-                      <p className="font-bold">{formatMsisdn(winner.msisdn)}</p>
-                      <p className="text-xs">Topup: ₦{winner.topupAmount.toLocaleString()}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p>No consolation prize winners</p>
-              )}
-            </div>
-            
-            {/* Actions */}
-            <div className="mt-6 flex justify-end">
-              <button className="btn-primary">Save Results</button>
-            </div>
-            
-            <div className="mt-4 text-center text-sm text-gray-600">
-              Draw conducted by Bridgetunes for the MyNumba Don Win promotion
+            <div className="mt-8 text-center">
+              <button 
+                className="btn-primary"
+                onClick={() => {
+                  setDrawResults(null);
+                  setAnimationStage('none');
+                }}
+              >
+                Start New Draw
+              </button>
             </div>
           </div>
         )}
@@ -481,3 +613,4 @@ export default function DrawManagement() {
     </div>
   );
 }
+
