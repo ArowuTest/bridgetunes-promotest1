@@ -209,22 +209,22 @@ const Footer = () => {
             <SectionTitle>Quick Links</SectionTitle>
             <LinkList>
               <LinkItem>
-                <Link href="/">
+                <Link href="/" passHref legacyBehavior>
                   <FooterLink>Home</FooterLink>
                 </Link>
               </LinkItem>
               <LinkItem>
-                <Link href="/opt-in">
+                <Link href="/opt-in" passHref legacyBehavior>
                   <FooterLink>Opt-In</FooterLink>
                 </Link>
               </LinkItem>
               <LinkItem>
-                <Link href="/draw-management">
+                <Link href="/draw-management" passHref legacyBehavior>
                   <FooterLink>Draw Management</FooterLink>
                 </Link>
               </LinkItem>
               <LinkItem>
-                <Link href="/admin">
+                <Link href="/admin" passHref legacyBehavior>
                   <FooterLink>Admin Dashboard</FooterLink>
                 </Link>
               </LinkItem>
