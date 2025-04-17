@@ -207,3 +207,4 @@ const DrawAnimation = ({ stage, winningNumber, prizeAmount }) => {
 
 export default DrawAnimation;
 
+
