@@ -68,15 +68,14 @@ const NavItem = styled.li`
 `;
 
 const NavLink = styled.a`
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
-  font-weight: ${props => props.theme.fontWeights.medium};
   color: ${props => props.theme.colors.white};
   text-decoration: none;
-  transition: color 0.2s ease;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
   
   &:hover {
-    color: ${props => props.theme.colors.mtnYellow};
+    background-color: rgba(255, 255, 255, 0.1);
   }
 `;
 
@@ -84,21 +83,25 @@ const MobileMenuButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  color: ${props => props.theme.colors.white};
   background: none;
   border: none;
+  color: ${props => props.theme.colors.white};
   cursor: pointer;
-  padding: 0;
+  padding: 0.5rem;
   border-radius: 4px;
+  transition: background-color 0.2s ease;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    display: none;
+  }
   
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
   
-  @media (min-width: ${props => props.theme.breakpoints.md}) {
-    display: none;
+  svg {
+    width: 24px;
+    height: 24px;
   }
 `;
 
@@ -108,67 +111,54 @@ const MobileMenu = styled.div`
   left: 0;
   right: 0;
   background-color: ${props => props.theme.colors.mtnBlack};
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 0.5rem 0;
   z-index: 40;
-  
-  @media (min-width: ${props => props.theme.breakpoints.md}) {
-    display: none;
-  }
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
 const MobileNavList = styled.ul`
-  display: flex;
-  flex-direction: column;
   list-style: none;
   padding: 0;
   margin: 0;
 `;
 
 const MobileNavItem = styled.li`
-  margin: 0;
+  margin: 0.5rem 0;
 `;
 
 const MobileNavLink = styled.a`
   display: block;
-  padding: 0.75rem 1.5rem;
-  font-weight: ${props => props.theme.fontWeights.medium};
   color: ${props => props.theme.colors.white};
   text-decoration: none;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
   transition: background-color 0.2s ease;
   
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
-    color: ${props => props.theme.colors.mtnYellow};
   }
 `;
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
-
+  
   return (
     <HeaderContainer>
       <Container>
         <FlexContainer>
           <LogoContainer>
             <Link href="/" passHref>
-              <a style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-                {/* Bridgetunes Logo */}
-                <BrandText>Bridge<BrandHighlight>tunes</BrandHighlight></BrandText>
-                {/* Divider */}
-                <Divider />
-                {/* MTN Logo */}
-                <BrandText><BrandHighlight>MTN</BrandHighlight></BrandText>
+              <a>
+                <BrandText>
+                  Bridge<BrandHighlight>tunes</BrandHighlight>
+                </BrandText>
               </a>
             </Link>
+            <Divider />
+            <BrandHighlight>MTN</BrandHighlight>
           </LogoContainer>
           
-          {/* Desktop Navigation */}
           <DesktopNav>
             <NavList>
               <NavItem>
@@ -194,9 +184,8 @@ const Header = () => {
             </NavList>
           </DesktopNav>
           
-          {/* Mobile Menu Button */}
-          <MobileMenuButton onClick={toggleMobileMenu} aria-label="Toggle menu">
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <MobileMenuButton onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </MobileMenuButton>
@@ -208,7 +197,7 @@ const Header = () => {
             <MobileNavList>
               <MobileNavItem>
                 <Link href="/" passHref>
-                  <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
+                  <MobileNavLink onClick={()  => setMobileMenuOpen(false)}>Home</MobileNavLink>
                 </Link>
               </MobileNavItem>
               <MobileNavItem>
