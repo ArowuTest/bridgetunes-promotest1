@@ -1,5 +1,6 @@
+// components/DrawAnimation.js
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 
 // Animations
 const spin = keyframes`
@@ -75,7 +76,10 @@ const SpinningCircle = styled.div`
   border-radius: 50%;
   border: 8px solid ${props => props.theme.colors.bridgetunesBlue};
   border-top-color: ${props => props.theme.colors.mtnYellow};
-  animation: ${spin} 3s linear ${props => props.animationIterations || 'infinite'};
+  
+  /* Only animate when stage is 'drawing' */
+  animation: ${props => props.isSpinning ? css`${spin} 3s linear ${props.animationIterations || 'infinite'}` : 'none'};
+  
   display: flex;
   justify-content: center;
   align-items: center;
@@ -106,7 +110,8 @@ const NumberColumn = styled.div`
 `;
 
 const NumberScroller = styled.div`
-  animation: ${numberChange} 0.5s ${props => props.animationIterations || 'infinite'};
+  /* Only animate when stage is 'drawing' */
+  animation: ${props => props.isSpinning ? css`${numberChange} 0.5s ${props.animationIterations || 'infinite'}` : 'none'};
   animation-timing-function: steps(1);
 `;
 
@@ -149,6 +154,12 @@ const PrizeAmount = styled.div`
   color: ${props => props.theme.colors.bridgetunesDark};
 `;
 
+const IdleMessage = styled.div`
+  font-size: ${props => props.theme.fontSizes.lg};
+  color: ${props => props.theme.colors.gray600};
+  text-align: center;
+`;
+
 const DrawAnimation = ({ stage, winningNumber, prizeAmount }) => {
   const [displayWinner, setDisplayWinner] = useState(false);
   const [animationIterations, setAnimationIterations] = useState('infinite');
@@ -164,16 +175,15 @@ const DrawAnimation = ({ stage, winningNumber, prizeAmount }) => {
       }, 3000);
       
       return () => clearTimeout(timer);
-    } else {
+    } else if (stage === 'idle') {
       setDisplayWinner(false);
-      setAnimationIterations('infinite');
     }
   }, [stage, winningNumber]);
   
   // Generate random digits for animation
   const renderNumberScroller = () => {
     return (
-      <NumberScroller animationIterations={animationIterations}>
+      <NumberScroller isSpinning={stage === 'drawing'} animationIterations={animationIterations}>
         {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => (
           <NumberDigit key={digit}>{digit}</NumberDigit>
         ))}
@@ -181,10 +191,21 @@ const DrawAnimation = ({ stage, winningNumber, prizeAmount }) => {
     );
   };
   
+  // Render idle state
+  if (stage === 'idle') {
+    return (
+      <AnimationContainer>
+        <IdleMessage>
+          Select a date and ending digits, then click "Execute Draw" to start
+        </IdleMessage>
+      </AnimationContainer>
+    );
+  }
+  
   return (
     <AnimationContainer>
       {!displayWinner ? (
-        <SpinningCircle animationIterations={animationIterations}>
+        <SpinningCircle isSpinning={stage === 'drawing'} animationIterations={animationIterations}>
           <InnerCircle>
             <NumberContainer>
               <NumberColumn>{renderNumberScroller()}</NumberColumn>
