@@ -345,89 +345,90 @@ const DrawManagement = () => {
   };
   
   // Execute draw function
-const executeDraw = () => {
-  if (!day) {
-    alert('Please select a complete date');
-    return;
-  }
-  
-  if (selectedDigits.length === 0) {
-    alert('Please select at least one ending digit');
-    return;
-  }
-  
-  setDrawStage('drawing');
-  
-  // Format the selected date
-  const formattedDate = formatDate(year, month, day);
-  console.log('Current MSISDN data:', msisdnData);
-  console.log('Filtering MSISDNs for date:', formattedDate);
-  console.log('Selected ending digits:', selectedDigits);
-  console.log('Total MSISDNs available:', msisdnData.length);
-  
-  // Filter MSISDNs based on selected date and digits
-  const eligibleMsisdns = msisdnData.filter(item => {
-    // Match date
-    const dateMatch = item.date === formattedDate;
-    
-    // Match last digit if specific digits are selected
-    const lastDigit = item.msisdn.slice(-1);
-    const digitMatch = selectedDigits.includes(lastDigit);
-    
-    return dateMatch && digitMatch;
-  });
-  
-  console.log('Eligible MSISDNs found:', eligibleMsisdns.length);
-  console.log('Eligible MSISDNs:', eligibleMsisdns);
-  
-  // Simulate API call to get winners
-  setTimeout(() => {
-    if (eligibleMsisdns.length > 0) {
-      // Select a random winner from eligible MSISDNs
-      const winnerIndex = Math.floor(Math.random() * eligibleMsisdns.length);
-      const mainWinner = eligibleMsisdns[winnerIndex];
-      
-      // Set the winning number and prize
-      setWinningNumber(mainWinner.msisdn);
-      setPrizeAmount(mainWinner.topupAmount * 10); // Prize is 10x the topup amount
-      
-      // Generate winners list (including the main winner and some random ones)
-      const winnersList = [
-        { 
-          msisdn: mainWinner.msisdn, 
-          prize: mainWinner.topupAmount * 10, 
-          date: formattedDate,
-          optInStatus: mainWinner.optInStatus, // Include opt-in status
-          validWinner: mainWinner.optInStatus // Mark as valid only if opted in
-        }
-      ];
-      
-      // Add some additional winners with smaller prizes
-      const additionalWinners = eligibleMsisdns
-        .filter((_, index) => index !== winnerIndex) // Exclude main winner
-        .slice(0, 4); // Take up to 4 additional winners
-      
-      additionalWinners.forEach(winner => {
-        winnersList.push({
-          msisdn: winner.msisdn,
-          prize: winner.topupAmount * 2, // Smaller prize for additional winners
-          date: formattedDate,
-          optInStatus: winner.optInStatus, // Include opt-in status
-          validWinner: winner.optInStatus // Mark as valid only if opted in
-        });
-      });
-      
-      setWinners(winnersList);
-    } else {
-      // No eligible MSISDNs found
-      alert('No eligible numbers found for the selected criteria');
-      setDrawStage('idle');
+  const executeDraw = () => {
+    if (!day) {
+      alert('Please select a complete date');
       return;
     }
     
-    setDrawStage('complete');
-  }, 5000); // 5 seconds delay to simulate processing
-};
+    if (selectedDigits.length === 0) {
+      alert('Please select at least one ending digit');
+      return;
+    }
+    
+    setDrawStage('drawing');
+    
+    // Format the selected date
+    const formattedDate = formatDate(year, month, day);
+    console.log('Current MSISDN data:', msisdnData);
+    console.log('Filtering MSISDNs for date:', formattedDate);
+    console.log('Selected ending digits:', selectedDigits);
+    console.log('Total MSISDNs available:', msisdnData.length);
+    
+    // Filter MSISDNs based on selected date and digits
+    const eligibleMsisdns = msisdnData.filter(item => {
+      // Match date
+      const dateMatch = item.date === formattedDate;
+      
+      // Match last digit if specific digits are selected
+      const lastDigit = item.msisdn.slice(-1);
+      const digitMatch = selectedDigits.includes(lastDigit);
+      
+      return dateMatch && digitMatch;
+    });
+    
+    console.log('Eligible MSISDNs found:', eligibleMsisdns.length);
+    console.log('Eligible MSISDNs:', eligibleMsisdns);
+    
+    // Simulate API call to get winners
+    setTimeout(() => {
+      if (eligibleMsisdns.length > 0) {
+        // Select a random winner from eligible MSISDNs
+        const winnerIndex = Math.floor(Math.random() * eligibleMsisdns.length);
+        const mainWinner = eligibleMsisdns[winnerIndex];
+        
+        // Set the winning number and prize
+        setWinningNumber(mainWinner.msisdn);
+        setPrizeAmount(mainWinner.topupAmount * 10); // Prize is 10x the topup amount
+        
+        // Generate winners list (including the main winner and some random ones)
+        const winnersList = [
+          { 
+            msisdn: mainWinner.msisdn, 
+            prize: mainWinner.topupAmount * 10, 
+            date: formattedDate,
+            optInStatus: mainWinner.optInStatus, // Include opt-in status
+            validWinner: mainWinner.optInStatus // Mark as valid only if opted in
+          }
+        ];
+        
+        // Add some additional winners with smaller prizes
+        const additionalWinners = eligibleMsisdns
+          .filter((_, index) => index !== winnerIndex) // Exclude main winner
+          .slice(0, 4); // Take up to 4 additional winners
+        
+        additionalWinners.forEach(winner => {
+          winnersList.push({
+            msisdn: winner.msisdn,
+            prize: winner.topupAmount * 2, // Smaller prize for additional winners
+            date: formattedDate,
+            optInStatus: winner.optInStatus, // Include opt-in status
+            validWinner: winner.optInStatus // Mark as valid only if opted in
+          });
+        });
+        
+        setWinners(winnersList);
+      } else {
+        // No eligible MSISDNs found
+        alert('No eligible numbers found for the selected criteria');
+        setDrawStage('idle');
+        return;
+      }
+      
+      setDrawStage('complete');
+    }, 5000); // 5 seconds delay to simulate processing
+  };
+
   return (
     <>
       <Header />
@@ -524,56 +525,90 @@ const executeDraw = () => {
                 </CheckboxGroup>
               </FormGroup>
             </div>
-            
-            <ButtonContainer>
-              <StyledButton 
-                onClick={executeDraw}
-                disabled={drawStage === 'drawing' || !day || selectedDigits.length === 0}
-              >
-                {drawStage === 'drawing' ? 'Drawing...' : 'Execute Draw'}
-              </StyledButton>
-            </ButtonContainer>
           </DrawControls>
           
-          <DrawAnimation 
-            stage={drawStage} 
-            winningNumber={winningNumber} 
-            prizeAmount={prizeAmount} 
-          />
-          
-          {drawStage === 'complete' && winners.length > 0 && (
-            <ResultsSection>
-              <h2>Draw Results</h2>
-              <WinnersList>
-                <h3>Winners</h3>
-<WinnersTable>
-  <thead>
-    <tr>
-      <th>Phone Number</th>
-      <th>Prize Amount</th>
-      <th>Draw Date</th>
-      <th>Opt-In Status</th>
-      <th>Valid Winner</th>
-    </tr>
-  </thead>
-  <tbody>
-    {winners.map((winner, index) => (
-      <tr key={index}>
-        <td>{winner.msisdn}</td>
-        <td>₦{winner.prize.toLocaleString()}</td>
-        <td>{winner.date}</td>
-        <td>{winner.optInStatus ? 'Yes' : 'No'}</td>
-        <td>{winner.validWinner ? 'Valid' : 'Invalid - Jackpot Rolls Over'}</td>
-      </tr>
-    ))}
-  </tbody>
-</WinnersTable>
-              </WinnersList>
-            </ResultsSection>
-          )}
+          <ButtonContainer>
+            <StyledButton 
+              onClick={executeDraw}
+              disabled={!day || selectedDigits.length === 0 || drawStage === 'drawing'}
+            >
+              {drawStage === 'drawing' ? 'Drawing...' : 'Execute Draw'}
+            </StyledButton>
+          </ButtonContainer>
         </DrawSection>
+        
+        {drawStage === 'drawing' && (
+          <DrawSection>
+            <PageHeader>
+              <h2>Draw in Progress</h2>
+              <p>Please wait while we select winners...</p>
+            </PageHeader>
+            
+            {/* You can add a loading animation here */}
+            <div style={{ textAlign: 'center', padding: '2rem' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🎲</div>
+              <p>Selecting from {msisdnData.length} eligible numbers</p>
+            </div>
+          </DrawSection>
+        )}
+        
+        {drawStage === 'complete' && (
+          <ResultsSection>
+            <DrawSection>
+              <PageHeader>
+                <h2>Draw Results</h2>
+                <p>The following winners have been selected:</p>
+              </PageHeader>
+              
+              <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                <h3>Jackpot Winner</h3>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
+                  {winningNumber}
+                </div>
+                <div style={{ fontSize: '1.25rem', color: 'green', marginTop: '0.5rem' }}>
+                  Prize: ₦{prizeAmount.toLocaleString()}
+                </div>
+              </div>
+              
+              <WinnersList>
+                <h3>All Winners</h3>
+                <WinnersTable>
+                  <thead>
+                    <tr>
+                      <th>Phone Number</th>
+                      <th>Prize Amount</th>
+                      <th>Draw Date</th>
+                      <th>Opt-In Status</th>
+                      <th>Valid Winner</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {winners.map((winner, index) => (
+                      <tr key={index}>
+                        <td>{winner.msisdn}</td>
+                        <td>₦{winner.prize.toLocaleString()}</td>
+                        <td>{winner.date}</td>
+                        <td>{winner.optInStatus ? 'Yes' : 'No'}</td>
+                        <td>{winner.validWinner ? 'Valid' : 'Invalid - Jackpot Rolls Over'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </WinnersTable>
+              </WinnersList>
+              
+              <ButtonContainer>
+                <StyledButton onClick={() => setDrawStage('idle')}>
+                  Start New Draw
+                </StyledButton>
+              </ButtonContainer>
+            </DrawSection>
+          </ResultsSection>
+        )}
       </PageContainer>
       <Footer />
     </>
   );
 };
+
+export default DrawManagement;
+
