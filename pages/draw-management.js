@@ -1,8 +1,6 @@
 // pages/draw-management.js
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import DrawAnimation from '../components/DrawAnimation';
@@ -77,50 +75,23 @@ const Label = styled.label`
   margin-bottom: 0.5rem;
 `;
 
-// Style the DatePicker component
-const StyledDatePickerContainer = styled.div`
-  .react-datepicker-wrapper {
-    width: 100%;
-  }
+const Select = styled.select`
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid ${props => props.theme.colors.gray300};
+  border-radius: ${props => props.theme.radii.md};
+  font-size: ${props => props.theme.fontSizes.md};
   
-  .react-datepicker__input-container input {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid ${props => props.theme.colors.gray300};
-    border-radius: ${props => props.theme.radii.md};
-    font-size: ${props => props.theme.fontSizes.md};
-    
-    &:focus {
-      outline: none;
-      border-color: ${props => props.theme.colors.bridgetunesBlue};
-      box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
-    }
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.bridgetunesBlue};
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
   }
-  
-  .react-datepicker {
-    font-family: inherit;
-    border-radius: ${props => props.theme.radii.md};
-    border: 1px solid ${props => props.theme.colors.gray300};
-  }
-  
-  .react-datepicker__header {
-    background-color: ${props => props.theme.colors.bridgetunesBlue};
-    border-bottom: none;
-    color: white;
-  }
-  
-  .react-datepicker__current-month, 
-  .react-datepicker__day-name {
-    color: white;
-  }
-  
-  .react-datepicker__day--selected {
-    background-color: ${props => props.theme.colors.bridgetunesBlue};
-  }
-  
-  .react-datepicker__day:hover {
-    background-color: ${props => props.theme.colors.gray200};
-  }
+`;
+
+const DateSelectionContainer = styled.div`
+  display: flex;
+  gap: 0.5rem;
 `;
 
 const CheckboxGroup = styled.div`
@@ -209,31 +180,46 @@ const WinnersTable = styled.table`
   }
 `;
 
-// Helper function to format date as YYYY-MM-DD
-const formatDate = (date) => {
-  if (!date) return '';
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
-// Helper function to get day of week
-const getDayOfWeek = (date) => {
-  if (!date) return '';
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  return days[date.getDay()];
-};
-
 // Main component
 const DrawManagement = () => {
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [day, setDay] = useState('');
   const [selectedDigits, setSelectedDigits] = useState([]);
   const [drawStage, setDrawStage] = useState('idle'); // idle, drawing, complete
   const [winningNumber, setWinningNumber] = useState('');
   const [prizeAmount, setPrizeAmount] = useState(0);
   const [winners, setWinners] = useState([]);
   const [msisdnData, setMsisdnData] = useState([]);
+  
+  // Generate years for dropdown (current year and 2 years before/after)
+  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i);
+  
+  // Generate months for dropdown
+  const months = [
+    { value: 1, label: 'January' },
+    { value: 2, label: 'February' },
+    { value: 3, label: 'March' },
+    { value: 4, label: 'April' },
+    { value: 5, label: 'May' },
+    { value: 6, label: 'June' },
+    { value: 7, label: 'July' },
+    { value: 8, label: 'August' },
+    { value: 9, label: 'September' },
+    { value: 10, label: 'October' },
+    { value: 11, label: 'November' },
+    { value: 12, label: 'December' }
+  ];
+  
+  // Generate days for dropdown based on selected month and year
+  const getDaysInMonth = (year, month) => {
+    return new Date(year, month, 0).getDate();
+  };
+  
+  const days = Array.from(
+    { length: getDaysInMonth(year, month) }, 
+    (_, i) => i + 1
+  );
   
   // Day to digit mapping (recommended digits for each day)
   const dayDigitMapping = {
@@ -244,6 +230,18 @@ const DrawManagement = () => {
     'Friday': ['8', '9'],
     'Saturday': ['0', '2', '4', '6', '8'],
     'Sunday': ['1', '3', '5', '7', '9']
+  };
+  
+  // Get day of week from date
+  const getDayOfWeek = (year, month, day) => {
+    const date = new Date(year, month - 1, day);
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return days[date.getDay()];
+  };
+  
+  // Format date as YYYY-MM-DD
+  const formatDate = (year, month, day) => {
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   };
   
   // Fetch MSISDN data on component mount
@@ -277,7 +275,7 @@ const DrawManagement = () => {
   // Reset selected digits when date changes
   useEffect(() => {
     setSelectedDigits([]);
-  }, [selectedDate]);
+  }, [year, month, day]);
   
   // Handle digit selection
   const handleDigitChange = (digit) => {
@@ -301,9 +299,9 @@ const DrawManagement = () => {
   
   // Get recommended digits for the selected day
   const getRecommendedDigits = () => {
-    if (!selectedDate) return [];
-    const day = getDayOfWeek(selectedDate);
-    return dayDigitMapping[day] || [];
+    if (!day) return [];
+    const dayOfWeek = getDayOfWeek(year, month, day);
+    return dayDigitMapping[dayOfWeek] || [];
   };
   
   // Check if a digit is recommended for the selected day
@@ -313,8 +311,8 @@ const DrawManagement = () => {
   
   // Execute draw function
   const executeDraw = () => {
-    if (!selectedDate) {
-      alert('Please select a draw date');
+    if (!day) {
+      alert('Please select a complete date');
       return;
     }
     
@@ -326,7 +324,7 @@ const DrawManagement = () => {
     setDrawStage('drawing');
     
     // Format the selected date
-    const formattedDate = formatDate(selectedDate);
+    const formattedDate = formatDate(year, month, day);
     
     // Filter MSISDNs based on selected date and digits
     const eligibleMsisdns = msisdnData.filter(item => {
@@ -404,22 +402,42 @@ const DrawManagement = () => {
           <DrawControls>
             <div>
               <FormGroup>
-                <Label htmlFor="drawDate">Draw Date</Label>
-                <StyledDatePickerContainer>
-                  <DatePicker
-                    selected={selectedDate}
-                    onChange={date => setSelectedDate(date)}
-                    dateFormat="yyyy-MM-dd (EEEE)"
-                    placeholderText="Select a date"
-                    isClearable
-                    showMonthDropdown
-                    showYearDropdown
-                    dropdownMode="select"
-                  />
-                </StyledDatePickerContainer>
-                {selectedDate && (
+                <Label>Draw Date</Label>
+                <DateSelectionContainer>
+                  <Select 
+                    value={month} 
+                    onChange={(e) => setMonth(parseInt(e.target.value))}
+                  >
+                    {months.map(m => (
+                      <option key={m.value} value={m.value}>{m.label}</option>
+                    ))}
+                  </Select>
+                  
+                  <Select 
+                    value={day} 
+                    onChange={(e) => setDay(e.target.value)}
+                  >
+                    <option value="">Day</option>
+                    {days.map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </Select>
+                  
+                  <Select 
+                    value={year} 
+                    onChange={(e) => setYear(parseInt(e.target.value))}
+                  >
+                    {years.map(y => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </Select>
+                </DateSelectionContainer>
+                
+                {day && (
                   <div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#666' }}>
-                    Recommended digits for {getDayOfWeek(selectedDate)}: {getRecommendedDigits().join(', ')}
+                    Selected: {formatDate(year, month, day)} ({getDayOfWeek(year, month, day)})
+                    <br />
+                    Recommended digits: {getRecommendedDigits().join(', ')}
                   </div>
                 )}
               </FormGroup>
@@ -434,7 +452,7 @@ const DrawManagement = () => {
                       type="checkbox"
                       checked={selectedDigits.length === 10}
                       onChange={handleSelectAllDigits}
-                      disabled={!selectedDate}
+                      disabled={!day}
                     />
                     All
                   </CheckboxLabel>
@@ -450,7 +468,7 @@ const DrawManagement = () => {
                           value={digitStr}
                           checked={selectedDigits.includes(digitStr)}
                           onChange={() => handleDigitChange(digitStr)}
-                          disabled={!selectedDate}
+                          disabled={!day}
                         />
                         {digit}
                       </CheckboxLabel>
@@ -463,7 +481,7 @@ const DrawManagement = () => {
             <ButtonContainer>
               <StyledButton 
                 onClick={executeDraw}
-                disabled={drawStage === 'drawing' || !selectedDate || selectedDigits.length === 0}
+                disabled={drawStage === 'drawing' || !day || selectedDigits.length === 0}
               >
                 {drawStage === 'drawing' ? 'Drawing...' : 'Execute Draw'}
               </StyledButton>
@@ -510,3 +528,4 @@ const DrawManagement = () => {
 };
 
 export default DrawManagement;
+
