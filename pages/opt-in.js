@@ -1,8 +1,161 @@
 import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import Head from 'next/head';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import OptInForm from '../components/OptInForm';
 import OptInService from '../services/OptInService';
+
+// Styled Components
+const PageContainer = styled.div`
+  min-height: 100vh;
+  background-color: ${props => props.theme.colors.mtnLight};
+`;
+
+const MainContent = styled.main`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+`;
+
+const PageTitle = styled.h1`
+  font-size: 2.5rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+  text-align: center;
+  margin-bottom: 2rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    font-size: 3rem;
+  }
+`;
+
+const ContentGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.lg}) {
+    grid-template-columns: 1fr 1fr;
+  }
+`;
+
+const BenefitsCard = styled.div`
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+`;
+
+const BenefitsTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+  margin-bottom: 1.5rem;
+`;
+
+const BenefitsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+const BenefitItem = styled.div`
+  display: flex;
+  align-items: flex-start;
+`;
+
+const BenefitNumber = styled.div`
+  width: 2rem;
+  height: 2rem;
+  background-color: ${props => props.theme.colors.mtnYellow};
+  color: ${props => props.theme.colors.mtnBlack};
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  margin-right: 1rem;
+  flex-shrink: 0;
+`;
+
+const BenefitContent = styled.div``;
+
+const BenefitTitle = styled.h3`
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+  margin-bottom: 0.25rem;
+`;
+
+const BenefitDescription = styled.p`
+  color: ${props => props.theme.colors.gray600};
+  line-height: 1.5;
+`;
+
+const PromoText = styled.div`
+  font-style: italic;
+  color: ${props => props.theme.colors.gray600};
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+`;
+
+const ParticipantsCard = styled.div`
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+`;
+
+const ParticipantsTitle = styled.h2`
+  font-size: 1.25rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+  margin-bottom: 1rem;
+`;
+
+const ParticipantsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const ParticipantItem = styled.div`
+  display: flex;
+  align-items: center;
+  background-color: ${props => props.theme.colors.gray50};
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+`;
+
+const ParticipantIcon = styled.div`
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: ${props => props.theme.colors.mtnYellow};
+  color: ${props => props.theme.colors.mtnBlack};
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+`;
+
+const ParticipantInfo = styled.div``;
+
+const ParticipantNumber = styled.p`
+  font-weight: ${props => props.theme.fontWeights.medium};
+`;
+
+const ParticipantDate = styled.p`
+  font-size: 0.75rem;
+  color: ${props => props.theme.colors.gray500};
+`;
+
+const FormContainer = styled.div`
+  height: 100%;
+`;
 
 export default function OptInPage() {
   const [recentOptIns, setRecentOptIns] = useState([]);
@@ -31,95 +184,86 @@ export default function OptInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-mtn-light">
-      <head>
+    <PageContainer>
+      <Head>
         <title>Opt-In | MyNumba Don Win | Bridgetunes</title>
         <meta name="description" content="Join the MyNumba Don Win promotion by Bridgetunes" />
         <link rel="icon" href="/favicon.ico" />
-      </head>
+      </Head>
 
       {/* Header */}
       <Header />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">Join MyNumba Don Win</h1>
+      <MainContent>
+        <PageTitle>Join MyNumba Don Win</PageTitle>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <ContentGrid>
           <div>
-            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-              <h2 className="text-2xl font-bold mb-4">Why Join?</h2>
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <div className="flex-shrink-0 h-6 w-6 bg-mtn-yellow rounded-full flex items-center justify-center mr-3 mt-0.5">
-                    <span className="text-black font-bold">1</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold">Daily Cash Prizes</h3>
-                    <p className="text-gray-600">Win up to ₦100,000 in daily draws Monday through Friday</p>
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <div className="flex-shrink-0 h-6 w-6 bg-mtn-yellow rounded-full flex items-center justify-center mr-3 mt-0.5">
-                    <span className="text-black font-bold">2</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold">Weekly Mega Prizes</h3>
-                    <p className="text-gray-600">Participate in Saturday mega draws with a grand prize of ₦1,000,000</p>
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <div className="flex-shrink-0 h-6 w-6 bg-mtn-yellow rounded-full flex items-center justify-center mr-3 mt-0.5">
-                    <span className="text-black font-bold">3</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold">Simple Participation</h3>
-                    <p className="text-gray-600">Just opt-in once and recharge your MTN line daily to qualify</p>
-                  </div>
-                </li>
-                <li className="flex items-start">
-                  <div className="flex-shrink-0 h-6 w-6 bg-mtn-yellow rounded-full flex items-center justify-center mr-3 mt-0.5">
-                    <span className="text-black font-bold">4</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold">More Recharges, More Chances</h3>
-                    <p className="text-gray-600">Higher recharge amounts give you more points and better chances to win</p>
-                  </div>
-                </li>
-              </ul>
-              <div className="mt-4 text-sm text-gray-600 italic">
+            <BenefitsCard>
+              <BenefitsTitle>Why Join?</BenefitsTitle>
+              <BenefitsList>
+                <BenefitItem>
+                  <BenefitNumber>1</BenefitNumber>
+                  <BenefitContent>
+                    <BenefitTitle>Daily Cash Prizes</BenefitTitle>
+                    <BenefitDescription>Win up to ₦100,000 in daily draws Monday through Friday</BenefitDescription>
+                  </BenefitContent>
+                </BenefitItem>
+                <BenefitItem>
+                  <BenefitNumber>2</BenefitNumber>
+                  <BenefitContent>
+                    <BenefitTitle>Weekly Mega Prizes</BenefitTitle>
+                    <BenefitDescription>Participate in Saturday mega draws with a grand prize of ₦1,000,000</BenefitDescription>
+                  </BenefitContent>
+                </BenefitItem>
+                <BenefitItem>
+                  <BenefitNumber>3</BenefitNumber>
+                  <BenefitContent>
+                    <BenefitTitle>Simple Participation</BenefitTitle>
+                    <BenefitDescription>Just opt-in once and recharge your MTN line daily to qualify</BenefitDescription>
+                  </BenefitContent>
+                </BenefitItem>
+                <BenefitItem>
+                  <BenefitNumber>4</BenefitNumber>
+                  <BenefitContent>
+                    <BenefitTitle>More Recharges, More Chances</BenefitTitle>
+                    <BenefitDescription>Higher recharge amounts give you more points and better chances to win</BenefitDescription>
+                  </BenefitContent>
+                </BenefitItem>
+              </BenefitsList>
+              <PromoText>
                 A Bridgetunes promotion in partnership with MTN Nigeria
-              </div>
-            </div>
+              </PromoText>
+            </BenefitsCard>
             
             {recentOptIns.length > 0 && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold mb-4">Recent Participants</h2>
-                <div className="space-y-3">
+              <ParticipantsCard>
+                <ParticipantsTitle>Recent Participants</ParticipantsTitle>
+                <ParticipantsList>
                   {recentOptIns.map((optIn, index) => (
-                    <div key={index} className="flex items-center bg-gray-50 p-3 rounded-lg">
-                      <div className="h-10 w-10 bg-mtn-yellow rounded-full flex items-center justify-center mr-3">
-                        <span className="text-black font-bold">{optIn.msisdn.slice(-1)}</span>
-                      </div>
-                      <div>
-                        <p className="font-medium">{formatMsisdn(optIn.msisdn)}</p>
-                        <p className="text-xs text-gray-500">Joined on {optIn.date}</p>
-                      </div>
-                    </div>
+                    <ParticipantItem key={index}>
+                      <ParticipantIcon>{optIn.msisdn.slice(-1)}</ParticipantIcon>
+                      <ParticipantInfo>
+                        <ParticipantNumber>{formatMsisdn(optIn.msisdn)}</ParticipantNumber>
+                        <ParticipantDate>Joined on {optIn.date}</ParticipantDate>
+                      </ParticipantInfo>
+                    </ParticipantItem>
                   ))}
-                </div>
-              </div>
+                </ParticipantsList>
+              </ParticipantsCard>
             )}
           </div>
           
-          <div>
+          <FormContainer>
             <OptInForm onOptInSuccess={handleOptInSuccess} />
-          </div>
-        </div>
-      </main>
+          </FormContainer>
+        </ContentGrid>
+      </MainContent>
 
       {/* Footer */}
       <Footer />
-    </div>
+    </PageContainer>
   );
 }
+
