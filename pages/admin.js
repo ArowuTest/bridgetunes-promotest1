@@ -1,11 +1,245 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import styled from 'styled-components';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Doughnut, Bar } from 'react-chartjs-2';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
+
+// Styled Components
+const PageContainer = styled.div`
+  min-height: 100vh;
+  background-color: ${props => props.theme.colors.mtnLight};
+`;
+
+const MainContent = styled.main`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+`;
+
+const PageHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+`;
+
+const PageTitle = styled.h1`
+  font-size: 2rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+  margin: 0;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    font-size: 2.5rem;
+  }
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 0.75rem;
+`;
+
+const TabsContainer = styled.div`
+  margin-bottom: 2rem;
+  border-bottom: 1px solid ${props => props.theme.colors.gray200};
+`;
+
+const TabNav = styled.nav`
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const TabButton = styled.button`
+  padding: 1rem 1.25rem;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  font-weight: ${props => props.theme.fontWeights.medium};
+  color: ${props => props.active ? props.theme.colors.bridgetunesDark : props.theme.colors.gray500};
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid ${props => props.active ? props.theme.colors.mtnYellow : 'transparent'};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    color: ${props => props.active ? props.theme.colors.bridgetunesDark : props.theme.colors.gray700};
+    border-bottom-color: ${props => props.active ? props.theme.colors.mtnYellow : props.theme.colors.gray300};
+  }
+`;
+
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.sm}) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (min-width: ${props => props.theme.breakpoints.lg}) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+`;
+
+const StatCard = styled.div`
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+`;
+
+const StatLabel = styled.h3`
+  font-size: 0.875rem;
+  font-weight: ${props => props.theme.fontWeights.medium};
+  color: ${props => props.theme.colors.gray500};
+  margin-bottom: 0.25rem;
+`;
+
+const StatValue = styled.p`
+  font-size: 1.875rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  margin: 0;
+`;
+
+const StatTrend = styled.p`
+  font-size: 0.875rem;
+  color: ${props => props.positive ? 'green' : props.theme.colors.gray600};
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+`;
+
+const ChartsGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.lg}) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`;
+
+const ChartCard = styled.div`
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+`;
+
+const ChartTitle = styled.h3`
+  font-size: 1.125rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  margin-bottom: 1rem;
+`;
+
+const ChartContainer = styled.div`
+  height: 240px;
+  position: relative;
+`;
+
+const TablesGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.lg}) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`;
+
+const TableCard = styled.div`
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+`;
+
+const TableTitle = styled.h3`
+  font-size: 1.125rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  margin-bottom: 1rem;
+`;
+
+const TableWrapper = styled.div`
+  overflow-x: auto;
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+
+const TableHead = styled.thead`
+  background-color: ${props => props.theme.colors.gray50};
+`;
+
+const TableHeadCell = styled.th`
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: ${props => props.theme.fontWeights.medium};
+  color: ${props => props.theme.colors.gray500};
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid ${props => props.theme.colors.gray200};
+`;
+
+const TableBody = styled.tbody`
+  background-color: white;
+`;
+
+const TableRow = styled.tr`
+  &:hover {
+    background-color: ${props => props.theme.colors.gray50};
+  }
+`;
+
+const TableCell = styled.td`
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: ${props => props.theme.colors.gray700};
+  border-bottom: 1px solid ${props => props.theme.colors.gray200};
+  white-space: nowrap;
+`;
+
+const LoadingSpinner = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 16rem;
+`;
+
+const SpinnerAnimation = styled.div`
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  border: 0.25rem solid ${props => props.theme.colors.gray200};
+  border-top-color: ${props => props.theme.colors.mtnYellow};
+  animation: spin 1s linear infinite;
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -131,17 +365,63 @@ export default function AdminDashboard() {
     ],
   };
 
-  const userGrowthOptions = {
+  // Chart options with size constraints
+  const doughnutOptions = {
     responsive: true,
+    maintainAspectRatio: true,
     plugins: {
       legend: {
         position: 'top',
+        labels: {
+          boxWidth: 12,
+          padding: 10,
+          font: {
+            size: 11
+          }
+        }
       },
       title: {
-        display: true,
-        text: 'User Growth Trend',
+        display: false
+      }
+    },
+    cutout: '65%'
+  };
+
+  const userGrowthOptions = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          boxWidth: 12,
+          padding: 10,
+          font: {
+            size: 11
+          }
+        }
+      },
+      title: {
+        display: false
       },
     },
+    scales: {
+      y: {
+        beginAtZero: false,
+        ticks: {
+          font: {
+            size: 10
+          }
+        }
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 10
+          }
+        }
+      }
+    }
   };
 
   // Format currency
@@ -150,7 +430,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-mtn-light">
+    <PageContainer>
       <Head>
         <title>Admin Dashboard | MyNumba Don Win</title>
         <meta name="description" content="Admin dashboard for MyNumba Don Win promotion" />
@@ -158,669 +438,216 @@ export default function AdminDashboard() {
       </Head>
 
       {/* Header */}
-      <header className="bg-mtn-black text-white py-4">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center">
-            <Link href="/">
-              <a className="text-2xl font-bold text-mtn-yellow">MyNumba Don Win</a>
-            </Link>
-            <nav className="hidden md:block">
-              <ul className="flex space-x-6">
-                <li><Link href="/"><a className="hover:text-mtn-yellow transition-colors">Home</a></Link></li>
-                <li><Link href="/draw-management"><a className="hover:text-mtn-yellow transition-colors">Draw Management</a></Link></li>
-                <li><Link href="/admin"><a className="text-mtn-yellow">Admin Dashboard</a></Link></li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold">Admin Dashboard</h1>
-          <div className="flex space-x-2">
+      <MainContent>
+        <PageHeader>
+          <PageTitle>Admin Dashboard</PageTitle>
+          <ButtonGroup>
             <button className="btn-secondary">Export Data</button>
             <button className="btn-primary">Refresh</button>
-          </div>
-        </div>
+          </ButtonGroup>
+        </PageHeader>
 
         {/* Dashboard Tabs */}
-        <div className="mb-8">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'overview'
-                    ? 'border-mtn-yellow text-mtn-black'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-                onClick={() => setActiveTab('overview')}
-              >
-                Overview
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'users'
-                    ? 'border-mtn-yellow text-mtn-black'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-                onClick={() => setActiveTab('users')}
-              >
-                Users
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'topups'
-                    ? 'border-mtn-yellow text-mtn-black'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-                onClick={() => setActiveTab('topups')}
-              >
-                Topups
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'draws'
-                    ? 'border-mtn-yellow text-mtn-black'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-                onClick={() => setActiveTab('draws')}
-              >
-                Draws
-              </button>
-              <button
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'winners'
-                    ? 'border-mtn-yellow text-mtn-black'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-                onClick={() => setActiveTab('winners')}
-              >
-                Winners
-              </button>
-            </nav>
-          </div>
-        </div>
+        <TabsContainer>
+          <TabNav>
+            <TabButton 
+              active={activeTab === 'overview'} 
+              onClick={() => setActiveTab('overview')}
+            >
+              Overview
+            </TabButton>
+            <TabButton 
+              active={activeTab === 'users'} 
+              onClick={() => setActiveTab('users')}
+            >
+              Users
+            </TabButton>
+            <TabButton 
+              active={activeTab === 'topups'} 
+              onClick={() => setActiveTab('topups')}
+            >
+              Topups
+            </TabButton>
+            <TabButton 
+              active={activeTab === 'draws'} 
+              onClick={() => setActiveTab('draws')}
+            >
+              Draws
+            </TabButton>
+            <TabButton 
+              active={activeTab === 'winners'} 
+              onClick={() => setActiveTab('winners')}
+            >
+              Winners
+            </TabButton>
+          </TabNav>
+        </TabsContainer>
 
         {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-mtn-yellow"></div>
-          </div>
+          <LoadingSpinner>
+            <SpinnerAnimation />
+          </LoadingSpinner>
         ) : (
           <>
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div>
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                  <div className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-sm font-medium text-gray-500 mb-1">Total Users</h3>
-                    <p className="text-3xl font-bold">{dashboardStats.totalUsers.toLocaleString()}</p>
-                    <p className="text-sm text-green-600 mt-2">
+                <StatsGrid>
+                  <StatCard>
+                    <StatLabel>Total Users</StatLabel>
+                    <StatValue>{dashboardStats.totalUsers.toLocaleString()}</StatValue>
+                    <StatTrend positive>
                       +{(dashboardStats.totalUsers - userGrowthData[0]?.users).toLocaleString()} since campaign start
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-sm font-medium text-gray-500 mb-1">Total Topups</h3>
-                    <p className="text-3xl font-bold">{dashboardStats.totalTopups.toLocaleString()}</p>
-                    <p className="text-sm text-gray-600 mt-2">
+                    </StatTrend>
+                  </StatCard>
+                  <StatCard>
+                    <StatLabel>Total Topups</StatLabel>
+                    <StatValue>{dashboardStats.totalTopups.toLocaleString()}</StatValue>
+                    <StatTrend>
                       Avg {Math.round(dashboardStats.totalTopups / dashboardStats.totalUsers * 100) / 100} per user
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-sm font-medium text-gray-500 mb-1">Total Commission</h3>
-                    <p className="text-3xl font-bold">{formatCurrency(dashboardStats.totalCommission)}</p>
-                    <p className="text-sm text-gray-600 mt-2">
+                    </StatTrend>
+                  </StatCard>
+                  <StatCard>
+                    <StatLabel>Total Commission</StatLabel>
+                    <StatValue>{formatCurrency(dashboardStats.totalCommission)}</StatValue>
+                    <StatTrend>
                       Avg {formatCurrency(Math.round(dashboardStats.totalCommission / dashboardStats.totalTopups))} per topup
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-sm font-medium text-gray-500 mb-1">Total Prize Amount</h3>
-                    <p className="text-3xl font-bold">{formatCurrency(dashboardStats.totalPrizeAmount)}</p>
-                    <p className="text-sm text-gray-600 mt-2">
+                    </StatTrend>
+                  </StatCard>
+                  <StatCard>
+                    <StatLabel>Total Prize Amount</StatLabel>
+                    <StatValue>{formatCurrency(dashboardStats.totalPrizeAmount)}</StatValue>
+                    <StatTrend>
                       {dashboardStats.totalWinners} winners across {dashboardStats.drawsCompleted} draws
-                    </p>
-                  </div>
-                </div>
+                    </StatTrend>
+                  </StatCard>
+                </StatsGrid>
 
                 {/* Charts */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                  <div className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-lg font-bold mb-4">Topup Distribution</h3>
-                    <div className="h-64">
-                      <Doughnut data={topupDistributionData} />
-                    </div>
-                  </div>
-                  <div className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-lg font-bold mb-4">User Growth Trend</h3>
-                    <div className="h-64">
+                <ChartsGrid>
+                  <ChartCard>
+                    <ChartTitle>Topup Distribution</ChartTitle>
+                    <ChartContainer>
+                      <Doughnut data={topupDistributionData} options={doughnutOptions} />
+                    </ChartContainer>
+                  </ChartCard>
+                  <ChartCard>
+                    <ChartTitle>User Growth Trend</ChartTitle>
+                    <ChartContainer>
                       <Bar data={userGrowthChartData} options={userGrowthOptions} />
-                    </div>
-                  </div>
-                </div>
+                    </ChartContainer>
+                  </ChartCard>
+                </ChartsGrid>
 
                 {/* Recent Activity */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <div className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-lg font-bold mb-4">Recent Draws</h3>
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                <TablesGrid>
+                  <TableCard>
+                    <TableTitle>Recent Draws</TableTitle>
+                    <TableWrapper>
+                      <Table>
+                        <TableHead>
                           <tr>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Day</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Winners</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prize Amount</th>
+                            <TableHeadCell>ID</TableHeadCell>
+                            <TableHeadCell>Date</TableHeadCell>
+                            <TableHeadCell>Day</TableHeadCell>
+                            <TableHeadCell>Winners</TableHeadCell>
+                            <TableHeadCell>Prize Amount</TableHeadCell>
                           </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        </TableHead>
+                        <TableBody>
                           {recentDraws.map((draw, index) => (
-                            <tr key={index}>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-blue-600">{draw.id}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{draw.date}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{draw.day}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{draw.winners}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{formatCurrency(draw.totalPrize)}</td>
-                            </tr>
+                            <TableRow key={index}>
+                              <TableCell style={{ color: '#3182ce', fontWeight: 500 }}>{draw.id}</TableCell>
+                              <TableCell>{draw.date}</TableCell>
+                              <TableCell>{draw.day}</TableCell>
+                              <TableCell>{draw.winners}</TableCell>
+                              <TableCell>{formatCurrency(draw.totalPrize)}</TableCell>
+                            </TableRow>
                           ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  <div className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-lg font-bold mb-4">Recent Winners</h3>
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                        </TableBody>
+                      </Table>
+                    </TableWrapper>
+                  </TableCard>
+                  <TableCard>
+                    <TableTitle>Recent Winners</TableTitle>
+                    <TableWrapper>
+                      <Table>
+                        <TableHead>
                           <tr>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MSISDN</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prize</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Draw</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <TableHeadCell>MSISDN</TableHeadCell>
+                            <TableHeadCell>Prize</TableHeadCell>
+                            <TableHeadCell>Amount</TableHeadCell>
+                            <TableHeadCell>Draw</TableHeadCell>
+                            <TableHeadCell>Date</TableHeadCell>
                           </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        </TableHead>
+                        <TableBody>
                           {recentWinners.map((winner, index) => (
-                            <tr key={index}>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{winner.msisdn}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{winner.prize}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{formatCurrency(winner.amount)}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-blue-600">{winner.drawId}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{winner.date}</td>
-                            </tr>
+                            <TableRow key={index}>
+                              <TableCell>{winner.msisdn}</TableCell>
+                              <TableCell>{winner.prize}</TableCell>
+                              <TableCell>{formatCurrency(winner.amount)}</TableCell>
+                              <TableCell style={{ color: '#3182ce', fontWeight: 500 }}>{winner.drawId}</TableCell>
+                              <TableCell>{winner.date}</TableCell>
+                            </TableRow>
                           ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
+                        </TableBody>
+                      </Table>
+                    </TableWrapper>
+                  </TableCard>
+                </TablesGrid>
               </div>
             )}
 
             {/* Users Tab */}
             {activeTab === 'users' && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold">User Management</h2>
-                  <div className="flex space-x-2">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Search users..."
-                        className="input-field pr-10"
-                      />
-                      <span className="absolute right-3 top-2">🔍</span>
-                    </div>
-                    <button className="btn-secondary">Filter</button>
-                  </div>
-                </div>
-
-                <div className="mb-6">
-                  <div className="flex flex-wrap gap-4">
-                    <div className="bg-gray-100 rounded-lg px-4 py-2">
-                      <span className="text-sm font-medium text-gray-500">Total Users:</span>
-                      <span className="ml-2 font-bold">{dashboardStats.totalUsers.toLocaleString()}</span>
-                    </div>
-                    <div className="bg-gray-100 rounded-lg px-4 py-2">
-                      <span className="text-sm font-medium text-gray-500">Active Users:</span>
-                      <span className="ml-2 font-bold">{dashboardStats.activeUsers.toLocaleString()}</span>
-                    </div>
-                    <div className="bg-gray-100 rounded-lg px-4 py-2">
-                      <span className="text-sm font-medium text-gray-500">Opt-Out Rate:</span>
-                      <span className="ml-2 font-bold">
-                        {Math.round((1 - dashboardStats.activeUsers / dashboardStats.totalUsers) * 100)}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MSISDN</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opt-In Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topups</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {/* Mock user data */}
-                      {[...Array(10)].map((_, index) => {
-                        const isActive = Math.random() > 0.2;
-                        const topups = Math.floor(Math.random() * 20) + 1;
-                        const points = topups * (Math.floor(Math.random() * 15) + 5);
-                        const msisdn = `2348${Math.floor(Math.random() * 10)}${Math.floor(1000000 + Math.random() * 9000000)}`;
-                        const maskedMsisdn = `${msisdn.substring(0, 5)}******${msisdn.substring(msisdn.length - 2)}`;
-                        
-                        return (
-                          <tr key={index}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{maskedMsisdn}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
-                              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                              }`}>
-                                {isActive ? 'Active' : 'Opted Out'}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              Apr {Math.floor(Math.random() * 15) + 1}, 2025
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{topups}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{points}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              <button className="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                              {isActive ? (
-                                <button className="text-red-600 hover:text-red-900">Opt-Out</button>
-                              ) : (
-                                <button className="text-green-600 hover:text-green-900">Opt-In</button>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="mt-6 flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
-                    Showing 1-10 of {dashboardStats.totalUsers.toLocaleString()} users
-                  </div>
-                  <div className="flex space-x-2">
-                    <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">
-                      Previous
-                    </button>
-                    <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">
-                      Next
-                    </button>
-                  </div>
-                </div>
+              <div>
+                <ChartCard>
+                  <ChartTitle>User Management</ChartTitle>
+                  <p>This section will contain user management functionality.</p>
+                </ChartCard>
               </div>
             )}
 
             {/* Topups Tab */}
             {activeTab === 'topups' && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold">Topup Management</h2>
-                  <div className="flex space-x-2">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Search topups..."
-                        className="input-field pr-10"
-                      />
-                      <span className="absolute right-3 top-2">🔍</span>
-                    </div>
-                    <button className="btn-secondary">Filter</button>
-                  </div>
-                </div>
-
-                <div className="mb-6">
-                  <div className="flex flex-wrap gap-4">
-                    <div className="bg-gray-100 rounded-lg px-4 py-2">
-                      <span className="text-sm font-medium text-gray-500">Total Topups:</span>
-                      <span className="ml-2 font-bold">{dashboardStats.totalTopups.toLocaleString()}</span>
-                    </div>
-                    <div className="bg-gray-100 rounded-lg px-4 py-2">
-                      <span className="text-sm font-medium text-gray-500">Total Revenue:</span>
-                      <span className="ml-2 font-bold">{formatCurrency(dashboardStats.totalRevenue)}</span>
-                    </div>
-                    <div className="bg-gray-100 rounded-lg px-4 py-2">
-                      <span className="text-sm font-medium text-gray-500">Total Commission:</span>
-                      <span className="ml-2 font-bold">{formatCurrency(dashboardStats.totalCommission)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                  <div>
-                    <h3 className="text-lg font-bold mb-3">Topup Distribution</h3>
-                    <div className="h-64">
-                      <Doughnut data={topupDistributionData} />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold mb-3">Commission by Topup Range</h3>
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topup Range</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commission Rate</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Commission</th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          <tr>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₦0-₦199</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{topupData[0]?.count.toLocaleString()}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₦5</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(topupData[0]?.commission)}</td>
-                          </tr>
-                          <tr>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₦200-₦499</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{topupData[1]?.count.toLocaleString()}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₦10</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(topupData[1]?.commission)}</td>
-                          </tr>
-                          <tr>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₦500-₦999</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{topupData[2]?.count.toLocaleString()}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₦15</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(topupData[2]?.commission)}</td>
-                          </tr>
-                          <tr>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₦1000+</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{topupData[3]?.count.toLocaleString()}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₦25</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(topupData[3]?.commission)}</td>
-                          </tr>
-                          <tr className="bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">Total</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{dashboardStats.totalTopups.toLocaleString()}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{formatCurrency(dashboardStats.totalCommission)}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-
-                <h3 className="text-lg font-bold mb-3">Recent Topups</h3>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MSISDN</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Channel</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commission</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {/* Mock topup data */}
-                      {[...Array(10)].map((_, index) => {
-                        const amount = Math.floor(Math.random() * 2000) + 100;
-                        const channels = ['Scratch Card', 'MTN App', 'Web', 'USSD'];
-                        const channel = channels[Math.floor(Math.random() * channels.length)];
-                        const commission = amount >= 1000 ? 25 : (amount >= 500 ? 15 : (amount >= 200 ? 10 : 5));
-                        const points = amount >= 500 ? 
-                                      (amount >= 1000 ? 25 : 15) : 
-                                      (amount >= 200 ? 10 : 5);
-                        const msisdn = `2348${Math.floor(Math.random() * 10)}${Math.floor(1000000 + Math.random() * 9000000)}`;
-                        const maskedMsisdn = `${msisdn.substring(0, 5)}******${msisdn.substring(msisdn.length - 2)}`;
-                        const hour = Math.floor(Math.random() * 24);
-                        const minute = Math.floor(Math.random() * 60);
-                        const day = Math.floor(Math.random() * 15) + 1;
-                        
-                        return (
-                          <tr key={index}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{maskedMsisdn}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(amount)}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{channel}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              Apr {day}, {hour.toString().padStart(2, '0')}:{minute.toString().padStart(2, '0')}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(commission)}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{points}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="mt-6 flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
-                    Showing 1-10 of {dashboardStats.totalTopups.toLocaleString()} topups
-                  </div>
-                  <div className="flex space-x-2">
-                    <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">
-                      Previous
-                    </button>
-                    <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">
-                      Next
-                    </button>
-                  </div>
-                </div>
+              <div>
+                <ChartCard>
+                  <ChartTitle>Topup Management</ChartTitle>
+                  <p>This section will contain topup management functionality.</p>
+                </ChartCard>
               </div>
             )}
 
             {/* Draws Tab */}
             {activeTab === 'draws' && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold">Draw Management</h2>
-                  <div className="flex space-x-2">
-                    <Link href="/draw-management">
-                      <a className="btn-primary">New Draw</a>
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="mb-6">
-                  <div className="flex flex-wrap gap-4">
-                    <div className="bg-gray-100 rounded-lg px-4 py-2">
-                      <span className="text-sm font-medium text-gray-500">Total Draws:</span>
-                      <span className="ml-2 font-bold">{dashboardStats.drawsCompleted}</span>
-                    </div>
-                    <div className="bg-gray-100 rounded-lg px-4 py-2">
-                      <span className="text-sm font-medium text-gray-500">Total Winners:</span>
-                      <span className="ml-2 font-bold">{dashboardStats.totalWinners}</span>
-                    </div>
-                    <div className="bg-gray-100 rounded-lg px-4 py-2">
-                      <span className="text-sm font-medium text-gray-500">Total Prize Amount:</span>
-                      <span className="ml-2 font-bold">{formatCurrency(dashboardStats.totalPrizeAmount)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Draw ID</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Day</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Eligible Numbers</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participants</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Winners</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prize Amount</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {recentDraws.map((draw, index) => (
-                        <tr key={index}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">{draw.id}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{draw.date}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{draw.day}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {draw.day === 'Saturday' ? 'All' : 
-                             draw.day === 'Monday' ? '0, 1' :
-                             draw.day === 'Tuesday' ? '2, 3' :
-                             draw.day === 'Wednesday' ? '4, 5' :
-                             draw.day === 'Thursday' ? '6, 7' : '8, 9'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{draw.eligibleUsers.toLocaleString()}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{draw.winners}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(draw.totalPrize)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <button className="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                            <button className="text-green-600 hover:text-green-900">Export</button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="mt-6 flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
-                    Showing 1-5 of {dashboardStats.drawsCompleted} draws
-                  </div>
-                  <div className="flex space-x-2">
-                    <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">
-                      Previous
-                    </button>
-                    <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">
-                      Next
-                    </button>
-                  </div>
-                </div>
+              <div>
+                <ChartCard>
+                  <ChartTitle>Draw Management</ChartTitle>
+                  <p>This section will contain draw management functionality.</p>
+                </ChartCard>
               </div>
             )}
 
             {/* Winners Tab */}
             {activeTab === 'winners' && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold">Winner Management</h2>
-                  <div className="flex space-x-2">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Search winners..."
-                        className="input-field pr-10"
-                      />
-                      <span className="absolute right-3 top-2">🔍</span>
-                    </div>
-                    <button className="btn-secondary">Filter</button>
-                  </div>
-                </div>
-
-                <div className="mb-6">
-                  <div className="flex flex-wrap gap-4">
-                    <div className="bg-gray-100 rounded-lg px-4 py-2">
-                      <span className="text-sm font-medium text-gray-500">Total Winners:</span>
-                      <span className="ml-2 font-bold">{dashboardStats.totalWinners}</span>
-                    </div>
-                    <div className="bg-gray-100 rounded-lg px-4 py-2">
-                      <span className="text-sm font-medium text-gray-500">Total Prize Amount:</span>
-                      <span className="ml-2 font-bold">{formatCurrency(dashboardStats.totalPrizeAmount)}</span>
-                    </div>
-                    <div className="bg-gray-100 rounded-lg px-4 py-2">
-                      <span className="text-sm font-medium text-gray-500">Avg Prize per Winner:</span>
-                      <span className="ml-2 font-bold">
-                        {formatCurrency(Math.round(dashboardStats.totalPrizeAmount / dashboardStats.totalWinners))}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Winner ID</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MSISDN</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prize Category</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Draw ID</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {recentWinners.map((winner, index) => {
-                        const statuses = ['Pending', 'Notified', 'Claimed', 'Paid'];
-                        const status = statuses[Math.floor(Math.random() * statuses.length)];
-                        const statusColor = 
-                          status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                          status === 'Notified' ? 'bg-blue-100 text-blue-800' :
-                          status === 'Claimed' ? 'bg-purple-100 text-purple-800' :
-                          'bg-green-100 text-green-800';
-                        
-                        return (
-                          <tr key={index}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">{winner.id}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{winner.msisdn}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{winner.prize}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatCurrency(winner.amount)}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{winner.drawId}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{winner.date}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
-                              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}`}>
-                                {status}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              <button className="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                              {status === 'Pending' && (
-                                <button className="text-green-600 hover:text-green-900">Notify</button>
-                              )}
-                              {status === 'Notified' && (
-                                <button className="text-purple-600 hover:text-purple-900">Mark Claimed</button>
-                              )}
-                              {status === 'Claimed' && (
-                                <button className="text-green-600 hover:text-green-900">Process Payment</button>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="mt-6 flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
-                    Showing 1-8 of {dashboardStats.totalWinners} winners
-                  </div>
-                  <div className="flex space-x-2">
-                    <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">
-                      Previous
-                    </button>
-                    <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">
-                      Next
-                    </button>
-                  </div>
-                </div>
+              <div>
+                <ChartCard>
+                  <ChartTitle>Winner Management</ChartTitle>
+                  <p>This section will contain winner management functionality.</p>
+                </ChartCard>
               </div>
             )}
           </>
         )}
-      </main>
+      </MainContent>
 
       {/* Footer */}
-      <footer className="bg-mtn-black text-white py-6 mt-8">
-        <div className="container mx-auto px-4 text-center">
-          <p>&copy; {new Date().getFullYear()} Bridgetunes. All rights reserved.</p>
-          <p className="text-sm text-gray-400 mt-2">MyNumba Don Win Promotion</p>
-        </div>
-      </footer>
-    </div>
+      <Footer />
+    </PageContainer>
   );
 }
