@@ -1,4 +1,3 @@
-// components/DrawAnimation.js
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -207,5 +206,4 @@ const DrawAnimation = ({ stage, winningNumber, prizeAmount }) => {
 };
 
 export default DrawAnimation;
-
 
