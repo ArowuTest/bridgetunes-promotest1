@@ -83,8 +83,34 @@ const theme = {
     default: '0.3s ease',
     fast: '0.15s ease',
     slow: '0.5s ease',
-  }
+  },
+  
+  // New modern UI additions
+  gradients: {
+    primary: 'linear-gradient(135deg, #0056b3 0%, #007bff 100%)',
+    secondary: 'linear-gradient(135deg, #ffcc00 0%, #ffd700 100%)',
+    dark: 'linear-gradient(135deg, #212529 0%, #343a40 100%)',
+  },
+  
+  animations: {
+    short: '0.2s',
+    medium: '0.5s',
+    long: '1s',
+  },
+  
+  cards: {
+    default: {
+      borderRadius: '0.5rem',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      padding: '1.5rem',
+    },
+    hover: {
+      transform: 'translateY(-5px)',
+      boxShadow: '0 10px 15px rgba(0, 0, 0, 0.1)',
+    },
+  },
 };
 
 export default theme;
+
 
