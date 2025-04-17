@@ -241,6 +241,21 @@ const SpinnerAnimation = styled.div`
   }
 `;
 
+const ContactButton = styled.button`
+  background-color: ${props => props.theme.colors.bridgetunesBlue};
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: ${props => props.theme.colors.bridgetunesDark};
+  }
+`;
+
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [dashboardStats, setDashboardStats] = useState({
@@ -301,24 +316,29 @@ export default function AdminDashboard() {
 
       // Generate mock recent draws
       const mockRecentDraws = [
-        { id: 'DRW-37', date: 'Apr 15, 2025', day: 'Monday', eligibleUsers: 4521, winners: 13, totalPrize: 245000 },
-        { id: 'DRW-36', date: 'Apr 14, 2025', day: 'Saturday', eligibleUsers: 18934, winners: 23, totalPrize: 1850000 },
-        { id: 'DRW-35', date: 'Apr 13, 2025', day: 'Friday', eligibleUsers: 3876, winners: 13, totalPrize: 245000 },
-        { id: 'DRW-34', date: 'Apr 12, 2025', day: 'Thursday', eligibleUsers: 4102, winners: 13, totalPrize: 245000 },
-        { id: 'DRW-33', date: 'Apr 11, 2025', day: 'Wednesday', eligibleUsers: 3945, winners: 13, totalPrize: 245000 }
+        { id: 'DRW-37', date: 'Apr 15, 2025', day: 'Monday', eligibleUsers: 4521, winners: 13, totalPrize: 2025000 },
+        { id: 'DRW-36', date: 'Apr 14, 2025', day: 'Saturday', eligibleUsers: 18934, winners: 23, totalPrize: 5100000 },
+        { id: 'DRW-35', date: 'Apr 13, 2025', day: 'Friday', eligibleUsers: 3876, winners: 13, totalPrize: 2025000 },
+        { id: 'DRW-34', date: 'Apr 12, 2025', day: 'Thursday', eligibleUsers: 4102, winners: 13, totalPrize: 2025000 },
+        { id: 'DRW-33', date: 'Apr 11, 2025', day: 'Wednesday', eligibleUsers: 3945, winners: 13, totalPrize: 2025000 }
       ];
       setRecentDraws(mockRecentDraws);
 
-      // Generate mock recent winners
+      // Generate mock recent winners with full unmasked MSISDNs
       const mockRecentWinners = [
-        { id: 'WIN-523', msisdn: '23480******34', prize: 'Jackpot', amount: 100000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
-        { id: 'WIN-522', msisdn: '23481******21', prize: '2nd Prize', amount: 50000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
-        { id: 'WIN-521', msisdn: '23480******78', prize: '3rd Prize', amount: 25000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
-        { id: 'WIN-520', msisdn: '23481******45', prize: 'Consolation', amount: 5000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
-        { id: 'WIN-519', msisdn: '23480******12', prize: 'Consolation', amount: 5000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
-        { id: 'WIN-518', msisdn: '23481******67', prize: 'Grand Prize', amount: 1000000, drawId: 'DRW-36', date: 'Apr 14, 2025' },
-        { id: 'WIN-517', msisdn: '23480******89', prize: '2nd Prize', amount: 500000, drawId: 'DRW-36', date: 'Apr 14, 2025' },
-        { id: 'WIN-516', msisdn: '23481******23', prize: '3rd Prize', amount: 250000, drawId: 'DRW-36', date: 'Apr 14, 2025' }
+        { id: 'WIN-523', msisdn: '2348012345634', fullMsisdn: '2348012345634', prize: 'Jackpot', amount: 1000000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
+        { id: 'WIN-522', msisdn: '2348123456721', fullMsisdn: '2348123456721', prize: '2nd Prize', amount: 350000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
+        { id: 'WIN-521', msisdn: '2348034567878', fullMsisdn: '2348034567878', prize: '3rd Prize', amount: 150000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
+        { id: 'WIN-520', msisdn: '2348145678945', fullMsisdn: '2348145678945', prize: 'Consolation', amount: 75000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
+        { id: 'WIN-519', msisdn: '2348056789012', fullMsisdn: '2348056789012', prize: 'Consolation', amount: 75000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
+        { id: 'WIN-518', msisdn: '2348167890167', fullMsisdn: '2348167890167', prize: 'Consolation', amount: 75000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
+        { id: 'WIN-517', msisdn: '2348078901289', fullMsisdn: '2348078901289', prize: 'Consolation', amount: 75000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
+        { id: 'WIN-516', msisdn: '2348189012323', fullMsisdn: '2348189012323', prize: 'Consolation', amount: 75000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
+        { id: 'WIN-515', msisdn: '2348090123467', fullMsisdn: '2348090123467', prize: 'Consolation', amount: 75000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
+        { id: 'WIN-514', msisdn: '2348101234589', fullMsisdn: '2348101234589', prize: 'Consolation', amount: 75000, drawId: 'DRW-37', date: 'Apr 15, 2025' },
+        { id: 'WIN-513', msisdn: '2348112345667', fullMsisdn: '2348112345667', prize: 'Grand Prize', amount: 3000000, drawId: 'DRW-36', date: 'Apr 14, 2025' },
+        { id: 'WIN-512', msisdn: '2348023456789', fullMsisdn: '2348023456789', prize: '2nd Prize', amount: 1000000, drawId: 'DRW-36', date: 'Apr 14, 2025' },
+        { id: 'WIN-511', msisdn: '2348134567823', fullMsisdn: '2348134567823', prize: '3rd Prize', amount: 500000, drawId: 'DRW-36', date: 'Apr 14, 2025' }
       ];
       setRecentWinners(mockRecentWinners);
 
@@ -427,6 +447,12 @@ export default function AdminDashboard() {
   // Format currency
   const formatCurrency = (amount) => {
     return '₦' + amount.toLocaleString();
+  };
+
+  // Handle contact winner
+  const handleContactWinner = (msisdn) => {
+    alert(`Contacting winner with MSISDN: ${msisdn}`);
+    // In a real implementation, this would open a modal or redirect to a contact form
   };
 
   return (
@@ -543,7 +569,7 @@ export default function AdminDashboard() {
                   </ChartCard>
                 </ChartsGrid>
 
-                {/* Recent Activity */}
+                {/* Tables */}
                 <TablesGrid>
                   <TableCard>
                     <TableTitle>Recent Draws</TableTitle>
@@ -551,19 +577,21 @@ export default function AdminDashboard() {
                       <Table>
                         <TableHead>
                           <tr>
-                            <TableHeadCell>ID</TableHeadCell>
+                            <TableHeadCell>Draw ID</TableHeadCell>
                             <TableHeadCell>Date</TableHeadCell>
                             <TableHeadCell>Day</TableHeadCell>
+                            <TableHeadCell>Eligible Users</TableHeadCell>
                             <TableHeadCell>Winners</TableHeadCell>
-                            <TableHeadCell>Prize Amount</TableHeadCell>
+                            <TableHeadCell>Total Prize</TableHeadCell>
                           </tr>
                         </TableHead>
                         <TableBody>
-                          {recentDraws.map((draw, index) => (
-                            <TableRow key={index}>
-                              <TableCell style={{ color: '#3182ce', fontWeight: 500 }}>{draw.id}</TableCell>
+                          {recentDraws.map(draw => (
+                            <TableRow key={draw.id}>
+                              <TableCell>{draw.id}</TableCell>
                               <TableCell>{draw.date}</TableCell>
                               <TableCell>{draw.day}</TableCell>
+                              <TableCell>{draw.eligibleUsers.toLocaleString()}</TableCell>
                               <TableCell>{draw.winners}</TableCell>
                               <TableCell>{formatCurrency(draw.totalPrize)}</TableCell>
                             </TableRow>
@@ -578,20 +606,22 @@ export default function AdminDashboard() {
                       <Table>
                         <TableHead>
                           <tr>
+                            <TableHeadCell>Winner ID</TableHeadCell>
                             <TableHeadCell>MSISDN</TableHeadCell>
                             <TableHeadCell>Prize</TableHeadCell>
                             <TableHeadCell>Amount</TableHeadCell>
-                            <TableHeadCell>Draw</TableHeadCell>
+                            <TableHeadCell>Draw ID</TableHeadCell>
                             <TableHeadCell>Date</TableHeadCell>
                           </tr>
                         </TableHead>
                         <TableBody>
-                          {recentWinners.map((winner, index) => (
-                            <TableRow key={index}>
-                              <TableCell>{winner.msisdn}</TableCell>
+                          {recentWinners.slice(0, 5).map(winner => (
+                            <TableRow key={winner.id}>
+                              <TableCell>{winner.id}</TableCell>
+                              <TableCell>{winner.msisdn.substring(0, 5) + '******' + winner.msisdn.substring(winner.msisdn.length - 2)}</TableCell>
                               <TableCell>{winner.prize}</TableCell>
                               <TableCell>{formatCurrency(winner.amount)}</TableCell>
-                              <TableCell style={{ color: '#3182ce', fontWeight: 500 }}>{winner.drawId}</TableCell>
+                              <TableCell>{winner.drawId}</TableCell>
                               <TableCell>{winner.date}</TableCell>
                             </TableRow>
                           ))}
@@ -603,43 +633,72 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* Users Tab */}
-            {activeTab === 'users' && (
-              <div>
-                <ChartCard>
-                  <ChartTitle>User Management</ChartTitle>
-                  <p>This section will contain user management functionality.</p>
-                </ChartCard>
-              </div>
-            )}
-
-            {/* Topups Tab */}
-            {activeTab === 'topups' && (
-              <div>
-                <ChartCard>
-                  <ChartTitle>Topup Management</ChartTitle>
-                  <p>This section will contain topup management functionality.</p>
-                </ChartCard>
-              </div>
-            )}
-
-            {/* Draws Tab */}
-            {activeTab === 'draws' && (
-              <div>
-                <ChartCard>
-                  <ChartTitle>Draw Management</ChartTitle>
-                  <p>This section will contain draw management functionality.</p>
-                </ChartCard>
-              </div>
-            )}
-
             {/* Winners Tab */}
             {activeTab === 'winners' && (
               <div>
-                <ChartCard>
-                  <ChartTitle>Winner Management</ChartTitle>
-                  <p>This section will contain winner management functionality.</p>
-                </ChartCard>
+                <TableCard>
+                  <TableTitle>All Winners</TableTitle>
+                  <TableWrapper>
+                    <Table>
+                      <TableHead>
+                        <tr>
+                          <TableHeadCell>Winner ID</TableHeadCell>
+                          <TableHeadCell>MSISDN (Full)</TableHeadCell>
+                          <TableHeadCell>Prize</TableHeadCell>
+                          <TableHeadCell>Amount</TableHeadCell>
+                          <TableHeadCell>Draw ID</TableHeadCell>
+                          <TableHeadCell>Date</TableHeadCell>
+                          <TableHeadCell>Actions</TableHeadCell>
+                        </tr>
+                      </TableHead>
+                      <TableBody>
+                        {recentWinners.map(winner => (
+                          <TableRow key={winner.id}>
+                            <TableCell>{winner.id}</TableCell>
+                            <TableCell>{winner.fullMsisdn}</TableCell>
+                            <TableCell>{winner.prize}</TableCell>
+                            <TableCell>{formatCurrency(winner.amount)}</TableCell>
+                            <TableCell>{winner.drawId}</TableCell>
+                            <TableCell>{winner.date}</TableCell>
+                            <TableCell>
+                              <ContactButton onClick={() => handleContactWinner(winner.fullMsisdn)}>
+                                Contact
+                              </ContactButton>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableWrapper>
+                </TableCard>
+              </div>
+            )}
+
+            {/* Other tabs would be implemented here */}
+            {activeTab === 'users' && (
+              <div>
+                <TableCard>
+                  <TableTitle>User Management</TableTitle>
+                  <p>User management interface would be implemented here.</p>
+                </TableCard>
+              </div>
+            )}
+
+            {activeTab === 'topups' && (
+              <div>
+                <TableCard>
+                  <TableTitle>Topup Transactions</TableTitle>
+                  <p>Topup transaction history would be implemented here.</p>
+                </TableCard>
+              </div>
+            )}
+
+            {activeTab === 'draws' && (
+              <div>
+                <TableCard>
+                  <TableTitle>Draw History</TableTitle>
+                  <p>Complete draw history and management would be implemented here.</p>
+                </TableCard>
               </div>
             )}
           </>
@@ -651,3 +710,4 @@ export default function AdminDashboard() {
     </PageContainer>
   );
 }
+
