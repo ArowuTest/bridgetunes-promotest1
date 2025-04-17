@@ -1,3 +1,4 @@
+// components/DrawAnimation.js
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -75,7 +76,7 @@ const SpinningCircle = styled.div`
   border-radius: 50%;
   border: 8px solid ${props => props.theme.colors.bridgetunesBlue};
   border-top-color: ${props => props.theme.colors.mtnYellow};
-  animation: ${spin} 3s linear infinite;
+  animation: ${spin} 3s linear ${props => props.animationIterations || 'infinite'};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -106,7 +107,7 @@ const NumberColumn = styled.div`
 `;
 
 const NumberScroller = styled.div`
-  animation: ${numberChange} 0.5s infinite;
+  animation: ${numberChange} 0.5s ${props => props.animationIterations || 'infinite'};
   animation-timing-function: steps(1);
 `;
 
@@ -151,9 +152,14 @@ const PrizeAmount = styled.div`
 
 const DrawAnimation = ({ stage, winningNumber, prizeAmount }) => {
   const [displayWinner, setDisplayWinner] = useState(false);
+  const [animationIterations, setAnimationIterations] = useState('infinite');
   
   useEffect(() => {
     if (stage === 'complete' && winningNumber) {
+      // Set animation to run only 3 times before stopping
+      setAnimationIterations('3');
+      
+      // Show winner after animation completes
       const timer = setTimeout(() => {
         setDisplayWinner(true);
       }, 3000);
@@ -161,13 +167,14 @@ const DrawAnimation = ({ stage, winningNumber, prizeAmount }) => {
       return () => clearTimeout(timer);
     } else {
       setDisplayWinner(false);
+      setAnimationIterations('infinite');
     }
   }, [stage, winningNumber]);
   
   // Generate random digits for animation
   const renderNumberScroller = () => {
     return (
-      <NumberScroller>
+      <NumberScroller animationIterations={animationIterations}>
         {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => (
           <NumberDigit key={digit}>{digit}</NumberDigit>
         ))}
@@ -178,7 +185,7 @@ const DrawAnimation = ({ stage, winningNumber, prizeAmount }) => {
   return (
     <AnimationContainer>
       {!displayWinner ? (
-        <SpinningCircle>
+        <SpinningCircle animationIterations={animationIterations}>
           <InnerCircle>
             <NumberContainer>
               <NumberColumn>{renderNumberScroller()}</NumberColumn>
@@ -192,7 +199,7 @@ const DrawAnimation = ({ stage, winningNumber, prizeAmount }) => {
         <WinnerDisplay>
           <WinnerTitle>Winner!</WinnerTitle>
           <WinnerNumber>{winningNumber}</WinnerNumber>
-          <PrizeAmount>Prize: ₦{prizeAmount.toLocaleString()}</PrizeAmount>
+          <PrizeAmount>Prize: ₦{prizeAmount ? prizeAmount.toLocaleString() : '0'}</PrizeAmount>
         </WinnerDisplay>
       )}
     </AnimationContainer>
@@ -200,4 +207,5 @@ const DrawAnimation = ({ stage, winningNumber, prizeAmount }) => {
 };
 
 export default DrawAnimation;
+
 
