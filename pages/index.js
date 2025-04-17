@@ -401,7 +401,7 @@ export default function Home() {
               
               <PrizeAmount>
                 <PrizeLabel>Grand Prize</PrizeLabel>
-                <PrizeValue>₦1,000,000</PrizeValue>
+                <PrizeValue>₦3,000,000</PrizeValue>
               </PrizeAmount>
             </CountdownContainer>
           </HeroGrid>
@@ -419,19 +419,19 @@ export default function Home() {
               <PrizeList>
                 <PrizeItem>
                   <PrizeName>Jackpot Winner</PrizeName>
-                  <PrizeItemValue>₦100,000</PrizeItemValue>
+                  <PrizeItemValue>₦1,000,000</PrizeItemValue>
                 </PrizeItem>
                 <PrizeItem>
                   <PrizeName>2nd Prize</PrizeName>
-                  <PrizeItemValue>₦50,000</PrizeItemValue>
+                  <PrizeItemValue>₦350,000</PrizeItemValue>
                 </PrizeItem>
                 <PrizeItem>
                   <PrizeName>3rd Prize</PrizeName>
-                  <PrizeItemValue>₦25,000</PrizeItemValue>
+                  <PrizeItemValue>₦150,000</PrizeItemValue>
                 </PrizeItem>
                 <PrizeItem>
                   <PrizeName>Consolation Prizes</PrizeName>
-                  <PrizeItemValue>7 x ₦10,000</PrizeItemValue>
+                  <PrizeItemValue>7 x ₦75,000</PrizeItemValue>
                 </PrizeItem>
               </PrizeList>
             </PrizeCard>
@@ -442,19 +442,19 @@ export default function Home() {
               <PrizeList>
                 <PrizeItem>
                   <PrizeName>Jackpot Winner</PrizeName>
-                  <PrizeItemValue>₦1,000,000</PrizeItemValue>
+                  <PrizeItemValue>₦3,000,000</PrizeItemValue>
                 </PrizeItem>
                 <PrizeItem>
                   <PrizeName>2nd Prize</PrizeName>
-                  <PrizeItemValue>₦500,000</PrizeItemValue>
+                  <PrizeItemValue>₦1,000,000</PrizeItemValue>
                 </PrizeItem>
                 <PrizeItem>
                   <PrizeName>3rd Prize</PrizeName>
-                  <PrizeItemValue>₦250,000</PrizeItemValue>
+                  <PrizeItemValue>₦500,000</PrizeItemValue>
                 </PrizeItem>
                 <PrizeItem>
                   <PrizeName>Consolation Prizes</PrizeName>
-                  <PrizeItemValue>7 x ₦50,000</PrizeItemValue>
+                  <PrizeItemValue>7 x ₦100,000</PrizeItemValue>
                 </PrizeItem>
               </PrizeList>
             </PrizeCard>
