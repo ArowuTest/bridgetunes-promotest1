@@ -565,17 +565,17 @@ export default function DrawManagement() {
   // Updated prize structure based on user specifications
   const prizeStructure = {
     daily: {
-      jackpot: 100000,
-      second: 50000,
-      third: 25000,
-      consolation: 10000,
+      jackpot: 1000000,
+      second: 350000,
+      third: 150000,
+      consolation: 75000,
       consolationCount: 7
     },
     saturday: {
-      jackpot: 1000000,
-      second: 500000,
-      third: 250000,
-      consolation: 50000,
+      jackpot: 3000000,
+      second: 1000000,
+      third: 500000,
+      consolation: 100000,
       consolationCount: 7
     }
   };
