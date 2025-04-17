@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import DrawAnimation from '../components/DrawAnimation';
 
-// Styled components for the page
+// Styled Components
 const PageContainer = styled.div`
+  min-height: 100vh;
+  background-color: ${props => props.theme.colors.mtnLight};
+`;
+
+const MainContent = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
@@ -13,49 +17,87 @@ const PageContainer = styled.div`
 
 const PageHeader = styled.div`
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
+  position: relative;
 `;
 
-// This will properly size the shield logo
-const ShieldLogo = styled.div`
+const HeaderDecoration = styled.div`
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 120px;
   height: 120px;
-  margin: 0 auto 1.5rem;
-  
-  svg {
-    width: 100%;
-    height: 100%;
-  }
+  background: linear-gradient(135deg, ${props => props.theme.colors.mtnYellow}, ${props => props.theme.colors.mtnYellow}80);
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0.7;
 `;
 
 const PageTitle = styled.h1`
-  font-size: ${props => props.theme.fontSizes['3xl']};
+  font-size: 2.8rem;
   font-weight: ${props => props.theme.fontWeights.bold};
   color: ${props => props.theme.colors.bridgetunesDark};
   margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(to right, ${props => props.theme.colors.mtnYellow}, ${props => props.theme.colors.bridgetunesBlue});
+    border-radius: 2px;
+  }
 `;
 
 const PageDescription = styled.p`
-  font-size: ${props => props.theme.fontSizes.lg};
+  font-size: 1.2rem;
   color: ${props => props.theme.colors.gray600};
-  max-width: 800px;
-  margin: 0 auto 2rem;
+  max-width: 700px;
+  margin: 1.5rem auto 0;
+  line-height: 1.6;
 `;
 
-const DrawSection = styled.div`
-  background-color: ${props => props.theme.colors.white};
-  border-radius: ${props => props.theme.radii.lg};
-  box-shadow: ${props => props.theme.shadows.md};
+const Card = styled.div`
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   padding: 2rem;
   margin-bottom: 2rem;
+  border: 1px solid ${props => props.theme.colors.gray100};
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    transform: translateY(-5px);
+  }
 `;
 
-const DrawControls = styled.div`
+const CardTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: ${props => props.theme.fontWeights.semibold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid ${props => props.theme.colors.gray200};
+  display: flex;
+  align-items: center;
+  
+  svg {
+    margin-right: 0.75rem;
+    color: ${props => props.theme.colors.mtnYellow};
+  }
+`;
+
+const FormGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
-  max-width: 800px;
-  margin: 0 auto 2rem;
+  gap: 2rem;
   
   @media (min-width: ${props => props.theme.breakpoints.md}) {
     grid-template-columns: 1fr 1fr;
@@ -63,85 +105,243 @@ const DrawControls = styled.div`
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 `;
 
 const Label = styled.label`
   display: block;
-  font-size: ${props => props.theme.fontSizes.sm};
+  font-size: 0.875rem;
   font-weight: ${props => props.theme.fontWeights.medium};
   color: ${props => props.theme.colors.gray700};
   margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
 `;
 
 const Select = styled.select`
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid ${props => props.theme.colors.gray300};
-  border-radius: ${props => props.theme.radii.md};
-  font-size: ${props => props.theme.fontSizes.md};
+  padding: 0.875rem 1rem;
+  border: 2px solid ${props => props.theme.colors.gray300};
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: white;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") ;
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
   
   &:focus {
     outline: none;
     border-color: ${props => props.theme.colors.bridgetunesBlue};
-    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.15);
   }
 `;
 
-const DateSelectionContainer = styled.div`
-  display: flex;
-  gap: 0.5rem;
+const DateSelectionGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
 `;
 
-const CheckboxGroup = styled.div`
+const DigitSelectionGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    grid-template-columns: repeat(6, 1fr);
+  }
 `;
 
-const CheckboxLabel = styled.label`
+const DigitCheckbox = styled.div`
+  position: relative;
+`;
+
+const DigitInput = styled.input`
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  
+  &:checked + label {
+    background-color: ${props => props.theme.colors.mtnYellow};
+    color: ${props => props.theme.colors.mtnBlack};
+    font-weight: ${props => props.theme.fontWeights.bold};
+    border-color: ${props => props.theme.colors.mtnYellow};
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:focus + label {
+    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.3);
+  }
+`;
+
+const DigitLabel = styled.label`
   display: flex;
   align-items: center;
-  font-size: ${props => props.theme.fontSizes.sm};
+  justify-content: center;
+  font-size: 1.125rem;
+  height: 48px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: ${props => props.recommended ? props.theme.colors.yellow50 : 'white'};
+  border: 2px solid ${props => props.recommended ? props.theme.colors.yellow200 : props.theme.colors.gray300};
   
   ${props => props.recommended && `
-    font-weight: ${props.theme.fontWeights.semibold};
-    color: ${props.theme.colors.bridgetunesBlue};
+    font-weight: ${props.theme.fontWeights.medium};
+    color: ${props.theme.colors.yellow800};
   `}
+  
+  &:hover {
+    background-color: ${props => props.recommended ? props.theme.colors.yellow100 : props.theme.colors.gray100};
+    transform: translateY(-2px);
+  }
 `;
 
-const Checkbox = styled.input`
-  margin-right: 0.5rem;
+const AllDigitsButton = styled.button`
+  grid-column: span 2;
+  background-color: ${props => props.theme.colors.gray100};
+  color: ${props => props.theme.colors.gray800};
+  border: 2px solid ${props => props.theme.colors.gray300};
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-weight: ${props => props.theme.fontWeights.medium};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: ${props => props.theme.colors.gray200};
+    transform: translateY(-2px);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const PrizeStructureGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    grid-template-columns: 1fr 1fr;
+  }
+`;
+
+const PrizeCard = styled.div`
+  background-color: ${props => props.theme.colors.gray50};
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid ${props => props.theme.colors.gray200};
+`;
+
+const PrizeCardTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: ${props => props.theme.fontWeights.semibold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid ${props => props.theme.colors.gray200};
+`;
+
+const PrizeList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+`;
+
+const PrizeItem = styled.li`
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid ${props => props.theme.colors.gray100};
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const PrizeName = styled.span`
+  font-weight: ${props => props.theme.fontWeights.medium};
+`;
+
+const PrizeValue = styled.span`
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.green600};
+`;
+
+const DrawDetailsGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+`;
+
+const DetailItem = styled.div`
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid ${props => props.theme.colors.gray200};
+  display: flex;
+  flex-direction: column;
+`;
+
+const DetailLabel = styled.span`
+  font-size: 0.875rem;
+  color: ${props => props.theme.colors.gray600};
+  margin-bottom: 0.5rem;
+`;
+
+const DetailValue = styled.span`
+  font-size: 1.125rem;
+  font-weight: ${props => props.theme.fontWeights.semibold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+`;
+
+const TotalPrizeValue = styled(DetailValue)`
+  color: ${props => props.theme.colors.green600};
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 1.5rem;
-  grid-column: 1 / -1;
+  margin-top: 2rem;
 `;
 
-// Styled button instead of importing Button component
-const StyledButton = styled.button`
-  background-color: ${props => props.theme.colors.bridgetunesBlue};
-  color: ${props => props.theme.colors.white};
+const Button = styled.button`
+  background: linear-gradient(to right, ${props => props.theme.colors.bridgetunesBlue}, ${props => props.theme.colors.bridgetunesLightBlue});
+  color: white;
   font-weight: ${props => props.theme.fontWeights.semibold};
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 2.5rem;
   border: none;
-  border-radius: ${props => props.theme.radii.md};
+  border-radius: 50px;
+  font-size: 1.125rem;
   cursor: pointer;
-  transition: all ${props => props.theme.transitions.default};
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 86, 179, 0.2);
   
   &:hover {
-    background-color: ${props => props.theme.colors.bridgetunesLightBlue};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 86, 179, 0.25);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
   }
   
   &:disabled {
-    opacity: 0.6;
+    background: linear-gradient(to right, #a0a0a0, #c0c0c0);
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -149,68 +349,238 @@ const StyledButton = styled.button`
 `;
 
 const ResultsSection = styled.div`
-  margin-top: 2rem;
+  margin-top: 3rem;
 `;
 
-const WinnersList = styled.div`
-  margin-top: 2rem;
-  background-color: ${props => props.theme.colors.gray100};
-  border-radius: ${props => props.theme.radii.lg};
+const AlertBox = styled.div`
+  background-color: ${props => props.type === 'warning' ? props.theme.colors.yellow50 : props.theme.colors.green50};
+  border-left: 4px solid ${props => props.type === 'warning' ? props.theme.colors.yellow500 : props.theme.colors.green500};
+  color: ${props => props.type === 'warning' ? props.theme.colors.yellow800 : props.theme.colors.green800};
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  
+  svg {
+    flex-shrink: 0;
+    margin-right: 0.75rem;
+  }
+`;
+
+const WinnersGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    grid-template-columns: 1fr 1fr;
+  }
+`;
+
+const JackpotWinnerCard = styled.div`
+  background: linear-gradient(135deg, ${props => props.theme.colors.mtnBlack}, ${props => props.theme.colors.gray800});
+  color: white;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  grid-column: 1 / -1;
+  position: relative;
+  overflow: hidden;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 100px;
+    height: 100px;
+    background-color: rgba(255, 204, 0, 0.1);
+    border-radius: 50%;
+  }
+  
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    left: -30px;
+    width: 80px;
+    height: 80px;
+    background-color: rgba(255, 204, 0, 0.1);
+    border-radius: 50%;
+  }
+`;
+
+const WinnerTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: ${props => props.theme.fontWeights.medium};
+  margin-bottom: 1rem;
+  color: ${props => props.theme.colors.mtnYellow};
+  text-transform: uppercase;
+  letter-spacing: 1px;
+`;
+
+const WinnerNumber = styled.div`
+  font-size: 2.5rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  margin-bottom: 1rem;
+  letter-spacing: 1px;
+`;
+
+const WinnerPrize = styled.div`
+  font-size: 1.5rem;
+  font-weight: ${props => props.theme.fontWeights.semibold};
+  color: ${props => props.theme.colors.mtnYellow};
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin-bottom: 1rem;
+`;
+
+const StatusBadge = styled.span`
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: ${props => props.theme.fontWeights.medium};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0.25rem;
+  
+  ${props => props.variant === 'success' && `
+    background-color: ${props.theme.colors.green100};
+    color: ${props.theme.colors.green800};
+  `}
+  
+  ${props => props.variant === 'error' && `
+    background-color: ${props.theme.colors.red100};
+    color: ${props.theme.colors.red800};
+  `}
+  
+  ${props => props.variant === 'warning' && `
+    background-color: ${props.theme.colors.yellow100};
+    color: ${props.theme.colors.yellow800};
+  `}
+`;
+
+const WinnerCard = styled.div`
+  background-color: white;
+  border-radius: 12px;
   padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid ${props => props.theme.colors.gray100};
+  display: flex;
+  flex-direction: column;
 `;
 
-const WinnersTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
+const WinnerCardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid ${props => props.theme.colors.gray200};
+`;
+
+const WinnerCardTitle = styled.h4`
+  font-size: 1.125rem;
+  font-weight: ${props => props.theme.fontWeights.semibold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+  margin: 0;
+`;
+
+const WinnerCardPrize = styled.div`
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.green600};
+`;
+
+const WinnerCardBody = styled.div`
+  flex: 1;
+`;
+
+const WinnerCardNumber = styled.div`
+  font-size: 1.5rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  margin-bottom: 1rem;
+  color: ${props => props.theme.colors.bridgetunesDark};
+`;
+
+const WinnerCardFooter = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid ${props => props.theme.colors.gray200};
+`;
+
+const WinnerCardDate = styled.div`
+  font-size: 0.875rem;
+  color: ${props => props.theme.colors.gray600};
+`;
+
+const LoadingSpinner = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
   
-  th, td {
-    padding: 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid ${props => props.theme.colors.gray300};
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid ${props => props.theme.colors.gray200};
+    border-top: 5px solid ${props => props.theme.colors.bridgetunesBlue};
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
   }
   
-  th {
-    font-weight: ${props => props.theme.fontWeights.semibold};
-    color: ${props => props.theme.colors.gray700};
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
-  
-  tr:last-child td {
-    border-bottom: none;
-  }
+`;
+
+const LoadingText = styled.div`
+  font-size: 1.125rem;
+  font-weight: ${props => props.theme.fontWeights.medium};
+  color: ${props => props.theme.colors.gray700};
 `;
 
 // Main component
-const DrawManagement = () => {
-  const [year, setYear] = useState(2025); // Default to 2025
-  const [month, setMonth] = useState(4);  // Default to April
+export default function DrawManagement() {
+  const [year, setYear] = useState(2025);
+  const [month, setMonth] = useState(4);
   const [day, setDay] = useState('');
   const [selectedDigits, setSelectedDigits] = useState([]);
-  const [drawStage, setDrawStage] = useState('idle'); // idle, drawing, complete
-  const [winningNumber, setWinningNumber] = useState('');
-  const [prizeAmount, setPrizeAmount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [drawStage, setDrawStage] = useState('idle'); // idle, loading, complete
   const [winners, setWinners] = useState([]);
-  const [msisdnData, setMsisdnData] = useState([]);
   const [jackpotRollover, setJackpotRollover] = useState(false);
+  const [msisdnData, setMsisdnData] = useState([]);
   
   // Updated prize structure based on user specifications
   const prizeStructure = {
     daily: {
-      jackpot: 1000000,
-      second: 350000,
-      third: 150000,
-      consolation: 75000,
+      jackpot: 100000,
+      second: 50000,
+      third: 25000,
+      consolation: 10000,
       consolationCount: 7
     },
     saturday: {
-      jackpot: 3000000,
-      second: 1000000,
-      third: 500000,
-      consolation: 100000,
+      jackpot: 1000000,
+      second: 500000,
+      third: 250000,
+      consolation: 50000,
       consolationCount: 7
     }
   };
   
-  // Generate years for dropdown (current year and 2 years before/after)
+  // Generate years for dropdown
   const years = [2023, 2024, 2025, 2026, 2027];
   
   // Generate months for dropdown
@@ -272,6 +642,31 @@ const DrawManagement = () => {
   // Get current prize structure based on selected day
   const getCurrentPrizeStructure = () => {
     return isSaturday() ? prizeStructure.saturday : prizeStructure.daily;
+  };
+  
+  // Format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+  
+  // Format MSISDN for display (mask middle digits)
+  const formatMsisdn = (msisdn) => {
+    if (!msisdn) return '';
+    return `${msisdn.substring(0, 5)}****${msisdn.substring(msisdn.length - 2)}`;
+  };
+  
+  // Calculate total prize pool
+  const calculateTotalPrizePool = () => {
+    const currentPrize = getCurrentPrizeStructure();
+    return currentPrize.jackpot + 
+           currentPrize.second + 
+           currentPrize.third + 
+           (currentPrize.consolation * currentPrize.consolationCount);
   };
   
   // Fetch MSISDN data on component mount
@@ -345,13 +740,21 @@ const DrawManagement = () => {
   
   // Reset selected digits when date changes
   useEffect(() => {
-    setSelectedDigits([]);
+    if (day) {
+      const dayOfWeek = getDayOfWeek(year, month, day);
+      setSelectedDigits(dayDigitMapping[dayOfWeek] || []);
+    } else {
+      setSelectedDigits([]);
+    }
   }, [year, month, day]);
   
   // Handle digit selection
   const handleDigitChange = (digit) => {
     if (selectedDigits.includes(digit)) {
-      setSelectedDigits(selectedDigits.filter(d => d !== digit));
+      // Don't allow deselecting if it would result in no digits selected
+      if (selectedDigits.length > 1) {
+        setSelectedDigits(selectedDigits.filter(d => d !== digit));
+      }
     } else {
       setSelectedDigits([...selectedDigits, digit]);
     }
@@ -359,13 +762,7 @@ const DrawManagement = () => {
   
   // Handle "Select All" option
   const handleSelectAllDigits = () => {
-    if (selectedDigits.length === 10) {
-      // If all are selected, deselect all
-      setSelectedDigits([]);
-    } else {
-      // Otherwise, select all
-      setSelectedDigits(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
-    }
+    setSelectedDigits(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
   };
   
   // Get recommended digits for the selected day
@@ -392,15 +789,12 @@ const DrawManagement = () => {
       return;
     }
     
-    setDrawStage('drawing');
+    setIsLoading(true);
+    setDrawStage('loading');
     setJackpotRollover(false);
     
     // Format the selected date
     const formattedDate = formatDate(year, month, day);
-    console.log('Current MSISDN data:', msisdnData);
-    console.log('Filtering MSISDNs for date:', formattedDate);
-    console.log('Selected ending digits:', selectedDigits);
-    console.log('Total MSISDNs available:', msisdnData.length);
     
     // Filter MSISDNs based on selected date and digits
     const eligibleMsisdns = msisdnData.filter(item => {
@@ -414,9 +808,6 @@ const DrawManagement = () => {
       return dateMatch && digitMatch;
     });
     
-    console.log('Eligible MSISDNs found:', eligibleMsisdns.length);
-    console.log('Eligible MSISDNs:', eligibleMsisdns);
-    
     // Get current prize structure
     const currentPrizes = getCurrentPrizeStructure();
     
@@ -426,10 +817,6 @@ const DrawManagement = () => {
         // Select a random winner from eligible MSISDNs
         const winnerIndex = Math.floor(Math.random() * eligibleMsisdns.length);
         const mainWinner = eligibleMsisdns[winnerIndex];
-        
-        // Set the winning number and prize (using fixed prize amount)
-        setWinningNumber(mainWinner.msisdn);
-        setPrizeAmount(currentPrizes.jackpot);
         
         // Generate winners list (including the main winner and some random ones)
         const winnersList = [
@@ -514,55 +901,46 @@ const DrawManagement = () => {
         // No eligible MSISDNs found
         alert('No eligible numbers found for the selected criteria');
         setDrawStage('idle');
+        setIsLoading(false);
         return;
       }
       
-      setDrawStage('complete');
-    }, 5000); // 5 seconds delay to simulate processing
+      // Set draw stage to complete after a delay
+      setTimeout(() => {
+        setDrawStage('complete');
+        setIsLoading(false);
+      }, 1000);
+    }, 2000);
   };
   
-  // Format MSISDN for display (mask middle digits)
-  const formatMsisdn = (msisdn) => {
-    if (!msisdn) return '';
-    return `${msisdn.substring(0, 5)}****${msisdn.substring(msisdn.length - 2)}`;
-  };
-  
-  // Format currency for display
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-
   return (
-    <>
+    <PageContainer>
       <Header />
-      <PageContainer>
+      <MainContent>
         <PageHeader>
-          {/* Smaller shield logo */}
-          <ShieldLogo>
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
-            </svg>
-          </ShieldLogo>
+          <HeaderDecoration />
           <PageTitle>Draw Management</PageTitle>
           <PageDescription>
             Select a date and last digit filter to execute a draw and determine winners.
           </PageDescription>
         </PageHeader>
         
-        <DrawSection>
-          <DrawControls>
+        <Card>
+          <CardTitle>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14h-2V9h-2V7h4v10z"/>
+            </svg>
+            Draw Configuration
+          </CardTitle>
+          
+          <FormGrid>
             <div>
               <FormGroup>
                 <Label>Draw Date</Label>
-                <DateSelectionContainer>
+                <DateSelectionGrid>
                   <Select 
                     value={month} 
-                    onChange={(e) => setMonth(parseInt(e.target.value))}
+                    onChange={(e)  => setMonth(parseInt(e.target.value))}
                   >
                     {months.map(m => (
                       <option key={m.value} value={m.value}>{m.label}</option>
@@ -571,7 +949,7 @@ const DrawManagement = () => {
                   
                   <Select 
                     value={day} 
-                    onChange={(e) => setDay(e.target.value)}
+                    onChange={(e) => setDay(parseInt(e.target.value))}
                   >
                     <option value="">Day</option>
                     {days.map(d => (
@@ -587,235 +965,259 @@ const DrawManagement = () => {
                       <option key={y} value={y}>{y}</option>
                     ))}
                   </Select>
-                </DateSelectionContainer>
-                
-                {day && (
-                  <div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#666' }}>
-                    Selected: {formatDate(year, month, day)} ({getDayOfWeek(year, month, day)})
-                    <br />
-                    Recommended digits: {getRecommendedDigits().join(', ')}
-                  </div>
-                )}
+                </DateSelectionGrid>
+              </FormGroup>
+              
+              <FormGroup>
+                <Label>Last Digit Selection</Label>
+                <DigitSelectionGrid>
+                  <AllDigitsButton 
+                    onClick={handleSelectAllDigits}
+                    disabled={!day}
+                  >
+                    Select All Digits
+                  </AllDigitsButton>
+                  
+                  {['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].map(digit => {
+                    const recommended = isRecommendedDigit(digit);
+                    
+                    return (
+                      <DigitCheckbox key={digit}>
+                        <DigitInput 
+                          type="checkbox"
+                          id={`digit-${digit}`}
+                          checked={selectedDigits.includes(digit)}
+                          onChange={() => handleDigitChange(digit)}
+                          disabled={!day}
+                        />
+                        <DigitLabel 
+                          htmlFor={`digit-${digit}`}
+                          recommended={recommended}
+                        >
+                          {digit}
+                        </DigitLabel>
+                      </DigitCheckbox>
+                    );
+                  })}
+                </DigitSelectionGrid>
               </FormGroup>
             </div>
             
             <div>
-              <FormGroup>
-                <Label>Last Digit Selection</Label>
-                <CheckboxGroup>
-                  <CheckboxLabel>
-                    <Checkbox 
-                      type="checkbox"
-                      checked={selectedDigits.length === 10}
-                      onChange={handleSelectAllDigits}
-                      disabled={!day}
-                    />
-                    All
-                  </CheckboxLabel>
-                  
-                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => {
-                    const digitStr = digit.toString();
-                    const recommended = isRecommendedDigit(digitStr);
-                    
-                    return (
-                      <CheckboxLabel key={digit} recommended={recommended}>
-                        <Checkbox 
-                          type="checkbox"
-                          value={digitStr}
-                          checked={selectedDigits.includes(digitStr)}
-                          onChange={() => handleDigitChange(digitStr)}
-                          disabled={!day}
-                        />
-                        {digit}
-                      </CheckboxLabel>
-                    );
-                  })}
-                </CheckboxGroup>
-              </FormGroup>
-            </div>
-          </DrawControls>
-          
-          {/* Prize Structure Display */}
-          <div className="mb-6">
-            <h3 className="text-lg font-bold mb-3 text-bridgetunes-blue">Prize Structure</h3>
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-bold text-bridgetunes-dark mb-2">
-                    {isSaturday() ? 'Saturday Mega Prizes' : 'Daily Prizes'}
-                  </h4>
-                  <ul className="space-y-2">
-                    <li className="flex justify-between">
-                      <span>Jackpot (1st Prize):</span>
-                      <span className="font-bold text-green-600">
+              <CardTitle>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM7 10.82C5.84 10.4 5 9.3 5 8V7h2v3.82zM12 16c-1.65 0-3-1.35-3-3V5h6v8c0 1.65-1.35 3-3 3zm7-8c0 1.3-.84 2.4-2 2.82V7h2v1z"/>
+                </svg>
+                Prize Structure
+              </CardTitle>
+              
+              <PrizeStructureGrid>
+                <PrizeCard>
+                  <PrizeCardTitle>
+                    {isSaturday()  ? 'Saturday Mega Prizes' : 'Daily Prizes'}
+                  </PrizeCardTitle>
+                  <PrizeList>
+                    <PrizeItem>
+                      <PrizeName>Jackpot (1st Prize)</PrizeName>
+                      <PrizeValue>
                         {formatCurrency(getCurrentPrizeStructure().jackpot)}
-                      </span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>2nd Prize:</span>
-                      <span className="font-bold text-green-600">
+                      </PrizeValue>
+                    </PrizeItem>
+                    <PrizeItem>
+                      <PrizeName>2nd Prize</PrizeName>
+                      <PrizeValue>
                         {formatCurrency(getCurrentPrizeStructure().second)}
-                      </span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>3rd Prize:</span>
-                      <span className="font-bold text-green-600">
+                      </PrizeValue>
+                    </PrizeItem>
+                    <PrizeItem>
+                      <PrizeName>3rd Prize</PrizeName>
+                      <PrizeValue>
                         {formatCurrency(getCurrentPrizeStructure().third)}
-                      </span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Consolation Prizes ({getCurrentPrizeStructure().consolationCount}):</span>
-                      <span className="font-bold text-green-600">
-                        {formatCurrency(getCurrentPrizeStructure().consolation)} each
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-bold text-bridgetunes-dark mb-2">Draw Details</h4>
-                  <ul className="space-y-2">
-                    <li className="flex justify-between">
-                      <span>Day:</span>
-                      <span className="font-medium">{day ? getDayOfWeek(year, month, day) : 'Not selected'}</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Eligible Numbers:</span>
-                      <span className="font-medium">
-                        {selectedDigits.length > 0 
-                          ? `Ending with ${selectedDigits.join(', ')}` 
-                          : 'None selected'}
-                      </span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Total Prize Pool:</span>
-                      <span className="font-bold text-green-600">
-                        {formatCurrency(
-                          getCurrentPrizeStructure().jackpot +
-                          getCurrentPrizeStructure().second +
-                          getCurrentPrizeStructure().third +
-                          (getCurrentPrizeStructure().consolation * getCurrentPrizeStructure().consolationCount)
-                        )}
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
+                      </PrizeValue>
+                    </PrizeItem>
+                    <PrizeItem>
+                      <PrizeName>Consolation Prizes</PrizeName>
+                      <PrizeValue>
+                        {getCurrentPrizeStructure().consolationCount} x {formatCurrency(getCurrentPrizeStructure().consolation)}
+                      </PrizeValue>
+                    </PrizeItem>
+                  </PrizeList>
+                </PrizeCard>
+              </PrizeStructureGrid>
+              
+              {day && (
+                <DrawDetailsGrid>
+                  <DetailItem>
+                    <DetailLabel>Day of Week</DetailLabel>
+                    <DetailValue>{getDayOfWeek(year, month, day)}</DetailValue>
+                  </DetailItem>
+                  <DetailItem>
+                    <DetailLabel>Selected Digits</DetailLabel>
+                    <DetailValue>{selectedDigits.join(', ') || 'None'}</DetailValue>
+                  </DetailItem>
+                  <DetailItem>
+                    <DetailLabel>Total Prize Pool</DetailLabel>
+                    <TotalPrizeValue>{formatCurrency(calculateTotalPrizePool())}</TotalPrizeValue>
+                  </DetailItem>
+                </DrawDetailsGrid>
+              )}
             </div>
-          </div>
+          </FormGrid>
           
           <ButtonContainer>
-            <StyledButton 
+            <Button 
               onClick={executeDraw}
-              disabled={!day || selectedDigits.length === 0 || drawStage === 'drawing'}
+              disabled={isLoading || !day || selectedDigits.length === 0}
             >
-              {drawStage === 'drawing' ? 'Drawing...' : 'Execute Draw'}
-            </StyledButton>
+              {isLoading ? 'Processing...' : 'Execute Draw'}
+            </Button>
           </ButtonContainer>
-        </DrawSection>
+        </Card>
         
-        {drawStage === 'drawing' && (
-          <DrawSection>
-            <PageHeader>
-              <h2>Draw in Progress</h2>
-              <p>Please wait while we select winners...</p>
-            </PageHeader>
-            
-            {/* You can add a loading animation here */}
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🎲</div>
-              <p>Selecting from {msisdnData.length} eligible numbers</p>
-            </div>
-          </DrawSection>
+        {drawStage === 'loading' && (
+          <Card>
+            <LoadingSpinner>
+              <div className="spinner"></div>
+              <LoadingText>Drawing winners...</LoadingText>
+            </LoadingSpinner>
+          </Card>
         )}
         
         {drawStage === 'complete' && (
           <ResultsSection>
-            <DrawSection>
-              <PageHeader>
-                <h2>Draw Results</h2>
-                <p>The following winners have been selected:</p>
-              </PageHeader>
+            {jackpotRollover && (
+              <AlertBox type="warning">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                <div>
+                  <strong>Jackpot Rollover:</strong> The jackpot winner has not opted in to the promotion. 
+                  The jackpot prize will roll over to the next draw.
+                </div>
+              </AlertBox>
+            ) }
+            
+            <Card>
+              <CardTitle>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                Draw Results
+              </CardTitle>
               
-              {jackpotRollover && (
-                <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <svg className="h-5 w-5 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                      </svg>
+              <WinnersGrid>
+                {winners.length > 0 && winners.find(w => w.prizeCategory === 'jackpot')  && (
+                  <JackpotWinnerCard>
+                    <WinnerTitle>Jackpot Winner</WinnerTitle>
+                    <WinnerNumber>
+                      {formatMsisdn(winners.find(w => w.prizeCategory === 'jackpot').msisdn)}
+                    </WinnerNumber>
+                    <WinnerPrize>
+                      {formatCurrency(winners.find(w => w.prizeCategory === 'jackpot').prize)}
+                    </WinnerPrize>
+                    <div>
+                      <StatusBadge variant={winners.find(w => w.prizeCategory === 'jackpot').optInStatus ? 'success' : 'error'}>
+                        {winners.find(w => w.prizeCategory === 'jackpot').optInStatus ? 'Opted In' : 'Not Opted In'}
+                      </StatusBadge>
+                      <StatusBadge variant={winners.find(w => w.prizeCategory === 'jackpot').validWinner ? 'success' : 'error'}>
+                        {winners.find(w => w.prizeCategory === 'jackpot').validWinner ? 'Valid Winner' : 'Invalid - Jackpot Rolls Over'}
+                      </StatusBadge>
                     </div>
-                    <div className="ml-3">
-                      <p className="text-sm">
-                        <strong>Jackpot Rollover:</strong> The jackpot winner has not opted in to the promotion. 
-                        The jackpot prize will roll over to the next draw.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ) }
-              
-              <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                <h3>Jackpot Winner</h3>
-                <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-                  {winningNumber}
-                </div>
-                <div style={{ fontSize: '1.25rem', color: 'green', marginTop: '0.5rem' }}>
-                  Prize: {formatCurrency(prizeAmount)}
-                </div>
-              </div>
-              
-              <WinnersList>
-                <h3>All Winners</h3>
-                <WinnersTable>
-                  <thead>
-                    <tr>
-                      <th>Phone Number</th>
-                      <th>Prize Amount</th>
-                      <th>Draw Date</th>
-                      <th>Opt-In Status</th>
-                      <th>Valid Winner</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {winners.map((winner, index) => (
-                      <tr key={index}>
-                        <td>{winner.msisdn}</td>
-                        <td>{formatCurrency(winner.prize)}</td>
-                        <td>{winner.date}</td>
-                        <td>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            winner.optInStatus ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {winner.optInStatus ? 'Yes' : 'No'}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            winner.validWinner ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {winner.validWinner ? 'Valid' : (winner.prizeCategory === 'jackpot' ? 'Invalid - Jackpot Rolls Over' : 'Invalid')}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </WinnersTable>
-              </WinnersList>
-              
-              <ButtonContainer>
-                <StyledButton onClick={() => setDrawStage('idle')}>
-                  Start New Draw
-                </StyledButton>
-              </ButtonContainer>
-            </DrawSection>
+                  </JackpotWinnerCard>
+                )}
+                
+                {winners.length > 0 && winners.find(w => w.prizeCategory === 'second') && (
+                  <WinnerCard>
+                    <WinnerCardHeader>
+                      <WinnerCardTitle>2nd Prize Winner</WinnerCardTitle>
+                      <WinnerCardPrize>
+                        {formatCurrency(winners.find(w => w.prizeCategory === 'second').prize)}
+                      </WinnerCardPrize>
+                    </WinnerCardHeader>
+                    <WinnerCardBody>
+                      <WinnerCardNumber>
+                        {formatMsisdn(winners.find(w => w.prizeCategory === 'second').msisdn)}
+                      </WinnerCardNumber>
+                      <div>
+                        <StatusBadge variant={winners.find(w => w.prizeCategory === 'second').optInStatus ? 'success' : 'error'}>
+                          {winners.find(w => w.prizeCategory === 'second').optInStatus ? 'Opted In' : 'Not Opted In'}
+                        </StatusBadge>
+                        <StatusBadge variant={winners.find(w => w.prizeCategory === 'second').validWinner ? 'success' : 'error'}>
+                          {winners.find(w => w.prizeCategory === 'second').validWinner ? 'Valid Winner' : 'Invalid'}
+                        </StatusBadge>
+                      </div>
+                    </WinnerCardBody>
+                    <WinnerCardFooter>
+                      <WinnerCardDate>
+                        Draw Date: {winners.find(w => w.prizeCategory === 'second').date}
+                      </WinnerCardDate>
+                    </WinnerCardFooter>
+                  </WinnerCard>
+                )}
+                
+                {winners.length > 0 && winners.find(w => w.prizeCategory === 'third') && (
+                  <WinnerCard>
+                    <WinnerCardHeader>
+                      <WinnerCardTitle>3rd Prize Winner</WinnerCardTitle>
+                      <WinnerCardPrize>
+                        {formatCurrency(winners.find(w => w.prizeCategory === 'third').prize)}
+                      </WinnerCardPrize>
+                    </WinnerCardHeader>
+                    <WinnerCardBody>
+                      <WinnerCardNumber>
+                        {formatMsisdn(winners.find(w => w.prizeCategory === 'third').msisdn)}
+                      </WinnerCardNumber>
+                      <div>
+                        <StatusBadge variant={winners.find(w => w.prizeCategory === 'third').optInStatus ? 'success' : 'error'}>
+                          {winners.find(w => w.prizeCategory === 'third').optInStatus ? 'Opted In' : 'Not Opted In'}
+                        </StatusBadge>
+                        <StatusBadge variant={winners.find(w => w.prizeCategory === 'third').validWinner ? 'success' : 'error'}>
+                          {winners.find(w => w.prizeCategory === 'third').validWinner ? 'Valid Winner' : 'Invalid'}
+                        </StatusBadge>
+                      </div>
+                    </WinnerCardBody>
+                    <WinnerCardFooter>
+                      <WinnerCardDate>
+                        Draw Date: {winners.find(w => w.prizeCategory === 'third').date}
+                      </WinnerCardDate>
+                    </WinnerCardFooter>
+                  </WinnerCard>
+                )}
+                
+                {winners.filter(w => w.prizeCategory === 'consolation').map((winner, index) => (
+                  <WinnerCard key={index}>
+                    <WinnerCardHeader>
+                      <WinnerCardTitle>Consolation Winner #{index + 1}</WinnerCardTitle>
+                      <WinnerCardPrize>
+                        {formatCurrency(winner.prize)}
+                      </WinnerCardPrize>
+                    </WinnerCardHeader>
+                    <WinnerCardBody>
+                      <WinnerCardNumber>
+                        {formatMsisdn(winner.msisdn)}
+                      </WinnerCardNumber>
+                      <div>
+                        <StatusBadge variant={winner.optInStatus ? 'success' : 'error'}>
+                          {winner.optInStatus ? 'Opted In' : 'Not Opted In'}
+                        </StatusBadge>
+                        <StatusBadge variant={winner.validWinner ? 'success' : 'error'}>
+                          {winner.validWinner ? 'Valid Winner' : 'Invalid'}
+                        </StatusBadge>
+                      </div>
+                    </WinnerCardBody>
+                    <WinnerCardFooter>
+                      <WinnerCardDate>
+                        Draw Date: {winner.date}
+                      </WinnerCardDate>
+                    </WinnerCardFooter>
+                  </WinnerCard>
+                ))}
+              </WinnersGrid>
+            </Card>
           </ResultsSection>
         )}
-      </PageContainer>
+      </MainContent>
       <Footer />
-    </>
+    </PageContainer>
   );
-};
-
-export default DrawManagement;
-
-
+}
