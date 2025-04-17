@@ -2,56 +2,59 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import OptInService from '../services/OptInService';
 
-// Styled components
-const FormContainer = styled.div`
-  background-color: ${props => props.theme.colors.white};
-  border-radius: ${props => props.theme.radii.lg};
-  box-shadow: ${props => props.theme.shadows.md};
+// Styled Components
+const FormCard = styled.div`
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   padding: 1.5rem;
-  max-width: 28rem;
+  max-width: 32rem;
   margin: 0 auto;
+  height: 100%;
 `;
 
 const FormTitle = styled.h2`
-  font-size: ${props => props.theme.fontSizes['2xl']};
+  font-size: 1.5rem;
   font-weight: ${props => props.theme.fontWeights.bold};
-  margin-bottom: 1rem;
+  color: ${props => props.theme.colors.bridgetunesDark};
   text-align: center;
+  margin-bottom: 1.5rem;
 `;
 
 const SuccessMessage = styled.div`
-  background-color: #d1fae5;
-  border: 1px solid #34d399;
-  color: #065f46;
-  padding: 0.75rem 1rem;
-  border-radius: ${props => props.theme.radii.md};
+  background-color: #f0fff4;
+  border: 1px solid #68d391;
+  color: #2f855a;
+  padding: 1rem;
+  border-radius: 0.375rem;
   margin-bottom: 1rem;
 `;
 
 const SuccessTitle = styled.p`
   font-weight: ${props => props.theme.fontWeights.bold};
+  margin-bottom: 0.5rem;
 `;
 
 const SuccessText = styled.p`
-  margin-top: 0.25rem;
+  margin-bottom: 1rem;
 `;
 
 const ErrorMessage = styled.div`
-  background-color: #fee2e2;
-  border: 1px solid #f87171;
-  color: #b91c1c;
-  padding: 0.75rem 1rem;
-  border-radius: ${props => props.theme.radii.md};
+  background-color: #fff5f5;
+  border: 1px solid #fc8181;
+  color: #c53030;
+  padding: 1rem;
+  border-radius: 0.375rem;
   margin-bottom: 1rem;
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 `;
 
 const Label = styled.label`
   display: block;
-  font-size: ${props => props.theme.fontSizes.sm};
+  font-size: 0.875rem;
   font-weight: ${props => props.theme.fontWeights.medium};
   color: ${props => props.theme.colors.gray700};
   margin-bottom: 0.25rem;
@@ -59,20 +62,25 @@ const Label = styled.label`
 
 const Input = styled.input`
   width: 100%;
-  padding: 0.5rem 0.75rem;
+  padding: 0.75rem;
   border: 1px solid ${props => props.theme.colors.gray300};
-  border-radius: ${props => props.theme.radii.md};
-  font-size: ${props => props.theme.fontSizes.md};
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
   
   &:focus {
     outline: none;
-    border-color: ${props => props.theme.colors.bridgetunesBlue};
-    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+    border-color: ${props => props.theme.colors.mtnYellow};
+    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2);
+  }
+  
+  &::placeholder {
+    color: ${props => props.theme.colors.gray400};
   }
 `;
 
 const HelpText = styled.p`
-  font-size: ${props => props.theme.fontSizes.xs};
+  font-size: 0.75rem;
   color: ${props => props.theme.colors.gray500};
   margin-top: 0.25rem;
 `;
@@ -87,56 +95,52 @@ const Checkbox = styled.input`
   height: 1rem;
   width: 1rem;
   color: ${props => props.theme.colors.mtnYellow};
-  border-color: ${props => props.theme.colors.gray300};
-  border-radius: ${props => props.theme.radii.sm};
+  border: 1px solid ${props => props.theme.colors.gray300};
+  border-radius: 0.25rem;
   
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.1);
+    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2);
   }
 `;
 
 const CheckboxLabel = styled.label`
   margin-left: 0.5rem;
-  display: block;
-  font-size: ${props => props.theme.fontSizes.sm};
+  font-size: 0.875rem;
   color: ${props => props.theme.colors.gray700};
 `;
 
-const Button = styled.button`
+const SubmitButton = styled.button`
   width: 100%;
-  background-color: ${props => props.theme.colors.bridgetunesBlue};
-  color: ${props => props.theme.colors.white};
-  font-weight: ${props => props.theme.fontWeights.semibold};
-  padding: 0.5rem 1rem;
+  background-color: ${props => props.disabled ? props.theme.colors.gray400 : props.theme.colors.mtnYellow};
+  color: ${props => props.theme.colors.mtnBlack};
+  font-weight: ${props => props.theme.fontWeights.bold};
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
   border: none;
-  border-radius: ${props => props.theme.radii.md};
-  cursor: pointer;
-  transition: background-color ${props => props.theme.transitions.default};
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  transition: all 0.2s ease;
   
   &:hover {
-    background-color: ${props => props.theme.colors.bridgetunesLightBlue};
-  }
-  
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
+    background-color: ${props => props.disabled ? props.theme.colors.gray400 : '#e6b800'};
+    transform: ${props => props.disabled ? 'none' : 'translateY(-2px)'};
   }
 `;
 
-const InfoSection = styled.div`
-  margin-top: 1rem;
+const AlternativeOptions = styled.div`
+  margin-top: 1.5rem;
   text-align: center;
-  font-size: ${props => props.theme.fontSizes.sm};
+  font-size: 0.875rem;
   color: ${props => props.theme.colors.gray500};
 `;
 
-const InfoList = styled.ul`
+const OptionsList = styled.ul`
   margin-top: 0.5rem;
-  space-y: 0.25rem;
+  list-style: none;
+  padding: 0;
 `;
 
-const InfoItem = styled.li`
+const OptionItem = styled.li`
   margin-bottom: 0.25rem;
 `;
 
@@ -210,19 +214,21 @@ const OptInForm = ({ onOptInSuccess }) => {
   };
 
   return (
-    <FormContainer>
+    <FormCard>
       <FormTitle>Join the Promotion</FormTitle>
       
       {success ? (
         <SuccessMessage>
           <SuccessTitle>Success!</SuccessTitle>
-          <SuccessText>You have successfully opted in to the MyNumba Don Win promotion. Start recharging your MTN line to qualify for draws!</SuccessText>
-          <Button 
+          <SuccessText>
+            You have successfully opted in to the MyNumba Don Win promotion. 
+            Start recharging your MTN line to qualify for draws!
+          </SuccessText>
+          <SubmitButton 
             onClick={() => setSuccess(false)}
-            style={{ marginTop: '1rem' }}
           >
             Register Another Number
-          </Button>
+          </SubmitButton>
         </SuccessMessage>
       ) : (
         <form onSubmit={handleSubmit}>
@@ -274,27 +280,26 @@ const OptInForm = ({ onOptInSuccess }) => {
             </CheckboxLabel>
           </CheckboxContainer>
           
-          <Button
+          <SubmitButton
             type="submit"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Processing...' : 'Opt-In to Win'}
-          </Button>
+          </SubmitButton>
           
-          <InfoSection>
+          <AlternativeOptions>
             <p>You can also register by:</p>
-            <InfoList>
-              <InfoItem>Sending "JOIN" to 5050</InfoItem>
-              <InfoItem>Dialing *123*1# and selecting option 1</InfoItem>
-              <InfoItem>Using the MyMTN app</InfoItem>
-            </InfoList>
-          </InfoSection>
+            <OptionsList>
+              <OptionItem>Sending "JOIN" to 5050</OptionItem>
+              <OptionItem>Dialing *123*1# and selecting option 1</OptionItem>
+              <OptionItem>Using the MyMTN app</OptionItem>
+            </OptionsList>
+          </AlternativeOptions>
         </form>
       )}
-    </FormContainer>
+    </FormCard>
   );
 };
 
 export default OptInForm;
-
 
