@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import DrawAnimation from '../components/DrawAnimation';
-import Button from '../components/Button'; // Import the new Button component
 
 // Styled components for the page
 const PageContainer = styled.div`
@@ -98,6 +97,31 @@ const ButtonContainer = styled.div`
   
   @media (min-width: ${props => props.theme.breakpoints.md}) {
     margin-top: 0;
+  }
+`;
+
+// Styled button instead of importing Button component
+const StyledButton = styled.button`
+  background-color: ${props => props.theme.colors.bridgetunesBlue};
+  color: ${props => props.theme.colors.white};
+  font-weight: ${props => props.theme.fontWeights.semibold};
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: ${props => props.theme.radii.md};
+  cursor: pointer;
+  transition: all ${props => props.theme.transitions.default};
+  
+  &:hover {
+    background-color: ${props => props.theme.colors.bridgetunesLightBlue};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 
@@ -240,13 +264,12 @@ const DrawManagement = () => {
             </FormGroup>
             
             <ButtonContainer>
-              <Button 
-                variant="primary" 
+              <StyledButton 
                 onClick={executeDraw}
                 disabled={drawStage === 'drawing'}
               >
                 {drawStage === 'drawing' ? 'Drawing...' : 'Execute Draw'}
-              </Button>
+              </StyledButton>
             </ButtonContainer>
           </DrawControls>
           
@@ -290,4 +313,5 @@ const DrawManagement = () => {
 };
 
 export default DrawManagement;
+
 
