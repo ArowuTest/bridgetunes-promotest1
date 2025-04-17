@@ -4,13 +4,13 @@ import styled from 'styled-components';
 
 // Styled components
 const HeaderContainer = styled.header`
-  background-color: ${props => props.theme.colors.bridgetunesDark}; // Darker background for better contrast
+  background-color: ${props => props.theme.colors.mtnBlack};
   color: ${props => props.theme.colors.white};
   padding: 1rem 0;
   position: sticky;
   top: 0;
   z-index: 50;
-  box-shadow: ${props => props.theme.shadows.md};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const Container = styled.div`
@@ -32,7 +32,7 @@ const LogoContainer = styled.div`
 `;
 
 const BrandText = styled.span`
-  font-size: ${props => props.theme.fontSizes['2xl']};
+  font-size: 1.75rem;
   font-weight: ${props => props.theme.fontWeights.bold};
   color: ${props => props.theme.colors.white};
 `;
@@ -58,7 +58,9 @@ const DesktopNav = styled.nav`
 
 const NavList = styled.ul`
   display: flex;
-  space-x: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 `;
 
 const NavItem = styled.li`
@@ -67,23 +69,33 @@ const NavItem = styled.li`
 
 const NavLink = styled.a`
   padding: 0.5rem 0.75rem;
-  border-radius: ${props => props.theme.radii.md};
+  border-radius: 0.375rem;
   font-weight: ${props => props.theme.fontWeights.medium};
-  color: ${props => props.theme.colors.white}; // Ensure text is white
-  transition: all ${props => props.theme.transitions.default};
+  color: ${props => props.theme.colors.white};
+  text-decoration: none;
+  transition: color 0.2s ease;
   
   &:hover {
     color: ${props => props.theme.colors.mtnYellow};
-    background-color: rgba(255, 255, 255, 0.1); // Add hover background
   }
 `;
 
 const MobileMenuButton = styled.button`
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   color: ${props => props.theme.colors.white};
   background: none;
   border: none;
   cursor: pointer;
+  padding: 0;
+  border-radius: 4px;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
   
   @media (min-width: ${props => props.theme.breakpoints.md}) {
     display: none;
@@ -91,11 +103,15 @@ const MobileMenuButton = styled.button`
 `;
 
 const MobileMenu = styled.div`
-  margin-top: 1rem;
-  background-color: ${props => props.theme.colors.bridgetunesDark}; // Match header background
-  border-radius: ${props => props.theme.radii.lg};
-  box-shadow: ${props => props.theme.shadows.lg};
-  padding: 1rem;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: ${props => props.theme.colors.mtnBlack};
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0;
+  z-index: 40;
   
   @media (min-width: ${props => props.theme.breakpoints.md}) {
     display: none;
@@ -105,23 +121,26 @@ const MobileMenu = styled.div`
 const MobileNavList = styled.ul`
   display: flex;
   flex-direction: column;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 `;
 
 const MobileNavItem = styled.li`
-  margin: 0.5rem 0;
+  margin: 0;
 `;
 
 const MobileNavLink = styled.a`
   display: block;
-  padding: 0.5rem 0.75rem;
-  border-radius: ${props => props.theme.radii.md};
+  padding: 0.75rem 1.5rem;
   font-weight: ${props => props.theme.fontWeights.medium};
-  color: ${props => props.theme.colors.white}; // Ensure text is white
-  transition: all ${props => props.theme.transitions.default};
+  color: ${props => props.theme.colors.white};
+  text-decoration: none;
+  transition: background-color 0.2s ease;
   
   &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
     color: ${props => props.theme.colors.mtnYellow};
-    background-color: rgba(255, 255, 255, 0.1); // Add hover background
   }
 `;
 
@@ -137,8 +156,8 @@ const Header = () => {
       <Container>
         <FlexContainer>
           <LogoContainer>
-            <Link href="/" passHref legacyBehavior>
-              <a>
+            <Link href="/" passHref>
+              <a style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
                 {/* Bridgetunes Logo */}
                 <BrandText>Bridge<BrandHighlight>tunes</BrandHighlight></BrandText>
                 {/* Divider */}
@@ -153,22 +172,22 @@ const Header = () => {
           <DesktopNav>
             <NavList>
               <NavItem>
-                <Link href="/" passHref legacyBehavior>
+                <Link href="/" passHref>
                   <NavLink>Home</NavLink>
                 </Link>
               </NavItem>
               <NavItem>
-                <Link href="/opt-in" passHref legacyBehavior>
+                <Link href="/opt-in" passHref>
                   <NavLink>Opt-In</NavLink>
                 </Link>
               </NavItem>
               <NavItem>
-                <Link href="/draw-management" passHref legacyBehavior>
+                <Link href="/draw-management" passHref>
                   <NavLink>Draw Management</NavLink>
                 </Link>
               </NavItem>
               <NavItem>
-                <Link href="/admin" passHref legacyBehavior>
+                <Link href="/admin" passHref>
                   <NavLink>Admin Dashboard</NavLink>
                 </Link>
               </NavItem>
@@ -176,7 +195,7 @@ const Header = () => {
           </DesktopNav>
           
           {/* Mobile Menu Button */}
-          <MobileMenuButton onClick={toggleMobileMenu}>
+          <MobileMenuButton onClick={toggleMobileMenu} aria-label="Toggle menu">
             <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
@@ -188,22 +207,22 @@ const Header = () => {
           <MobileMenu>
             <MobileNavList>
               <MobileNavItem>
-                <Link href="/" passHref legacyBehavior>
+                <Link href="/" passHref>
                   <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
                 </Link>
               </MobileNavItem>
               <MobileNavItem>
-                <Link href="/opt-in" passHref legacyBehavior>
+                <Link href="/opt-in" passHref>
                   <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Opt-In</MobileNavLink>
                 </Link>
               </MobileNavItem>
               <MobileNavItem>
-                <Link href="/draw-management" passHref legacyBehavior>
+                <Link href="/draw-management" passHref>
                   <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Draw Management</MobileNavLink>
                 </Link>
               </MobileNavItem>
               <MobileNavItem>
-                <Link href="/admin" passHref legacyBehavior>
+                <Link href="/admin" passHref>
                   <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Admin Dashboard</MobileNavLink>
                 </Link>
               </MobileNavItem>
@@ -216,5 +235,3 @@ const Header = () => {
 };
 
 export default Header;
-
-
