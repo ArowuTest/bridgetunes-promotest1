@@ -1,7 +1,315 @@
 import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import Head from 'next/head';
+import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import OptInForm from '../components/OptInForm';
+
+// Styled Components
+const PageContainer = styled.div`
+  min-height: 100vh;
+  background-color: ${props => props.theme.colors.mtnLight};
+`;
+
+const HeroSection = styled.section`
+  background: linear-gradient(to right, ${props => props.theme.colors.mtnBlack}, ${props => props.theme.colors.mtnGray});
+  color: white;
+  padding: 4rem 0;
+`;
+
+const SectionContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+`;
+
+const HeroGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    grid-template-columns: 1fr 1fr;
+  }
+`;
+
+const HeroContent = styled.div``;
+
+const HeroTitle = styled.h1`
+  font-size: 2.5rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  margin-bottom: 1rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    font-size: 3rem;
+  }
+`;
+
+const HeroHighlight = styled.span`
+  color: ${props => props.theme.colors.mtnYellow};
+`;
+
+const HeroDescription = styled.p`
+  font-size: 1.125rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+`;
+
+const PrimaryButton = styled(Link)`
+  display: inline-block;
+  background-color: ${props => props.theme.colors.mtnYellow};
+  color: ${props => props.theme.colors.mtnBlack};
+  font-weight: ${props => props.theme.fontWeights.bold};
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: #e6b800;
+    transform: translateY(-2px);
+  }
+`;
+
+const SecondaryButton = styled(Link)`
+  display: inline-block;
+  background-color: transparent;
+  color: white;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  border: 2px solid white;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+`;
+
+const CountdownContainer = styled.div`
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 0.75rem;
+  padding: 2rem;
+`;
+
+const CountdownTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  margin-bottom: 1.5rem;
+  text-align: center;
+`;
+
+const CountdownGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+`;
+
+const CountdownItem = styled.div`
+  text-align: center;
+`;
+
+const CountdownValue = styled.div`
+  font-size: 2.5rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.mtnYellow};
+  line-height: 1;
+  margin-bottom: 0.5rem;
+`;
+
+const CountdownLabel = styled.div`
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
+const PrizeAmount = styled.div`
+  text-align: center;
+  margin-top: 1.5rem;
+`;
+
+const PrizeLabel = styled.div`
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+`;
+
+const PrizeValue = styled.div`
+  font-size: 2rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.mtnYellow};
+`;
+
+const MainSection = styled.section`
+  padding: 4rem 0;
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 2rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+  text-align: center;
+  margin-bottom: 2.5rem;
+`;
+
+const PrizeStructureSection = styled.section`
+  padding: 4rem 0;
+  background-color: ${props => props.theme.colors.gray50};
+`;
+
+const PrizeGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    grid-template-columns: 1fr 1fr;
+  }
+`;
+
+const PrizeCard = styled.div`
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+  height: 100%;
+`;
+
+const PrizeCardTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid ${props => props.theme.colors.gray200};
+`;
+
+const PrizeCardSubtitle = styled.h4`
+  font-size: 1rem;
+  font-weight: ${props => props.theme.fontWeights.medium};
+  color: ${props => props.theme.colors.gray600};
+  margin-bottom: 1rem;
+`;
+
+const PrizeList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+`;
+
+const PrizeItem = styled.li`
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid ${props => props.theme.colors.gray100};
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const PrizeName = styled.span`
+  font-weight: ${props => props.theme.fontWeights.medium};
+`;
+
+const PrizeItemValue = styled.span`
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+`;
+
+const HowItWorksSection = styled.section`
+  padding: 4rem 0;
+`;
+
+const StepsGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.sm}) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (min-width: ${props => props.theme.breakpoints.lg}) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+`;
+
+const StepCard = styled.div`
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+  height: 100%;
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+  }
+`;
+
+const StepNumber = styled.div`
+  width: 3rem;
+  height: 3rem;
+  background-color: ${props => props.theme.colors.mtnYellow};
+  color: ${props => props.theme.colors.mtnBlack};
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+`;
+
+const StepTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+  margin-bottom: 0.75rem;
+`;
+
+const StepDescription = styled.p`
+  color: ${props => props.theme.colors.gray600};
+  line-height: 1.5;
+`;
+
+const OptInSection = styled.section`
+  padding: 4rem 0;
+  background-color: ${props => props.theme.colors.gray50};
+`;
+
+const AboutSection = styled.section`
+  padding: 4rem 0;
+`;
+
+const AboutCard = styled.div`
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+`;
+
+const AboutText = styled.p`
+  color: ${props => props.theme.colors.gray700};
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
 
 export default function Home() {
   const [countdown, setCountdown] = useState({
@@ -11,354 +319,218 @@ export default function Home() {
     seconds: 0
   });
   
-  const [winners, setWinners] = useState({
-    daily: [],
-    weekly: []
-  });
-  
-  // Set next draw date (example: next Saturday at 8 PM)
+  // Calculate countdown to next Saturday
   useEffect(() => {
     const calculateTimeLeft = () => {
-      // Get current date
       const now = new Date();
+      const daysUntilSaturday = (6 - now.getDay() + 7) % 7 || 7; // If today is Saturday, get next Saturday
+      const nextSaturday = new Date(now);
+      nextSaturday.setDate(now.getDate() + daysUntilSaturday);
+      nextSaturday.setHours(12, 0, 0, 0); // Set to noon
       
-      // Calculate next draw date (Saturday 8 PM)
-      const nextDraw = new Date();
-      nextDraw.setDate(nextDraw.getDate() + (6 - nextDraw.getDay()));
-      nextDraw.setHours(20, 0, 0, 0);
-      
-      // If today is Saturday and it's past 8 PM, set to next Saturday
-      if (now.getDay() === 6 && now.getHours() >= 20) {
-        nextDraw.setDate(nextDraw.getDate() + 7);
-      }
-      
-      // Calculate difference
-      const difference = nextDraw - now;
+      const difference = nextSaturday - now;
       
       if (difference > 0) {
-        setCountdown({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60)
-        });
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((difference / 1000 / 60) % 60);
+        const seconds = Math.floor((difference / 1000) % 60);
+        
+        setCountdown({ days, hours, minutes, seconds });
       }
     };
     
-    // Update countdown every second
+    calculateTimeLeft();
     const timer = setInterval(calculateTimeLeft, 1000);
     
-    // Initial calculation
-    calculateTimeLeft();
-    
-    // Cleanup
     return () => clearInterval(timer);
   }, []);
-  
-  // Load sample winners
-  useEffect(() => {
-    // In a real implementation, this would be an API call
-    // For the prototype, we'll use sample data
-    const sampleWinners = {
-      daily: [
-        { msisdn: '0803******65', prize: '₦100,000', date: '15 Apr 2025' },
-        { msisdn: '0805******22', prize: '₦50,000', date: '14 Apr 2025' },
-        { msisdn: '0701******91', prize: '₦25,000', date: '13 Apr 2025' }
-      ],
-      weekly: [
-        { msisdn: '0803******12', prize: '₦1,000,000', date: '12 Apr 2025' },
-        { msisdn: '0805******78', prize: '₦500,000', date: '05 Apr 2025' },
-        { msisdn: '0701******45', prize: '₦250,000', date: '29 Mar 2025' }
-      ]
-    };
-    
-    setWinners(sampleWinners);
-  }, []);
-  
-  // Handle successful opt-in
-  const handleOptInSuccess = (newOptIn) => {
-    // In a real implementation, this would update the backend
-    console.log('New opt-in:', newOptIn);
-  };
 
   return (
-    <div className="min-h-screen bg-mtn-light">
-      <head>
-        <title>MyNumba Don Win | A Bridgetunes Promotion with MTN Nigeria</title>
-        <meta name="description" content="Join the MyNumba Don Win promotion by Bridgetunes and MTN Nigeria" />
+    <PageContainer>
+      <Head>
+        <title>MyNumba Don Win | Bridgetunes</title>
+        <meta name="description" content="Win amazing cash prizes with MyNumba Don Win promotion by Bridgetunes and MTN" />
         <link rel="icon" href="/favicon.ico" />
-      </head>
+      </Head>
 
       {/* Header */}
       <Header />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-mtn-black to-mtn-gray text-white py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                <span className="text-mtn-yellow">MyNumba</span> Don Win
-              </h1>
-              <p className="text-xl mb-6">
+      <HeroSection>
+        <SectionContainer>
+          <HeroGrid>
+            <HeroContent>
+              <HeroTitle>
+                My<HeroHighlight>Numba</HeroHighlight> Don Win
+              </HeroTitle>
+              <HeroDescription>
                 A Bridgetunes promotion in partnership with MTN Nigeria. Recharge your MTN line daily and win amazing cash prizes!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a href="/opt-in" className="btn-primary">
+              </HeroDescription>
+              <ButtonGroup>
+                <PrimaryButton href="/opt-in">
                   Opt-In Now
-                </a>
-                <a href="#how-it-works" className="btn-secondary">
+                </PrimaryButton>
+                <SecondaryButton href="#how-it-works">
                   How It Works
-                </a>
-              </div>
-            </div>
-            <div className="flex justify-center">
-              <div className="bg-mtn-black bg-opacity-50 rounded-lg p-6 w-full max-w-md">
-                <h2 className="text-2xl font-bold mb-4 text-center">Next Mega Draw</h2>
-                <div className="grid grid-cols-4 gap-2 mb-4">
-                  <div className="bg-mtn-yellow text-mtn-black rounded-lg p-3 text-center">
-                    <div className="text-3xl font-bold">{countdown.days}</div>
-                    <div className="text-xs">Days</div>
-                  </div>
-                  <div className="bg-mtn-yellow text-mtn-black rounded-lg p-3 text-center">
-                    <div className="text-3xl font-bold">{countdown.hours}</div>
-                    <div className="text-xs">Hours</div>
-                  </div>
-                  <div className="bg-mtn-yellow text-mtn-black rounded-lg p-3 text-center">
-                    <div className="text-3xl font-bold">{countdown.minutes}</div>
-                    <div className="text-xs">Minutes</div>
-                  </div>
-                  <div className="bg-mtn-yellow text-mtn-black rounded-lg p-3 text-center">
-                    <div className="text-3xl font-bold">{countdown.seconds}</div>
-                    <div className="text-xs">Seconds</div>
-                  </div>
-                </div>
-                <div className="text-center">
-                  <p className="text-sm mb-2">Grand Prize</p>
-                  <p className="text-3xl font-bold text-mtn-yellow">₦1,000,000</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+                </SecondaryButton>
+              </ButtonGroup>
+            </HeroContent>
+            
+            <CountdownContainer>
+              <CountdownTitle>Next Mega Draw</CountdownTitle>
+              <CountdownGrid>
+                <CountdownItem>
+                  <CountdownValue>{countdown.days}</CountdownValue>
+                  <CountdownLabel>Days</CountdownLabel>
+                </CountdownItem>
+                <CountdownItem>
+                  <CountdownValue>{countdown.hours}</CountdownValue>
+                  <CountdownLabel>Hours</CountdownLabel>
+                </CountdownItem>
+                <CountdownItem>
+                  <CountdownValue>{countdown.minutes}</CountdownValue>
+                  <CountdownLabel>Minutes</CountdownLabel>
+                </CountdownItem>
+                <CountdownItem>
+                  <CountdownValue>{countdown.seconds}</CountdownValue>
+                  <CountdownLabel>Seconds</CountdownLabel>
+                </CountdownItem>
+              </CountdownGrid>
+              
+              <PrizeAmount>
+                <PrizeLabel>Grand Prize</PrizeLabel>
+                <PrizeValue>₦1,000,000</PrizeValue>
+              </PrizeAmount>
+            </CountdownContainer>
+          </HeroGrid>
+        </SectionContainer>
+      </HeroSection>
 
       {/* Prize Structure */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center">Prize Structure</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Daily Prizes */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="bg-mtn-yellow text-mtn-black p-4">
-                <h3 className="text-2xl font-bold text-center">Daily Prizes</h3>
-                <p className="text-center">Monday to Friday</p>
-              </div>
-              <div className="p-6">
-                <ul className="space-y-4">
-                  <li className="flex justify-between items-center border-b pb-2">
-                    <span className="font-bold">Jackpot Winner</span>
-                    <span className="text-xl font-bold">₦100,000</span>
-                  </li>
-                  <li className="flex justify-between items-center border-b pb-2">
-                    <span className="font-bold">2nd Prize</span>
-                    <span className="text-xl font-bold">₦50,000</span>
-                  </li>
-                  <li className="flex justify-between items-center border-b pb-2">
-                    <span className="font-bold">3rd Prize</span>
-                    <span className="text-xl font-bold">₦25,000</span>
-                  </li>
-                  <li className="flex justify-between items-center">
-                    <span className="font-bold">Consolation Prizes (10)</span>
-                    <span className="text-xl font-bold">₦5,000 each</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+      <PrizeStructureSection>
+        <SectionContainer>
+          <SectionTitle>Prize Structure</SectionTitle>
+          <PrizeGrid>
+            <PrizeCard>
+              <PrizeCardTitle>Daily Prizes</PrizeCardTitle>
+              <PrizeCardSubtitle>Monday to Friday</PrizeCardSubtitle>
+              <PrizeList>
+                <PrizeItem>
+                  <PrizeName>Jackpot Winner</PrizeName>
+                  <PrizeItemValue>₦100,000</PrizeItemValue>
+                </PrizeItem>
+                <PrizeItem>
+                  <PrizeName>2nd Prize</PrizeName>
+                  <PrizeItemValue>₦50,000</PrizeItemValue>
+                </PrizeItem>
+                <PrizeItem>
+                  <PrizeName>3rd Prize</PrizeName>
+                  <PrizeItemValue>₦25,000</PrizeItemValue>
+                </PrizeItem>
+                <PrizeItem>
+                  <PrizeName>Consolation Prizes</PrizeName>
+                  <PrizeItemValue>7 x ₦10,000</PrizeItemValue>
+                </PrizeItem>
+              </PrizeList>
+            </PrizeCard>
             
-            {/* Weekly Prizes */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="bg-mtn-black text-mtn-yellow p-4">
-                <h3 className="text-2xl font-bold text-center">Weekly Mega Prizes</h3>
-                <p className="text-center text-white">Every Saturday</p>
-              </div>
-              <div className="p-6">
-                <ul className="space-y-4">
-                  <li className="flex justify-between items-center border-b pb-2">
-                    <span className="font-bold">Grand Prize</span>
-                    <span className="text-xl font-bold">₦1,000,000</span>
-                  </li>
-                  <li className="flex justify-between items-center border-b pb-2">
-                    <span className="font-bold">2nd Prize</span>
-                    <span className="text-xl font-bold">₦500,000</span>
-                  </li>
-                  <li className="flex justify-between items-center border-b pb-2">
-                    <span className="font-bold">3rd Prize</span>
-                    <span className="text-xl font-bold">₦250,000</span>
-                  </li>
-                  <li className="flex justify-between items-center">
-                    <span className="font-bold">Consolation Prizes (20)</span>
-                    <span className="text-xl font-bold">₦10,000 each</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            <PrizeCard>
+              <PrizeCardTitle>Saturday Mega Prizes</PrizeCardTitle>
+              <PrizeCardSubtitle>Weekly Grand Draw</PrizeCardSubtitle>
+              <PrizeList>
+                <PrizeItem>
+                  <PrizeName>Jackpot Winner</PrizeName>
+                  <PrizeItemValue>₦1,000,000</PrizeItemValue>
+                </PrizeItem>
+                <PrizeItem>
+                  <PrizeName>2nd Prize</PrizeName>
+                  <PrizeItemValue>₦500,000</PrizeItemValue>
+                </PrizeItem>
+                <PrizeItem>
+                  <PrizeName>3rd Prize</PrizeName>
+                  <PrizeItemValue>₦250,000</PrizeItemValue>
+                </PrizeItem>
+                <PrizeItem>
+                  <PrizeName>Consolation Prizes</PrizeName>
+                  <PrizeItemValue>7 x ₦50,000</PrizeItemValue>
+                </PrizeItem>
+              </PrizeList>
+            </PrizeCard>
+          </PrizeGrid>
+        </SectionContainer>
+      </PrizeStructureSection>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-16 bg-gray-100">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center">How It Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-lg shadow-md p-6 text-center">
-              <div className="h-16 w-16 bg-mtn-yellow rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">1</div>
-              <h3 className="text-xl font-bold mb-2">Opt-In</h3>
-              <p className="text-gray-600">
-                Register for the promotion through this website, by sending "JOIN" to 5050, or by dialing *123*1#
-              </p>
-            </div>
-            <div className="bg-white rounded-lg shadow-md p-6 text-center">
-              <div className="h-16 w-16 bg-mtn-yellow rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">2</div>
-              <h3 className="text-xl font-bold mb-2">Recharge Daily</h3>
-              <p className="text-gray-600">
-                Recharge your MTN line daily to qualify for draws. Higher recharge amounts give you better chances to win!
-              </p>
-            </div>
-            <div className="bg-white rounded-lg shadow-md p-6 text-center">
-              <div className="h-16 w-16 bg-mtn-yellow rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">3</div>
-              <h3 className="text-xl font-bold mb-2">Win Prizes</h3>
-              <p className="text-gray-600">
-                Participate in daily draws (Mon-Fri) and weekly mega draws (Sat) for a chance to win amazing cash prizes!
-              </p>
-            </div>
-          </div>
-          <div className="mt-12 text-center">
-            <p className="text-lg mb-4">
-              <span className="font-bold">Important:</span> Your phone number's last digit determines your draw days:
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-3xl mx-auto">
-              <div className="bg-white rounded-lg shadow-md p-3">
-                <p className="font-bold">Monday</p>
-                <p className="text-mtn-yellow text-xl font-bold">0, 1</p>
-              </div>
-              <div className="bg-white rounded-lg shadow-md p-3">
-                <p className="font-bold">Tuesday</p>
-                <p className="text-mtn-yellow text-xl font-bold">2, 3</p>
-              </div>
-              <div className="bg-white rounded-lg shadow-md p-3">
-                <p className="font-bold">Wednesday</p>
-                <p className="text-mtn-yellow text-xl font-bold">4, 5</p>
-              </div>
-              <div className="bg-white rounded-lg shadow-md p-3">
-                <p className="font-bold">Thursday</p>
-                <p className="text-mtn-yellow text-xl font-bold">6, 7</p>
-              </div>
-              <div className="bg-white rounded-lg shadow-md p-3">
-                <p className="font-bold">Friday</p>
-                <p className="text-mtn-yellow text-xl font-bold">8, 9</p>
-              </div>
-            </div>
-            <p className="mt-4 text-lg">
-              <span className="font-bold">Saturday Mega Draw:</span> All numbers are eligible!
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Recent Winners */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center">Recent Winners</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Daily Winners */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="bg-mtn-yellow text-mtn-black p-4">
-                <h3 className="text-xl font-bold text-center">Daily Draw Winners</h3>
-              </div>
-              <div className="p-4">
-                <table className="min-w-full">
-                  <thead>
-                    <tr>
-                      <th className="text-left py-2">Phone Number</th>
-                      <th className="text-left py-2">Prize</th>
-                      <th className="text-left py-2">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {winners.daily.map((winner, index) => (
-                      <tr key={index} className="border-t">
-                        <td className="py-2">{winner.msisdn}</td>
-                        <td className="py-2">{winner.prize}</td>
-                        <td className="py-2">{winner.date}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+      <HowItWorksSection id="how-it-works">
+        <SectionContainer>
+          <SectionTitle>How It Works</SectionTitle>
+          <StepsGrid>
+            <StepCard>
+              <StepNumber>1</StepNumber>
+              <StepTitle>Opt-In</StepTitle>
+              <StepDescription>
+                Register your MTN number to participate in the promotion. It's free and takes less than a minute.
+              </StepDescription>
+            </StepCard>
             
-            {/* Weekly Winners */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="bg-mtn-black text-mtn-yellow p-4">
-                <h3 className="text-xl font-bold text-center">Weekly Mega Draw Winners</h3>
-              </div>
-              <div className="p-4">
-                <table className="min-w-full">
-                  <thead>
-                    <tr>
-                      <th className="text-left py-2">Phone Number</th>
-                      <th className="text-left py-2">Prize</th>
-                      <th className="text-left py-2">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {winners.weekly.map((winner, index) => (
-                      <tr key={index} className="border-t">
-                        <td className="py-2">{winner.msisdn}</td>
-                        <td className="py-2">{winner.prize}</td>
-                        <td className="py-2">{winner.date}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            <StepCard>
+              <StepNumber>2</StepNumber>
+              <StepTitle>Recharge</StepTitle>
+              <StepDescription>
+                Recharge your MTN line daily to qualify for draws. Higher recharge amounts give you more chances to win.
+              </StepDescription>
+            </StepCard>
+            
+            <StepCard>
+              <StepNumber>3</StepNumber>
+              <StepTitle>Get Selected</StepNumber>
+              <StepDescription>
+                Winners are selected through a transparent electronic draw process supervised by regulatory authorities.
+              </StepDescription>
+            </StepCard>
+            
+            <StepCard>
+              <StepNumber>4</StepNumber>
+              <StepTitle>Receive Prize</StepTitle>
+              <StepDescription>
+                Winners are notified via SMS and prizes are transferred directly to your bank account within 48 hours.
+              </StepDescription>
+            </StepCard>
+          </StepsGrid>
+        </SectionContainer>
+      </HowItWorksSection>
 
       {/* Opt-In Section */}
-      <section className="py-16 bg-gray-100">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center">Join Now</h2>
-          <div className="max-w-md mx-auto">
-            <OptInForm onOptInSuccess={handleOptInSuccess} />
-          </div>
-        </div>
-      </section>
+      <OptInSection>
+        <SectionContainer>
+          <SectionTitle>Join Now</SectionTitle>
+          <OptInForm />
+        </SectionContainer>
+      </OptInSection>
 
       {/* About Bridgetunes */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center">About Bridgetunes</h2>
-          <div className="bg-white rounded-lg shadow-md p-6 max-w-3xl mx-auto">
-            <p className="mb-4">
+      <AboutSection>
+        <SectionContainer>
+          <SectionTitle>About Bridgetunes</SectionTitle>
+          <AboutCard>
+            <AboutText>
               Bridgetunes is a leading promotional campaign management company in Nigeria, specializing in creating engaging and rewarding experiences for customers across various sectors.
-            </p>
-            <p className="mb-4">
+            </AboutText>
+            <AboutText>
               The 'MyNumba Don Win' promotion is managed by Bridgetunes in partnership with MTN Nigeria, bringing exciting daily and weekly cash prizes to MTN subscribers across the country.
-            </p>
-            <p>
-              With a focus on transparency, fairness, and customer satisfaction, Bridgetunes ensures that all draws are conducted under strict supervision and in compliance with regulatory requirements.
-            </p>
-          </div>
-        </div>
-      </section>
+            </AboutText>
+            <AboutText>
+              With a focus on transparency, fairness, and customer satisfaction, Bridgetunes ensures that all draws are conducted in accordance with regulatory requirements and industry best practices.
+            </AboutText>
+          </AboutCard>
+        </SectionContainer>
+      </AboutSection>
 
       {/* Footer */}
       <Footer />
-    </div>
+    </PageContainer>
   );
 }
+
