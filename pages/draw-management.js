@@ -190,6 +190,25 @@ const DrawManagement = () => {
   const [prizeAmount, setPrizeAmount] = useState(0);
   const [winners, setWinners] = useState([]);
   const [msisdnData, setMsisdnData] = useState([]);
+  const [jackpotRollover, setJackpotRollover] = useState(false);
+  
+  // Updated prize structure based on user specifications
+  const prizeStructure = {
+    daily: {
+      jackpot: 1000000,
+      second: 350000,
+      third: 150000,
+      consolation: 75000,
+      consolationCount: 7
+    },
+    saturday: {
+      jackpot: 3000000,
+      second: 1000000,
+      third: 500000,
+      consolation: 100000,
+      consolationCount: 7
+    }
+  };
   
   // Generate years for dropdown (current year and 2 years before/after)
   const years = [2023, 2024, 2025, 2026, 2027];
@@ -243,6 +262,18 @@ const DrawManagement = () => {
     return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   };
   
+  // Check if the selected day is a Saturday
+  const isSaturday = () => {
+    if (!day) return false;
+    const dayOfWeek = getDayOfWeek(year, month, day);
+    return dayOfWeek === 'Saturday';
+  };
+  
+  // Get current prize structure based on selected day
+  const getCurrentPrizeStructure = () => {
+    return isSaturday() ? prizeStructure.saturday : prizeStructure.daily;
+  };
+  
   // Fetch MSISDN data on component mount
   useEffect(() => {
     const fetchMsisdnData = async () => {
@@ -275,7 +306,10 @@ const DrawManagement = () => {
           // Generate random topup amount between 100 and 1000
           const topupAmount = Math.floor(100 + Math.random() * 900);
           
-          fallbackData.push({ msisdn, topupAmount, date });
+          // Random opt-in status (80% chance of being opted in)
+          const optInStatus = Math.random() < 0.8;
+          
+          fallbackData.push({ msisdn, topupAmount, date, optInStatus });
         }
         
         // Add specific MSISDNs for April 8, 2025 with all ending digits
@@ -283,7 +317,8 @@ const DrawManagement = () => {
           fallbackData.push({ 
             msisdn: `080123456${digit}`, 
             topupAmount: 500, 
-            date: '2025-04-08' 
+            date: '2025-04-08',
+            optInStatus: digit % 2 === 0 // Even digits are opted in
           });
         }
         
@@ -294,7 +329,8 @@ const DrawManagement = () => {
             fallbackData.push({
               msisdn: `0802${day}${digit}${digit}${digit}${digit}`,
               topupAmount: 300 + (day * 10),
-              date: `2025-04-${String(day).padStart(2, '0')}`
+              date: `2025-04-${String(day).padStart(2, '0')}`,
+              optInStatus: Math.random() < 0.8 // 80% chance of being opted in
             });
           }
         });
@@ -357,6 +393,7 @@ const DrawManagement = () => {
     }
     
     setDrawStage('drawing');
+    setJackpotRollover(false);
     
     // Format the selected date
     const formattedDate = formatDate(year, month, day);
@@ -380,6 +417,9 @@ const DrawManagement = () => {
     console.log('Eligible MSISDNs found:', eligibleMsisdns.length);
     console.log('Eligible MSISDNs:', eligibleMsisdns);
     
+    // Get current prize structure
+    const currentPrizes = getCurrentPrizeStructure();
+    
     // Simulate API call to get winners
     setTimeout(() => {
       if (eligibleMsisdns.length > 0) {
@@ -387,35 +427,87 @@ const DrawManagement = () => {
         const winnerIndex = Math.floor(Math.random() * eligibleMsisdns.length);
         const mainWinner = eligibleMsisdns[winnerIndex];
         
-        // Set the winning number and prize
+        // Set the winning number and prize (using fixed prize amount)
         setWinningNumber(mainWinner.msisdn);
-        setPrizeAmount(mainWinner.topupAmount * 10); // Prize is 10x the topup amount
+        setPrizeAmount(currentPrizes.jackpot);
         
         // Generate winners list (including the main winner and some random ones)
         const winnersList = [
           { 
             msisdn: mainWinner.msisdn, 
-            prize: mainWinner.topupAmount * 10, 
+            prize: currentPrizes.jackpot, 
             date: formattedDate,
             optInStatus: mainWinner.optInStatus, // Include opt-in status
-            validWinner: mainWinner.optInStatus // Mark as valid only if opted in
+            validWinner: mainWinner.optInStatus, // Mark as valid only if opted in
+            prizeCategory: 'jackpot'
           }
         ];
         
-        // Add some additional winners with smaller prizes
-        const additionalWinners = eligibleMsisdns
-          .filter((_, index) => index !== winnerIndex) // Exclude main winner
-          .slice(0, 4); // Take up to 4 additional winners
+        // Check if jackpot winner has opted in
+        if (!mainWinner.optInStatus) {
+          setJackpotRollover(true);
+        }
         
-        additionalWinners.forEach(winner => {
+        // Remove the jackpot winner from the pool
+        const remainingParticipants = eligibleMsisdns.filter((_, index) => index !== winnerIndex);
+        
+        // Select 2nd prize winner
+        if (remainingParticipants.length > 0) {
+          const secondWinnerIndex = Math.floor(Math.random() * remainingParticipants.length);
+          const secondWinner = remainingParticipants[secondWinnerIndex];
+          
           winnersList.push({
-            msisdn: winner.msisdn,
-            prize: winner.topupAmount * 2, // Smaller prize for additional winners
+            msisdn: secondWinner.msisdn,
+            prize: currentPrizes.second,
             date: formattedDate,
-            optInStatus: winner.optInStatus, // Include opt-in status
-            validWinner: winner.optInStatus // Mark as valid only if opted in
+            optInStatus: secondWinner.optInStatus,
+            validWinner: secondWinner.optInStatus,
+            prizeCategory: 'second'
           });
-        });
+          
+          // Remove 2nd prize winner from pool
+          remainingParticipants.splice(secondWinnerIndex, 1);
+        }
+        
+        // Select 3rd prize winner
+        if (remainingParticipants.length > 0) {
+          const thirdWinnerIndex = Math.floor(Math.random() * remainingParticipants.length);
+          const thirdWinner = remainingParticipants[thirdWinnerIndex];
+          
+          winnersList.push({
+            msisdn: thirdWinner.msisdn,
+            prize: currentPrizes.third,
+            date: formattedDate,
+            optInStatus: thirdWinner.optInStatus,
+            validWinner: thirdWinner.optInStatus,
+            prizeCategory: 'third'
+          });
+          
+          // Remove 3rd prize winner from pool
+          remainingParticipants.splice(thirdWinnerIndex, 1);
+        }
+        
+        // Select consolation prize winners
+        const consolationCount = Math.min(currentPrizes.consolationCount, remainingParticipants.length);
+        
+        for (let i = 0; i < consolationCount; i++) {
+          if (remainingParticipants.length === 0) break;
+          
+          const consolationWinnerIndex = Math.floor(Math.random() * remainingParticipants.length);
+          const consolationWinner = remainingParticipants[consolationWinnerIndex];
+          
+          winnersList.push({
+            msisdn: consolationWinner.msisdn,
+            prize: currentPrizes.consolation,
+            date: formattedDate,
+            optInStatus: consolationWinner.optInStatus,
+            validWinner: consolationWinner.optInStatus,
+            prizeCategory: 'consolation'
+          });
+          
+          // Remove consolation winner from pool
+          remainingParticipants.splice(consolationWinnerIndex, 1);
+        }
         
         setWinners(winnersList);
       } else {
@@ -427,6 +519,22 @@ const DrawManagement = () => {
       
       setDrawStage('complete');
     }, 5000); // 5 seconds delay to simulate processing
+  };
+  
+  // Format MSISDN for display (mask middle digits)
+  const formatMsisdn = (msisdn) => {
+    if (!msisdn) return '';
+    return `${msisdn.substring(0, 5)}****${msisdn.substring(msisdn.length - 2)}`;
+  };
+  
+  // Format currency for display
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
   };
 
   return (
@@ -527,6 +635,74 @@ const DrawManagement = () => {
             </div>
           </DrawControls>
           
+          {/* Prize Structure Display */}
+          <div className="mb-6">
+            <h3 className="text-lg font-bold mb-3 text-bridgetunes-blue">Prize Structure</h3>
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-bold text-bridgetunes-dark mb-2">
+                    {isSaturday() ? 'Saturday Mega Prizes' : 'Daily Prizes'}
+                  </h4>
+                  <ul className="space-y-2">
+                    <li className="flex justify-between">
+                      <span>Jackpot (1st Prize):</span>
+                      <span className="font-bold text-green-600">
+                        {formatCurrency(getCurrentPrizeStructure().jackpot)}
+                      </span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>2nd Prize:</span>
+                      <span className="font-bold text-green-600">
+                        {formatCurrency(getCurrentPrizeStructure().second)}
+                      </span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>3rd Prize:</span>
+                      <span className="font-bold text-green-600">
+                        {formatCurrency(getCurrentPrizeStructure().third)}
+                      </span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Consolation Prizes ({getCurrentPrizeStructure().consolationCount}):</span>
+                      <span className="font-bold text-green-600">
+                        {formatCurrency(getCurrentPrizeStructure().consolation)} each
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-bridgetunes-dark mb-2">Draw Details</h4>
+                  <ul className="space-y-2">
+                    <li className="flex justify-between">
+                      <span>Day:</span>
+                      <span className="font-medium">{day ? getDayOfWeek(year, month, day) : 'Not selected'}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Eligible Numbers:</span>
+                      <span className="font-medium">
+                        {selectedDigits.length > 0 
+                          ? `Ending with ${selectedDigits.join(', ')}` 
+                          : 'None selected'}
+                      </span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span>Total Prize Pool:</span>
+                      <span className="font-bold text-green-600">
+                        {formatCurrency(
+                          getCurrentPrizeStructure().jackpot +
+                          getCurrentPrizeStructure().second +
+                          getCurrentPrizeStructure().third +
+                          (getCurrentPrizeStructure().consolation * getCurrentPrizeStructure().consolationCount)
+                        )}
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <ButtonContainer>
             <StyledButton 
               onClick={executeDraw}
@@ -560,13 +736,31 @@ const DrawManagement = () => {
                 <p>The following winners have been selected:</p>
               </PageHeader>
               
+              {jackpotRollover && (
+                <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm">
+                        <strong>Jackpot Rollover:</strong> The jackpot winner has not opted in to the promotion. 
+                        The jackpot prize will roll over to the next draw.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) }
+              
               <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                 <h3>Jackpot Winner</h3>
                 <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
                   {winningNumber}
                 </div>
                 <div style={{ fontSize: '1.25rem', color: 'green', marginTop: '0.5rem' }}>
-                  Prize: ₦{prizeAmount.toLocaleString()}
+                  Prize: {formatCurrency(prizeAmount)}
                 </div>
               </div>
               
@@ -586,10 +780,22 @@ const DrawManagement = () => {
                     {winners.map((winner, index) => (
                       <tr key={index}>
                         <td>{winner.msisdn}</td>
-                        <td>₦{winner.prize.toLocaleString()}</td>
+                        <td>{formatCurrency(winner.prize)}</td>
                         <td>{winner.date}</td>
-                        <td>{winner.optInStatus ? 'Yes' : 'No'}</td>
-                        <td>{winner.validWinner ? 'Valid' : 'Invalid - Jackpot Rolls Over'}</td>
+                        <td>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            winner.optInStatus ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {winner.optInStatus ? 'Yes' : 'No'}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            winner.validWinner ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {winner.validWinner ? 'Valid' : (winner.prizeCategory === 'jackpot' ? 'Invalid - Jackpot Rolls Over' : 'Invalid')}
+                          </span>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -611,4 +817,5 @@ const DrawManagement = () => {
 };
 
 export default DrawManagement;
+
 
