@@ -1,616 +1,293 @@
+// pages/draw-management.js
 import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import DrawAnimation from '../components/DrawAnimation';
+import Button from '../components/Button'; // Import the new Button component
 
-export default function DrawManagement() {
-  const [selectedDay, setSelectedDay] = useState('monday');
-  const [selectedDigits, setSelectedDigits] = useState(['0', '1']);
-  const [availableDigits, setAvailableDigits] = useState(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
-  const [isDrawInProgress, setIsDrawInProgress] = useState(false);
-  const [drawResults, setDrawResults] = useState(null);
-  const [eligibleParticipants, setEligibleParticipants] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [animationStage, setAnimationStage] = useState('none'); // none, jackpot, second, third, consolation
-  const [msisdnData, setMsisdnData] = useState([]);
+// Styled components for the page
+const PageContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+`;
 
-  // Prize structure based on the Excel file
-  const prizeStructure = {
-    daily: {
-      jackpot: 1000000,
-      second: 350000,
-      third: 150000,
-      consolation1: 75000,
-      consolation2: 75000
-    },
-    saturday: {
-      jackpot: 3000000,
-      second: 1000000,
-      third: 500000,
-      consolation1: 100000,
-      consolation2: 100000
-    }
-  };
+const PageHeader = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+`;
 
-  // Default day-digit mapping
-  const dayDigitMap = {
-    monday: ['0', '1'],
-    tuesday: ['2', '3'],
-    wednesday: ['4', '5'],
-    thursday: ['6', '7'],
-    friday: ['8', '9'],
-    saturday: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] // All digits for Saturday
-  };
+// This will properly size the shield logo
+const ShieldLogo = styled.div`
+  width: 120px; // Much smaller size
+  height: 120px; // Much smaller size
+  margin: 0 auto 1.5rem;
+  
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+`;
 
-  // Load MSISDN data
-  useEffect(() => {
-    fetch('/data/msisdn_data.json')
-      .then(response => response.json())
-      .then(data => {
-        setMsisdnData(data);
-        console.log(`Loaded ${data.length} MSISDN records`);
-      })
-      .catch(error => {
-        console.error('Error loading MSISDN data:', error);
-      });
-  }, []);
+const PageTitle = styled.h1`
+  font-size: ${props => props.theme.fontSizes['3xl']};
+  font-weight: ${props => props.theme.fontWeights.bold};
+  color: ${props => props.theme.colors.bridgetunesDark};
+  margin-bottom: 1rem;
+`;
 
-  // Handle day selection
-  useEffect(() => {
-    if (selectedDay === 'saturday') {
-      // Saturday includes all numbers
-      setSelectedDigits(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
-    } else {
-      // Set default digits for the selected day
-      setSelectedDigits(dayDigitMap[selectedDay]);
-    }
-  }, [selectedDay]);
+const PageDescription = styled.p`
+  font-size: ${props => props.theme.fontSizes.lg};
+  color: ${props => props.theme.colors.gray600};
+  max-width: 800px;
+  margin: 0 auto 2rem;
+`;
 
-  // Toggle digit selection
-  const toggleDigit = (digit) => {
-    if (selectedDigits.includes(digit)) {
-      // Don't allow deselecting if it would result in no digits selected
-      if (selectedDigits.length > 1) {
-        setSelectedDigits(selectedDigits.filter(d => d !== digit));
-      }
-    } else {
-      setSelectedDigits([...selectedDigits, digit]);
-    }
-  };
+const DrawSection = styled.div`
+  background-color: ${props => props.theme.colors.white};
+  border-radius: ${props => props.theme.radii.lg};
+  box-shadow: ${props => props.theme.shadows.md};
+  padding: 2rem;
+  margin-bottom: 2rem;
+`;
 
-  // Select all digits
-  const selectAllDigits = () => {
-    setSelectedDigits(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
-  };
+const DrawControls = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+`;
 
-  // Clear all digits and select default for the day
-  const resetToDefault = () => {
-    setSelectedDigits(dayDigitMap[selectedDay]);
-  };
+const FormGroup = styled.div`
+  flex: 1;
+`;
 
-  // Fetch eligible participants from loaded data
-  const fetchEligibleParticipants = () => {
-    setIsLoading(true);
-    
-    // Filter participants based on selected digits and opt-in status
-    setTimeout(() => {
-      const filtered = msisdnData.filter(participant => 
-        participant.optIn && selectedDigits.includes(participant.lastDigit)
-      );
-      
-      setEligibleParticipants(filtered.slice(0, Math.min(filtered.length, 1000))); // Limit to 1000 for performance
-      setIsLoading(false);
-    }, 1000);
-  };
+const Label = styled.label`
+  display: block;
+  font-size: ${props => props.theme.fontSizes.sm};
+  font-weight: ${props => props.theme.fontWeights.medium};
+  color: ${props => props.theme.colors.gray700};
+  margin-bottom: 0.5rem;
+`;
 
-  // Handle animation completion for each prize category
-  const handleAnimationComplete = (winningNumber) => {
-    console.log(`Animation complete with number: ${winningNumber}`);
-    
-    // Move to next animation stage based on current stage
-    if (animationStage === 'jackpot') {
-      setAnimationStage('second');
-    } else if (animationStage === 'second') {
-      setAnimationStage('third');
-    } else if (animationStage === 'third') {
-      setAnimationStage('consolation');
-    } else if (animationStage === 'consolation') {
-      setAnimationStage('complete');
-      
-      // Finalize draw results
-      setIsDrawInProgress(false);
-    }
-  };
+const Select = styled.select`
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid ${props => props.theme.colors.gray300};
+  border-radius: ${props => props.theme.radii.md};
+  font-size: ${props => props.theme.fontSizes.md};
+  
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.bridgetunesBlue};
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+  }
+`;
 
-  // Execute draw with animation sequence
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    margin-top: 0;
+  }
+`;
+
+const ResultsSection = styled.div`
+  margin-top: 2rem;
+`;
+
+const WinnersList = styled.div`
+  margin-top: 2rem;
+  background-color: ${props => props.theme.colors.gray100};
+  border-radius: ${props => props.theme.radii.lg};
+  padding: 1.5rem;
+`;
+
+const WinnersTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  
+  th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid ${props => props.theme.colors.gray300};
+  }
+  
+  th {
+    font-weight: ${props => props.theme.fontWeights.semibold};
+    color: ${props => props.theme.colors.gray700};
+  }
+  
+  tr:last-child td {
+    border-bottom: none;
+  }
+`;
+
+// Main component
+const DrawManagement = () => {
+  const [drawDate, setDrawDate] = useState('');
+  const [lastDigit, setLastDigit] = useState('all');
+  const [drawStage, setDrawStage] = useState('idle'); // idle, drawing, complete
+  const [winningNumber, setWinningNumber] = useState('');
+  const [prizeAmount, setPrizeAmount] = useState(0);
+  const [winners, setWinners] = useState([]);
+  
+  // Available dates for the dropdown
+  const availableDates = [
+    '2023-09-01', '2023-09-02', '2023-09-03', '2023-09-04', '2023-09-05'
+  ];
+  
+  // Last digit options
+  const digitOptions = [
+    { value: 'all', label: 'All Numbers' },
+    { value: '0', label: 'Ending with 0' },
+    { value: '1', label: 'Ending with 1' },
+    { value: '2', label: 'Ending with 2' },
+    { value: '3', label: 'Ending with 3' },
+    { value: '4', label: 'Ending with 4' },
+    { value: '5', label: 'Ending with 5' },
+    { value: '6', label: 'Ending with 6' },
+    { value: '7', label: 'Ending with 7' },
+    { value: '8', label: 'Ending with 8' },
+    { value: '9', label: 'Ending with 9' }
+  ];
+  
+  // Execute draw function
   const executeDraw = () => {
-    setIsDrawInProgress(true);
-    setDrawResults(null);
+    if (!drawDate) {
+      alert('Please select a draw date');
+      return;
+    }
     
-    // Start animation sequence
-    setAnimationStage('jackpot');
+    setDrawStage('drawing');
     
-    // Prepare winners object (will be populated during animations)
-    const winners = {
-      jackpot: null,
-      second: null,
-      third: null,
-      consolation: []
-    };
-    
-    // The actual winner selection will happen after animations
+    // Simulate API call to get winners
     setTimeout(() => {
-      // Select winners based on points (weighted random selection)
-      const participants = [...eligibleParticipants];
+      // Generate a random winning number
+      const randomNumber = Math.floor(10000000000 + Math.random() * 90000000000).toString();
+      const randomPrize = Math.floor(10000 + Math.random() * 990000);
       
-      // Helper function for weighted random selection
-      const selectWinner = (participants) => {
-        if (participants.length === 0) return null;
-        
-        // Calculate total points
-        const totalPoints = participants.reduce((sum, p) => sum + p.points, 0);
-        
-        // Generate random point value
-        const randomPoint = Math.random() * totalPoints;
-        
-        // Find participant at that point
-        let pointSum = 0;
-        for (const participant of participants) {
-          pointSum += participant.points;
-          if (randomPoint <= pointSum) {
-            return participant;
-          }
-        }
-        
-        // Fallback to last participant (shouldn't happen)
-        return participants[participants.length - 1];
-      };
+      setWinningNumber(randomNumber);
+      setPrizeAmount(randomPrize);
       
-      // Select jackpot winner
-      if (participants.length > 0) {
-        winners.jackpot = selectWinner(participants);
-        // Remove winner from pool
-        const jackpotIndex = participants.findIndex(p => p.msisdn === winners.jackpot.msisdn);
-        participants.splice(jackpotIndex, 1);
-      }
+      // Generate some sample winners
+      const sampleWinners = [
+        { msisdn: randomNumber, prize: randomPrize, date: drawDate },
+        { msisdn: Math.floor(10000000000 + Math.random() * 90000000000).toString(), prize: 5000, date: drawDate },
+        { msisdn: Math.floor(10000000000 + Math.random() * 90000000000).toString(), prize: 2000, date: drawDate },
+        { msisdn: Math.floor(10000000000 + Math.random() * 90000000000).toString(), prize: 1000, date: drawDate },
+        { msisdn: Math.floor(10000000000 + Math.random() * 90000000000).toString(), prize: 500, date: drawDate }
+      ];
       
-      // Select 2nd prize winner
-      if (participants.length > 0) {
-        winners.second = selectWinner(participants);
-        // Remove winner from pool
-        const secondIndex = participants.findIndex(p => p.msisdn === winners.second.msisdn);
-        participants.splice(secondIndex, 1);
-      }
-      
-      // Select 3rd prize winner
-      if (participants.length > 0) {
-        winners.third = selectWinner(participants);
-        // Remove winner from pool
-        const thirdIndex = participants.findIndex(p => p.msisdn === winners.third.msisdn);
-        participants.splice(thirdIndex, 1);
-      }
-      
-      // Select consolation prize winners
-      const consolationCount = selectedDay === 'saturday' ? 20 : 10;
-      for (let i = 0; i < consolationCount && participants.length > 0; i++) {
-        const winner = selectWinner(participants);
-        winners.consolation.push(winner);
-        // Remove winner from pool
-        const winnerIndex = participants.findIndex(p => p.msisdn === winner.msisdn);
-        participants.splice(winnerIndex, 1);
-      }
-      
-      // Store results for display after animations complete
-      setDrawResults(winners);
-    }, 1000);
+      setWinners(sampleWinners);
+      setDrawStage('complete');
+    }, 5000); // 5 seconds delay to simulate processing
   };
-
-  // Format MSISDN for display (mask middle digits)
-  const formatMsisdn = (msisdn) => {
-    if (!msisdn) return '';
-    return `${msisdn.substring(0, 5)}****${msisdn.substring(msisdn.length - 2)}`;
-  };
-
-  // Format currency for display
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-
-  // Get current prize structure based on selected day
-  const getCurrentPrizeStructure = () => {
-    return selectedDay === 'saturday' ? prizeStructure.saturday : prizeStructure.daily;
-  };
-
+  
   return (
-    <div className="min-h-screen bg-bridgetunes-light">
-      <head>
-        <title>Draw Management | MyNumba Don Win | Bridgetunes</title>
-        <meta name="description" content="Manage draws for MyNumba Don Win promotion by Bridgetunes" />
-        <link rel="icon" href="/favicon.ico" />
-      </head>
-
-      {/* Header */}
+    <>
       <Header />
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-bridgetunes-dark">Draw Management</h1>
+      <PageContainer>
+        <PageHeader>
+          {/* Smaller shield logo */}
+          <ShieldLogo>
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
+            </svg>
+          </ShieldLogo>
+          <PageTitle>Draw Management</PageTitle>
+          <PageDescription>
+            Select a date and last digit filter to execute a draw and determine winners.
+          </PageDescription>
+        </PageHeader>
         
-        {/* Draw Configuration */}
-        <div className="card p-6 mb-8">
-          <h2 className="text-2xl font-bold mb-4 text-bridgetunes-blue">Configure Draw</h2>
-          
-          {/* Day Selection */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Select Day</label>
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
-              {Object.keys(dayDigitMap).map((day) => (
-                <button
-                  key={day}
-                  className={`py-2 px-4 rounded-md transition-colors ${
-                    selectedDay === day 
-                      ? 'bg-mtn-yellow text-mtn-black font-bold' 
-                      : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                  }`}
-                  onClick={() => setSelectedDay(day)}
-                >
-                  {day.charAt(0).toUpperCase() + day.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          {/* Digit Selection */}
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium text-gray-700">Select Ending Digits</label>
-              <div className="space-x-2">
-                <button 
-                  className="text-sm bg-bridgetunes-dark text-white py-1 px-3 rounded hover:bg-gray-800 transition-colors"
-                  onClick={selectAllDigits}
-                >
-                  Select All
-                </button>
-                <button 
-                  className="text-sm bg-gray-500 text-white py-1 px-3 rounded hover:bg-gray-600 transition-colors"
-                  onClick={resetToDefault}
-                >
-                  Reset to Default
-                </button>
-              </div>
-            </div>
-            <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
-              {availableDigits.map((digit) => (
-                <button
-                  key={digit}
-                  className={`py-3 px-4 rounded-md text-lg font-bold transition-colors ${
-                    selectedDigits.includes(digit) 
-                      ? 'bg-mtn-yellow text-mtn-black' 
-                      : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                  }`}
-                  onClick={() => toggleDigit(digit)}
-                >
-                  {digit}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          {/* Prize Structure */}
-          <div className="mb-6">
-            <h3 className="text-lg font-bold mb-3 text-bridgetunes-blue">Prize Structure</h3>
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-bold text-bridgetunes-dark mb-2">
-                    {selectedDay === 'saturday' ? 'Saturday Mega Prizes' : 'Daily Prizes'}
-                  </h4>
-                  <ul className="space-y-2">
-                    <li className="flex justify-between">
-                      <span>Jackpot (1st Prize):</span>
-                      <span className="font-bold text-green-600">
-                        {formatCurrency(getCurrentPrizeStructure().jackpot)}
-                      </span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>2nd Prize:</span>
-                      <span className="font-bold text-green-600">
-                        {formatCurrency(getCurrentPrizeStructure().second)}
-                      </span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>3rd Prize:</span>
-                      <span className="font-bold text-green-600">
-                        {formatCurrency(getCurrentPrizeStructure().third)}
-                      </span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Consolation Prize #1:</span>
-                      <span className="font-bold text-green-600">
-                        {formatCurrency(getCurrentPrizeStructure().consolation1)}
-                      </span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Consolation Prize #2:</span>
-                      <span className="font-bold text-green-600">
-                        {formatCurrency(getCurrentPrizeStructure().consolation2)}
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-bold text-bridgetunes-dark mb-2">Draw Details</h4>
-                  <ul className="space-y-2">
-                    <li className="flex justify-between">
-                      <span>Day:</span>
-                      <span className="font-medium">{selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)}</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Eligible Numbers:</span>
-                      <span className="font-medium">Ending with {selectedDigits.join(', ')}</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Total Prize Pool:</span>
-                      <span className="font-bold text-green-600">
-                        {formatCurrency(
-                          getCurrentPrizeStructure().jackpot +
-                          getCurrentPrizeStructure().second +
-                          getCurrentPrizeStructure().third +
-                          getCurrentPrizeStructure().consolation1 +
-                          getCurrentPrizeStructure().consolation2
-                        )}
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <p className="mt-4 text-sm text-gray-600 text-center">
-                Managed by Bridgetunes in partnership with MTN Nigeria
-              </p>
-            </div>
-          </div>
-          
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button 
-              className="btn-secondary flex-1"
-              onClick={fetchEligibleParticipants}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Loading...' : 'Fetch Eligible Participants'}
-            </button>
-            <button 
-              className="btn-primary flex-1"
-              onClick={executeDraw}
-              disabled={isDrawInProgress || eligibleParticipants.length === 0}
-            >
-              {isDrawInProgress ? 'Drawing...' : 'Execute Draw'}
-            </button>
-          </div>
-        </div>
-        
-        {/* Draw Animation Section */}
-        {isDrawInProgress && (
-          <div className="card p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-center text-bridgetunes-blue">Draw in Progress</h2>
-            
-            <div className="flex flex-col items-center justify-center">
-              {/* Notary Verification Banner */}
-              <div className="bg-blue-100 text-bridgetunes-blue px-4 py-2 rounded-full mb-6 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span>Bridgetunes Notary Verified Draw Process</span>
-              </div>
-              
-              {/* Participant Pool Info */}
-              <div className="mb-6 text-center">
-                <p className="text-gray-600">
-                  Drawing from pool of <span className="font-bold">{eligibleParticipants.length}</span> eligible participants
-                </p>
-                <p className="text-sm text-gray-500">
-                  Numbers ending with: {selectedDigits.join(', ') }
-                </p>
-              </div>
-              
-              {/* Draw Animations */}
-              <div className="w-full max-w-3xl mx-auto">
-                {/* Render the appropriate animation based on current stage */}
-                {animationStage === 'jackpot' && (
-                  <DrawAnimation 
-                    prizeCategory="jackpot" 
-                    isVisible={true} 
-                    onComplete={handleAnimationComplete} 
-                  />
-                )}
-                
-                {animationStage === 'second' && (
-                  <DrawAnimation 
-                    prizeCategory="second" 
-                    isVisible={true} 
-                    onComplete={handleAnimationComplete} 
-                  />
-                )}
-                
-                {animationStage === 'third' && (
-                  <DrawAnimation 
-                    prizeCategory="third" 
-                    isVisible={true} 
-                    onComplete={handleAnimationComplete} 
-                  />
-                )}
-                
-                {animationStage === 'consolation' && (
-                  <DrawAnimation 
-                    prizeCategory="consolation" 
-                    isVisible={true} 
-                    onComplete={handleAnimationComplete} 
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Eligible Participants */}
-        {eligibleParticipants.length > 0 && !isDrawInProgress && (
-          <div className="card p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-bridgetunes-blue">Eligible Participants</h2>
-            <div className="mb-4">
-              <p className="text-lg">
-                <span className="font-bold">{eligibleParticipants.length}</span> participants eligible for this draw
-              </p>
-            </div>
-            
-            <div className="table-container">
-              <table className="table">
-                <thead className="table-header">
-                  <tr>
-                    <th>ID</th>
-                    <th>MSISDN</th>
-                    <th>Last Digit</th>
-                    <th>Topup Amount</th>
-                    <th>Points</th>
-                  </tr>
-                </thead>
-                <tbody className="table-body">
-                  {eligibleParticipants.slice(0, 10).map((participant, index) => (
-                    <tr key={index}>
-                      <td className="font-medium text-gray-900">{index + 1}</td>
-                      <td>{formatMsisdn(participant.msisdn)}</td>
-                      <td>{participant.lastDigit}</td>
-                      <td>₦{participant.topupAmount.toLocaleString()}</td>
-                      <td>{participant.points}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            
-            {eligibleParticipants.length > 10 && (
-              <div className="mt-4 text-center text-sm text-gray-500">
-                Showing 10 of {eligibleParticipants.length} participants
-              </div>
-            )}
-          </div>
-        )}
-        
-        {/* Draw Results */}
-        {drawResults && animationStage === 'complete' && (
-          <div className="card p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-center text-bridgetunes-blue">Draw Results</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Main Winners */}
-              <div className="space-y-6">
-                {/* Jackpot Winner */}
-                {drawResults.jackpot && (
-                  <div className="bg-gradient-to-r from-yellow-100 to-yellow-200 p-4 rounded-lg border-2 border-yellow-400">
-                    <h3 className="text-xl font-bold mb-2 text-center">
-                      {selectedDay === 'saturday' ? 'Grand Prize Winner' : 'Jackpot Winner'}
-                    </h3>
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-bold">{formatMsisdn(drawResults.jackpot.msisdn)}</p>
-                        <p className="text-sm text-gray-600">Points: {drawResults.jackpot.points}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-xl">
-                          {formatCurrency(getCurrentPrizeStructure().jackpot)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Second Prize Winner */}
-                {drawResults.second && (
-                  <div className="bg-gradient-to-r from-gray-100 to-gray-200 p-4 rounded-lg border-2 border-gray-400">
-                    <h3 className="text-xl font-bold mb-2 text-center">2nd Prize Winner</h3>
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-bold">{formatMsisdn(drawResults.second.msisdn)}</p>
-                        <p className="text-sm text-gray-600">Points: {drawResults.second.points}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-xl">
-                          {formatCurrency(getCurrentPrizeStructure().second)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Third Prize Winner */}
-                {drawResults.third && (
-                  <div className="bg-gradient-to-r from-amber-100 to-amber-200 p-4 rounded-lg border-2 border-amber-400">
-                    <h3 className="text-xl font-bold mb-2 text-center">3rd Prize Winner</h3>
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-bold">{formatMsisdn(drawResults.third.msisdn)}</p>
-                        <p className="text-sm text-gray-600">Points: {drawResults.third.points}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-xl">
-                          {formatCurrency(getCurrentPrizeStructure().third)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Consolation Winners */}
-              <div>
-                <h3 className="text-xl font-bold mb-4 text-bridgetunes-blue">Consolation Prize Winners</h3>
-                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MSISDN</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Prize</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {drawResults.consolation.map((winner, index) => (
-                        <tr key={index}>
-                          <td className="px-4 py-2 whitespace-nowrap text-sm">{formatMsisdn(winner.msisdn)}</td>
-                          <td className="px-4 py-2 whitespace-nowrap text-sm">{winner.points}</td>
-                          <td className="px-4 py-2 whitespace-nowrap text-sm text-right font-medium">
-                            {formatCurrency(index < 1 ? getCurrentPrizeStructure().consolation1 : getCurrentPrizeStructure().consolation2)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-8 text-center">
-              <button 
-                className="btn-primary"
-                onClick={() => {
-                  setDrawResults(null);
-                  setAnimationStage('none');
-                }}
+        <DrawSection>
+          <DrawControls>
+            <FormGroup>
+              <Label htmlFor="drawDate">Draw Date</Label>
+              <Select 
+                id="drawDate" 
+                value={drawDate} 
+                onChange={(e) => setDrawDate(e.target.value)}
               >
-                Start New Draw
-              </button>
-            </div>
-          </div>
-        )}
-      </main>
-
-      {/* Footer */}
+                <option value="">Select a date</option>
+                {availableDates.map(date => (
+                  <option key={date} value={date}>{date}</option>
+                ))}
+              </Select>
+            </FormGroup>
+            
+            <FormGroup>
+              <Label htmlFor="lastDigit">Last Digit</Label>
+              <Select 
+                id="lastDigit" 
+                value={lastDigit} 
+                onChange={(e) => setLastDigit(e.target.value)}
+              >
+                {digitOptions.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </Select>
+            </FormGroup>
+            
+            <ButtonContainer>
+              <Button 
+                variant="primary" 
+                onClick={executeDraw}
+                disabled={drawStage === 'drawing'}
+              >
+                {drawStage === 'drawing' ? 'Drawing...' : 'Execute Draw'}
+              </Button>
+            </ButtonContainer>
+          </DrawControls>
+          
+          <DrawAnimation 
+            stage={drawStage} 
+            winningNumber={winningNumber} 
+            prizeAmount={prizeAmount} 
+          />
+          
+          {drawStage === 'complete' && winners.length > 0 && (
+            <ResultsSection>
+              <h2>Draw Results</h2>
+              <WinnersList>
+                <h3>Winners</h3>
+                <WinnersTable>
+                  <thead>
+                    <tr>
+                      <th>Phone Number</th>
+                      <th>Prize Amount</th>
+                      <th>Draw Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {winners.map((winner, index) => (
+                      <tr key={index}>
+                        <td>{winner.msisdn}</td>
+                        <td>₦{winner.prize.toLocaleString()}</td>
+                        <td>{winner.date}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </WinnersTable>
+              </WinnersList>
+            </ResultsSection>
+          )}
+        </DrawSection>
+      </PageContainer>
       <Footer />
-    </div>
+    </>
   );
-}
+};
+
+export default DrawManagement;
 
