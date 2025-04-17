@@ -1798,5 +1798,299 @@
     "commission": 25,
     "points": 500,
     "lastDigit": "9"
+  },
+  {
+    "msisdn": "08036785165",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-11"
+  },
+  {
+    "msisdn": "08033724661",
+    "topupAmount": 100,
+    "optInStatus": true,
+    "date": "2025-04-11"
+  },
+  {
+    "msisdn": "08037954885",
+    "topupAmount": 100,
+    "optInStatus": true,
+    "date": "2025-04-12"
+  },
+  {
+    "msisdn": "08031074159",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-13"
+  },
+  {
+    "msisdn": "08039661934",
+    "topupAmount": 200,
+    "optInStatus": false,
+    "date": "2025-04-07"
+  },
+  {
+    "msisdn": "08037847379",
+    "topupAmount": 100,
+    "optInStatus": true,
+    "date": "2025-04-10"
+  },
+  {
+    "msisdn": "08039463692",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-08"
+  },
+  {
+    "msisdn": "08038689639",
+    "topupAmount": 500,
+    "optInStatus": true,
+    "date": "2025-04-10"
+  },
+  {
+    "msisdn": "08031241606",
+    "topupAmount": 200,
+    "optInStatus": false,
+    "date": "2025-04-10"
+  },
+  {
+    "msisdn": "08038858492",
+    "topupAmount": 1000,
+    "optInStatus": true,
+    "date": "2025-04-11"
+  },
+  {
+    "msisdn": "08033611121",
+    "topupAmount": 1000,
+    "optInStatus": true,
+    "date": "2025-04-12"
+  },
+  {
+    "msisdn": "08030012480",
+    "topupAmount": 500,
+    "optInStatus": true,
+    "date": "2025-04-09"
+  },
+  {
+    "msisdn": "08031864237",
+    "topupAmount": 1000,
+    "optInStatus": true,
+    "date": "2025-04-09"
+  },
+  {
+    "msisdn": "08039967477",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-13"
+  },
+  {
+    "msisdn": "08030979201",
+    "topupAmount": 100,
+    "optInStatus": true,
+    "date": "2025-04-07"
+  },
+  {
+    "msisdn": "08034774636",
+    "topupAmount": 100,
+    "optInStatus": true,
+    "date": "2025-04-10"
+  },
+  {
+    "msisdn": "08030208955",
+    "topupAmount": 100,
+    "optInStatus": true,
+    "date": "2025-04-08"
+  },
+  {
+    "msisdn": "08032930664",
+    "topupAmount": 500,
+    "optInStatus": true,
+    "date": "2025-04-13"
+  },
+  {
+    "msisdn": "08034211219",
+    "topupAmount": 100,
+    "optInStatus": true,
+    "date": "2025-04-08"
+  },
+  {
+    "msisdn": "08031234560",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-08"
+  },
+  {
+    "msisdn": "08031234561",
+    "topupAmount": 200,
+    "optInStatus": false,
+    "date": "2025-04-08"
+  },
+  {
+    "msisdn": "08031234562",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-08"
+  },
+  {
+    "msisdn": "08031234563",
+    "topupAmount": 200,
+    "optInStatus": false,
+    "date": "2025-04-08"
+  },
+  {
+    "msisdn": "08031234564",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-08"
+  },
+  {
+    "msisdn": "08031234565",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-08"
+  },
+  {
+    "msisdn": "08031234566",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-08"
+  },
+  {
+    "msisdn": "08031234567",
+    "topupAmount": 200,
+    "optInStatus": false,
+    "date": "2025-04-08"
+  },
+  {
+    "msisdn": "08031234568",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-08"
+  },
+  {
+    "msisdn": "08031234569",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-08"
+  },
+  {
+    "msisdn": "08031234570",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-09"
+  },
+  {
+    "msisdn": "08031234571",
+    "topupAmount": 200,
+    "optInStatus": false,
+    "date": "2025-04-09"
+  },
+  {
+    "msisdn": "08031234572",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-09"
+  },
+  {
+    "msisdn": "08031234573",
+    "topupAmount": 200,
+    "optInStatus": false,
+    "date": "2025-04-09"
+  },
+  {
+    "msisdn": "08031234574",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-09"
+  },
+  {
+    "msisdn": "08031234575",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-09"
+  },
+  {
+    "msisdn": "08031234576",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-09"
+  },
+  {
+    "msisdn": "08031234577",
+    "topupAmount": 200,
+    "optInStatus": false,
+    "date": "2025-04-09"
+  },
+  {
+    "msisdn": "08031234578",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-09"
+  },
+  {
+    "msisdn": "08031234579",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-09"
+  },
+  {
+    "msisdn": "08031234580",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-10"
+  },
+  {
+    "msisdn": "08031234581",
+    "topupAmount": 200,
+    "optInStatus": false,
+    "date": "2025-04-10"
+  },
+  {
+    "msisdn": "08031234582",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-10"
+  },
+  {
+    "msisdn": "08031234583",
+    "topupAmount": 200,
+    "optInStatus": false,
+    "date": "2025-04-10"
+  },
+  {
+    "msisdn": "08031234584",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-10"
+  },
+  {
+    "msisdn": "08031234585",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-10"
+  },
+  {
+    "msisdn": "08031234586",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-10"
+  },
+  {
+    "msisdn": "08031234587",
+    "topupAmount": 200,
+    "optInStatus": false,
+    "date": "2025-04-10"
+  },
+  {
+    "msisdn": "08031234588",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-10"
+  },
+  {
+    "msisdn": "08031234589",
+    "topupAmount": 200,
+    "optInStatus": true,
+    "date": "2025-04-10"
   }
 ]
