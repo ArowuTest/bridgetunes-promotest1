@@ -485,7 +485,7 @@ export default function Home() {
             
             <StepCard>
               <StepNumber>3</StepNumber>
-              <StepTitle>Get Selected</StepNumber>
+              <StepTitle>Get Selected</StepTitle>
               <StepDescription>
                 Winners are selected through a transparent electronic draw process supervised by regulatory authorities.
               </StepDescription>
