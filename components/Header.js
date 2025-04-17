@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 // Styled components
 const HeaderContainer = styled.header`
-  background-color: ${props => props.theme.colors.bridgetunesBlue};
+  background-color: ${props => props.theme.colors.bridgetunesDark}; // Darker background for better contrast
   color: ${props => props.theme.colors.white};
   padding: 1rem 0;
   position: sticky;
@@ -69,10 +69,12 @@ const NavLink = styled.a`
   padding: 0.5rem 0.75rem;
   border-radius: ${props => props.theme.radii.md};
   font-weight: ${props => props.theme.fontWeights.medium};
-  transition: color ${props => props.theme.transitions.default};
+  color: ${props => props.theme.colors.white}; // Ensure text is white
+  transition: all ${props => props.theme.transitions.default};
   
   &:hover {
     color: ${props => props.theme.colors.mtnYellow};
+    background-color: rgba(255, 255, 255, 0.1); // Add hover background
   }
 `;
 
@@ -90,7 +92,7 @@ const MobileMenuButton = styled.button`
 
 const MobileMenu = styled.div`
   margin-top: 1rem;
-  background-color: ${props => props.theme.colors.bridgetunesBlue};
+  background-color: ${props => props.theme.colors.bridgetunesDark}; // Match header background
   border-radius: ${props => props.theme.radii.lg};
   box-shadow: ${props => props.theme.shadows.lg};
   padding: 1rem;
@@ -114,10 +116,12 @@ const MobileNavLink = styled.a`
   padding: 0.5rem 0.75rem;
   border-radius: ${props => props.theme.radii.md};
   font-weight: ${props => props.theme.fontWeights.medium};
-  transition: color ${props => props.theme.transitions.default};
+  color: ${props => props.theme.colors.white}; // Ensure text is white
+  transition: all ${props => props.theme.transitions.default};
   
   &:hover {
     color: ${props => props.theme.colors.mtnYellow};
+    background-color: rgba(255, 255, 255, 0.1); // Add hover background
   }
 `;
 
