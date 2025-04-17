@@ -52,20 +52,19 @@ const DrawSection = styled.div`
 `;
 
 const DrawControls = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 600px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  max-width: 800px;
   margin: 0 auto 2rem;
   
   @media (min-width: ${props => props.theme.breakpoints.md}) {
-    flex-direction: row;
-    align-items: flex-end;
+    grid-template-columns: 1fr 1fr;
   }
 `;
 
 const FormGroup = styled.div`
-  flex: 1;
+  margin-bottom: 1rem;
 `;
 
 const Label = styled.label`
@@ -90,14 +89,29 @@ const Select = styled.select`
   }
 `;
 
+const CheckboxGroup = styled.div`
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`;
+
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  font-size: ${props => props.theme.fontSizes.sm};
+  cursor: pointer;
+`;
+
+const Checkbox = styled.input`
+  margin-right: 0.5rem;
+`;
+
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 1rem;
-  
-  @media (min-width: ${props => props.theme.breakpoints.md}) {
-    margin-top: 0;
-  }
+  margin-top: 1.5rem;
+  grid-column: 1 / -1;
 `;
 
 // Styled button instead of importing Button component
@@ -159,31 +173,99 @@ const WinnersTable = styled.table`
 // Main component
 const DrawManagement = () => {
   const [drawDate, setDrawDate] = useState('');
-  const [lastDigit, setLastDigit] = useState('all');
+  const [selectedDigits, setSelectedDigits] = useState([]);
   const [drawStage, setDrawStage] = useState('idle'); // idle, drawing, complete
   const [winningNumber, setWinningNumber] = useState('');
   const [prizeAmount, setPrizeAmount] = useState(0);
   const [winners, setWinners] = useState([]);
+  const [msisdnData, setMsisdnData] = useState([]);
   
   // Available dates for the dropdown
   const availableDates = [
     '2023-09-01', '2023-09-02', '2023-09-03', '2023-09-04', '2023-09-05'
   ];
   
-  // Last digit options
-  const digitOptions = [
-    { value: 'all', label: 'All Numbers' },
-    { value: '0', label: 'Ending with 0' },
-    { value: '1', label: 'Ending with 1' },
-    { value: '2', label: 'Ending with 2' },
-    { value: '3', label: 'Ending with 3' },
-    { value: '4', label: 'Ending with 4' },
-    { value: '5', label: 'Ending with 5' },
-    { value: '6', label: 'Ending with 6' },
-    { value: '7', label: 'Ending with 7' },
-    { value: '8', label: 'Ending with 8' },
-    { value: '9', label: 'Ending with 9' }
-  ];
+  // Days of the week mapping
+  const daysOfWeek = {
+    '2023-09-01': 'Friday',
+    '2023-09-02': 'Saturday',
+    '2023-09-03': 'Sunday',
+    '2023-09-04': 'Monday',
+    '2023-09-05': 'Tuesday'
+  };
+  
+  // Day to digit mapping
+  const dayDigitMapping = {
+    'Monday': ['0', '1'],
+    'Tuesday': ['2', '3'],
+    'Wednesday': ['4', '5'],
+    'Thursday': ['6', '7'],
+    'Friday': ['8', '9'],
+    'Saturday': ['0', '2', '4', '6', '8'],
+    'Sunday': ['1', '3', '5', '7', '9']
+  };
+  
+  // Fetch MSISDN data on component mount
+  useEffect(() => {
+    const fetchMsisdnData = async () => {
+      try {
+        const response = await fetch('/data/msisdn_data.json');
+        const data = await response.json();
+        setMsisdnData(data);
+      } catch (error) {
+        console.error('Error fetching MSISDN data:', error);
+        // Fallback data if fetch fails
+        setMsisdnData([
+          { msisdn: '08012345678', topupAmount: 500, date: '2023-09-01' },
+          { msisdn: '08023456789', topupAmount: 1000, date: '2023-09-01' },
+          { msisdn: '08034567890', topupAmount: 200, date: '2023-09-02' },
+          { msisdn: '08045678901', topupAmount: 300, date: '2023-09-02' },
+          { msisdn: '08056789012', topupAmount: 500, date: '2023-09-03' },
+          { msisdn: '08067890123', topupAmount: 1000, date: '2023-09-03' },
+          { msisdn: '08078901234', topupAmount: 200, date: '2023-09-04' },
+          { msisdn: '08089012345', topupAmount: 300, date: '2023-09-04' },
+          { msisdn: '08090123456', topupAmount: 500, date: '2023-09-05' },
+          { msisdn: '08001234567', topupAmount: 1000, date: '2023-09-05' }
+        ]);
+      }
+    };
+    
+    fetchMsisdnData();
+  }, []);
+  
+  // Update available digits when date changes
+  useEffect(() => {
+    if (drawDate) {
+      const day = daysOfWeek[drawDate];
+      const availableDigits = dayDigitMapping[day] || [];
+      setSelectedDigits([]); // Reset selected digits when date changes
+    }
+  }, [drawDate]);
+  
+  // Handle digit selection
+  const handleDigitChange = (digit) => {
+    if (selectedDigits.includes(digit)) {
+      setSelectedDigits(selectedDigits.filter(d => d !== digit));
+    } else {
+      setSelectedDigits([...selectedDigits, digit]);
+    }
+  };
+  
+  // Handle "Select All" option
+  const handleSelectAllDigits = () => {
+    if (drawDate) {
+      const day = daysOfWeek[drawDate];
+      const availableDigits = dayDigitMapping[day] || [];
+      
+      if (selectedDigits.length === availableDigits.length) {
+        // If all are selected, deselect all
+        setSelectedDigits([]);
+      } else {
+        // Otherwise, select all
+        setSelectedDigits([...availableDigits]);
+      }
+    }
+  };
   
   // Execute draw function
   const executeDraw = () => {
@@ -192,29 +274,73 @@ const DrawManagement = () => {
       return;
     }
     
+    if (selectedDigits.length === 0) {
+      alert('Please select at least one ending digit');
+      return;
+    }
+    
     setDrawStage('drawing');
+    
+    // Filter MSISDNs based on selected date and digits
+    const eligibleMsisdns = msisdnData.filter(item => {
+      // Match date
+      if (item.date !== drawDate) return false;
+      
+      // Match last digit if specific digits are selected
+      const lastDigit = item.msisdn.slice(-1);
+      return selectedDigits.includes(lastDigit);
+    });
     
     // Simulate API call to get winners
     setTimeout(() => {
-      // Generate a random winning number
-      const randomNumber = Math.floor(10000000000 + Math.random() * 90000000000).toString();
-      const randomPrize = Math.floor(10000 + Math.random() * 990000);
+      if (eligibleMsisdns.length > 0) {
+        // Select a random winner from eligible MSISDNs
+        const winnerIndex = Math.floor(Math.random() * eligibleMsisdns.length);
+        const mainWinner = eligibleMsisdns[winnerIndex];
+        
+        // Set the winning number and prize
+        setWinningNumber(mainWinner.msisdn);
+        setPrizeAmount(mainWinner.topupAmount * 10); // Prize is 10x the topup amount
+        
+        // Generate winners list (including the main winner and some random ones)
+        const winnersList = [
+          { 
+            msisdn: mainWinner.msisdn, 
+            prize: mainWinner.topupAmount * 10, 
+            date: drawDate 
+          }
+        ];
+        
+        // Add some additional winners with smaller prizes
+        const additionalWinners = eligibleMsisdns
+          .filter((_, index) => index !== winnerIndex) // Exclude main winner
+          .slice(0, 4); // Take up to 4 additional winners
+        
+        additionalWinners.forEach(winner => {
+          winnersList.push({
+            msisdn: winner.msisdn,
+            prize: winner.topupAmount * 2, // Smaller prize for additional winners
+            date: drawDate
+          });
+        });
+        
+        setWinners(winnersList);
+      } else {
+        // No eligible MSISDNs found
+        alert('No eligible numbers found for the selected criteria');
+        setDrawStage('idle');
+        return;
+      }
       
-      setWinningNumber(randomNumber);
-      setPrizeAmount(randomPrize);
-      
-      // Generate some sample winners
-      const sampleWinners = [
-        { msisdn: randomNumber, prize: randomPrize, date: drawDate },
-        { msisdn: Math.floor(10000000000 + Math.random() * 90000000000).toString(), prize: 5000, date: drawDate },
-        { msisdn: Math.floor(10000000000 + Math.random() * 90000000000).toString(), prize: 2000, date: drawDate },
-        { msisdn: Math.floor(10000000000 + Math.random() * 90000000000).toString(), prize: 1000, date: drawDate },
-        { msisdn: Math.floor(10000000000 + Math.random() * 90000000000).toString(), prize: 500, date: drawDate }
-      ];
-      
-      setWinners(sampleWinners);
       setDrawStage('complete');
     }, 5000); // 5 seconds delay to simulate processing
+  };
+  
+  // Get available digits for the selected day
+  const getAvailableDigits = () => {
+    if (!drawDate) return [];
+    const day = daysOfWeek[drawDate];
+    return dayDigitMapping[day] || [];
   };
   
   return (
@@ -236,37 +362,61 @@ const DrawManagement = () => {
         
         <DrawSection>
           <DrawControls>
-            <FormGroup>
-              <Label htmlFor="drawDate">Draw Date</Label>
-              <Select 
-                id="drawDate" 
-                value={drawDate} 
-                onChange={(e) => setDrawDate(e.target.value)}
-              >
-                <option value="">Select a date</option>
-                {availableDates.map(date => (
-                  <option key={date} value={date}>{date}</option>
-                ))}
-              </Select>
-            </FormGroup>
+            <div>
+              <FormGroup>
+                <Label htmlFor="drawDate">Draw Date</Label>
+                <Select 
+                  id="drawDate" 
+                  value={drawDate} 
+                  onChange={(e) => setDrawDate(e.target.value)}
+                >
+                  <option value="">Select a date</option>
+                  {availableDates.map(date => (
+                    <option key={date} value={date}>{date} ({daysOfWeek[date]})</option>
+                  ))}
+                </Select>
+              </FormGroup>
+            </div>
             
-            <FormGroup>
-              <Label htmlFor="lastDigit">Last Digit</Label>
-              <Select 
-                id="lastDigit" 
-                value={lastDigit} 
-                onChange={(e) => setLastDigit(e.target.value)}
-              >
-                {digitOptions.map(option => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </Select>
-            </FormGroup>
+            <div>
+              <FormGroup>
+                <Label>Last Digit Selection</Label>
+                <CheckboxGroup>
+                  <CheckboxLabel>
+                    <Checkbox 
+                      type="checkbox"
+                      checked={drawDate && selectedDigits.length === getAvailableDigits().length}
+                      onChange={handleSelectAllDigits}
+                      disabled={!drawDate}
+                    />
+                    All
+                  </CheckboxLabel>
+                  
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => {
+                    const digitStr = digit.toString();
+                    const isAvailable = getAvailableDigits().includes(digitStr);
+                    
+                    return (
+                      <CheckboxLabel key={digit} style={{ opacity: isAvailable ? 1 : 0.5 }}>
+                        <Checkbox 
+                          type="checkbox"
+                          value={digitStr}
+                          checked={selectedDigits.includes(digitStr)}
+                          onChange={() => isAvailable && handleDigitChange(digitStr)}
+                          disabled={!isAvailable || !drawDate}
+                        />
+                        {digit}
+                      </CheckboxLabel>
+                    );
+                  })}
+                </CheckboxGroup>
+              </FormGroup>
+            </div>
             
             <ButtonContainer>
               <StyledButton 
                 onClick={executeDraw}
-                disabled={drawStage === 'drawing'}
+                disabled={drawStage === 'drawing' || !drawDate || selectedDigits.length === 0}
               >
                 {drawStage === 'drawing' ? 'Drawing...' : 'Execute Draw'}
               </StyledButton>
