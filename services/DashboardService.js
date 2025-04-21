@@ -63,24 +63,23 @@ class DashboardService {
           entries.push({
             id: `ENTRY-${100000 + entryIndex}`,
             msisdn: msisdn,
-            date: date.toISOString().split('T')[0],
-            time: new Date(date).toLocaleTimeString('en-US', {
-              hour: 'numeric',
-              minute: 'numeric',
-              hour12: true
-            }),
             amount: amount,
+            date: date.toISOString().split('T')[0],
+            time: `${Math.floor(Math.random() * 12) + 1}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
             // Use the correct points calculation
             points: this.calculatePoints(amount),
-            drawId: `DRAW-${date.toISOString().split('T')[0]}`
+            eligibleDraws: [`DRAW-${date.toISOString().split('T')[0]}`]
           });
         }
         
         resolve({
           entries,
-          totalEntries,
-          currentPage: page,
-          totalPages: Math.ceil(totalEntries / limit)
+          pagination: {
+            page,
+            limit,
+            totalEntries,
+            totalPages: Math.ceil(totalEntries / limit)
+          }
         });
       }, 500);
     });
@@ -93,106 +92,69 @@ class DashboardService {
     return new Promise((resolve) => {
       setTimeout(() => {
         const notifications = [];
-        const totalNotifications = 15;
+        const totalNotifications = 18;
         
-        const notificationTypes = [
-          'draw_announcement',
-          'win_notification',
-          'recharge_confirmation',
-          'promotion_update'
+        // Notification types
+        const types = [
+          { type: 'draw_announcement', title: 'Draw Announcement', icon: 'calendar' },
+          { type: 'recharge_confirmation', title: 'Recharge Confirmation', icon: 'credit-card' },
+          { type: 'win_notification', title: 'Congratulations!', icon: 'award' },
+          { type: 'info', title: 'Information', icon: 'info' }
         ];
         
         // Generate mock notifications
         for (let i = 0; i < Math.min(limit, totalNotifications - (page - 1) * limit); i++) {
-          const notificationIndex = (page - 1) * limit + i;
+          const notifIndex = (page - 1) * limit + i;
           const date = new Date();
-          date.setDate(date.getDate() - notificationIndex);
+          date.setDate(date.getDate() - Math.floor(notifIndex / 3));
+          date.setHours(date.getHours() - (notifIndex % 3) * 4);
           
-          const type = notificationTypes[Math.floor(Math.random() * notificationTypes.length)];
-          let title, message;
+          const typeIndex = Math.floor(Math.random() * types.length);
+          let message;
           
-          switch (type) {
-            case 'draw_announcement':
-              title = 'Upcoming Draw';
-              message = `The next draw will take place on ${date.toISOString().split('T')[0]} at 8:00 PM.`;
-              break;
-            case 'win_notification':
-              title = 'Congratulations!';
-              message = 'You have won a consolation prize of ₦75,000 in the daily draw!';
-              break;
-            case 'recharge_confirmation':
-              const amount = Math.floor(Math.random() * 900) + 100;
-              title = 'Recharge Confirmed';
-              message = `Your recharge of ₦${amount} has been confirmed. You've earned ${this.calculatePoints(amount)} points for this transaction.`;
-              break;
-            case 'promotion_update':
-              title = 'Promotion Update';
-              message = 'The Saturday Mega Draw prize has been increased to ₦3,000,000!';
-              break;
+          // Create message based on type
+          if (types[typeIndex].type === 'recharge_confirmation') {
+            const amount = Math.floor(Math.random() * 900) + 100;
+            message = `Your recharge of ₦${amount} has been confirmed. You've earned ${this.calculatePoints(amount)} points.`;
+          } else if (types[typeIndex].type === 'draw_announcement') {
+            message = 'Daily draw will take place today at 8:00 PM.';
+          } else if (types[typeIndex].type === 'win_notification') {
+            message = `Congratulations! You've won a consolation prize of ₦75,000 in today's draw.`;
+          } else {
+            message = 'Saturday mega draw has a jackpot of ₦3,000,000. Don\'t miss out!';
           }
           
           notifications.push({
-            id: `NOTIF-${200000 + notificationIndex}`,
-            type: type,
-            title: title,
+            id: `NOTIF-${100000 + notifIndex}`,
+            type: types[typeIndex].type,
+            title: types[typeIndex].title,
+            icon: types[typeIndex].icon,
             message: message,
-            date: date.toISOString().split('T')[0],
-            time: new Date(date).toLocaleTimeString('en-US', {
-              hour: 'numeric',
-              minute: 'numeric',
-              hour12: true
-            }),
-            read: notificationIndex > 3,
-            timestamp: date.toISOString()
+            date: date.toISOString(),
+            read: notifIndex > 5
           });
         }
         
         resolve({
           notifications,
-          totalNotifications,
-          currentPage: page,
-          totalPages: Math.ceil(totalNotifications / limit),
-          unreadCount: 3
+          pagination: {
+            page,
+            limit,
+            totalNotifications,
+            totalPages: Math.ceil(totalNotifications / limit)
+          }
         });
       }, 500);
     });
   }
   
-  // Get user draw history
-  static async getUserDrawHistory(msisdn, page = 1, limit = 10) {
+  // Mark notification as read
+  static async markNotificationAsRead(notificationId) {
     // In a real implementation, this would make an API call
-    // For the prototype, we'll return mock data
     return new Promise((resolve) => {
       setTimeout(() => {
-        const draws = [];
-        const totalDraws = 20;
-        
-        // Generate mock draw history
-        for (let i = 0; i < Math.min(limit, totalDraws - (page - 1) * limit); i++) {
-          const drawIndex = (page - 1) * limit + i;
-          const date = new Date();
-          date.setDate(date.getDate() - drawIndex);
-          
-          const isWinner = drawIndex === 1 || drawIndex === 5;
-          const prizeAmount = drawIndex === 1 ? 75000 : 150000;
-          
-          draws.push({
-            id: `DRAW-${date.toISOString().split('T')[0]}`,
-            date: date.toISOString().split('T')[0],
-            participated: true,
-            isWinner: isWinner,
-            prizeAmount: isWinner ? prizeAmount : 0,
-            prizeType: isWinner ? (drawIndex === 1 ? 'Consolation Prize' : '3rd Prize') : 'N/A'
-          });
-        }
-        
-        resolve({
-          draws,
-          totalDraws,
-          currentPage: page,
-          totalPages: Math.ceil(totalDraws / limit)
-        });
-      }, 500);
+        resolve({ success: true });
+      }, 300);
     });
   }
   
@@ -205,22 +167,35 @@ class DashboardService {
         resolve({
           totalTopups: 15,
           totalAmount: 7500,
-          totalPoints: 75,
-          totalDraws: 12,
-          totalWins: 2,
-          totalPrizeAmount: 225000,
-          averageTopupAmount: 500,
-          mostFrequentDay: 'Friday',
-          mostFrequentTime: 'Evening',
-          lastTopupDate: '2025-04-21',
-          lastDrawParticipation: '2025-04-21'
+          averageTopup: 500,
+          eligibleDraws: 12,
+          participatedDraws: 12,
+          winningDraws: 1,
+          totalWinnings: 75000,
+          topupHistory: [
+            { date: '2025-04-01', amount: 500 },
+            { date: '2025-04-02', amount: 300 },
+            { date: '2025-04-03', amount: 700 },
+            { date: '2025-04-04', amount: 200 },
+            { date: '2025-04-05', amount: 1000 },
+            { date: '2025-04-06', amount: 500 },
+            { date: '2025-04-07', amount: 300 },
+            { date: '2025-04-08', amount: 400 },
+            { date: '2025-04-09', amount: 600 },
+            { date: '2025-04-10', amount: 500 },
+            { date: '2025-04-11', amount: 300 },
+            { date: '2025-04-12', amount: 700 },
+            { date: '2025-04-13', amount: 200 },
+            { date: '2025-04-14', amount: 800 },
+            { date: '2025-04-15', amount: 500 }
+          ]
         });
       }, 500);
     });
   }
   
   // Check for real-time notifications
-  static async checkForNewNotifications(msisdn) {
+  static async checkRealTimeNotifications(msisdn) {
     // In a real implementation, this would make an API call or use WebSockets
     // For the prototype, we'll randomly return a notification
     return new Promise((resolve) => {
@@ -242,8 +217,7 @@ class DashboardService {
               id: `NOTIF-RT-${Date.now()}`,
               ...types[typeIndex],
               date: new Date().toISOString(),
-              read: false,
-              timestamp: new Date().toISOString()
+              read: false
             }
           });
         } else {
@@ -255,7 +229,7 @@ class DashboardService {
     });
   }
   
-  // Get user info (compatibility with current dashboard implementation)
+  // For compatibility with the current dashboard implementation
   static async getUserInfo(msisdn) {
     // In a real implementation, this would fetch data from an API
     // For the prototype, we'll return mock data
@@ -270,8 +244,11 @@ class DashboardService {
       eligibleDraws: account.eligibleDraws
     };
   }
+  
+  // For compatibility with the current dashboard implementation
+  static async checkForNewNotifications(msisdn) {
+    return this.checkRealTimeNotifications(msisdn);
+  }
 }
 
 export default DashboardService;
-
-
