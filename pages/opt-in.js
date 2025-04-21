@@ -207,14 +207,14 @@ export default function OptInPage() {
                   <BenefitNumber>1</BenefitNumber>
                   <BenefitContent>
                     <BenefitTitle>Daily Cash Prizes</BenefitTitle>
-                    <BenefitDescription>Win up to ₦100,000 in daily draws Monday through Friday</BenefitDescription>
+                    <BenefitDescription>Win up to ₦1,000,000 in daily draws Monday through Friday</BenefitDescription>
                   </BenefitContent>
                 </BenefitItem>
                 <BenefitItem>
                   <BenefitNumber>2</BenefitNumber>
                   <BenefitContent>
                     <BenefitTitle>Weekly Mega Prizes</BenefitTitle>
-                    <BenefitDescription>Participate in Saturday mega draws with a grand prize of ₦1,000,000</BenefitDescription>
+                    <BenefitDescription>Participate in Saturday mega draws with a grand prize of ₦3,000,000</BenefitDescription>
                   </BenefitContent>
                 </BenefitItem>
                 <BenefitItem>
