@@ -126,7 +126,7 @@ const Select = styled.select`
   background-color: white;
   transition: all 0.2s ease;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") ;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")  ;
   background-repeat: no-repeat;
   background-position: right 1rem center;
   padding-right: 2.5rem;
@@ -521,6 +521,115 @@ const WinnerCardDate = styled.div`
   color: ${props => props.theme.colors.gray600};
 `;
 
+// New styled components for enhanced slot machine animation
+const SlotMachineContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #1a1a1a, #333);
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+`;
+
+const SlotMachineTitle = styled.h3`
+  font-size: 1.5rem;
+  color: ${props => props.theme.colors.mtnYellow};
+  margin-bottom: 1.5rem;
+  text-align: center;
+`;
+
+const SlotDisplay = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  background: #000;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  border: 3px solid ${props => props.theme.colors.mtnYellow};
+  box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+`;
+
+const DigitGroup = styled.div`
+  display: flex;
+  margin: 0 0.5rem;
+`;
+
+const DigitSlot = styled.div`
+  width: 40px;
+  height: 60px;
+  background: #fff;
+  border-radius: 6px;
+  margin: 0 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #000;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent);
+  }
+  
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.3), transparent);
+  }
+`;
+
+const DigitSeparator = styled.div`
+  font-size: 2rem;
+  font-weight: bold;
+  color: ${props => props.theme.colors.mtnYellow};
+  margin: 0 0.5rem;
+  display: flex;
+  align-items: center;
+`;
+
+const SpinningDigit = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: ${props => `spin ${props.speed}s infinite linear`};
+  animation-play-state: ${props => props.isSpinning ? 'running' : 'paused'};
+  
+  @keyframes spin {
+    0% { transform: translateY(-500%); }
+    100% { transform: translateY(500%); }
+  }
+`;
+
+const SlotMachineStatus = styled.div`
+  font-size: 1.25rem;
+  color: white;
+  margin-top: 1rem;
+  text-align: center;
+  min-height: 2rem;
+`;
+
 const LoadingSpinner = styled.div`
   display: flex;
   flex-direction: column;
@@ -557,10 +666,12 @@ export default function DrawManagement() {
   const [day, setDay] = useState('');
   const [selectedDigits, setSelectedDigits] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [drawStage, setDrawStage] = useState('idle'); // idle, loading, complete
+  const [drawStage, setDrawStage] = useState('idle'); // idle, loading, spinning, revealing, complete
   const [winners, setWinners] = useState([]);
   const [jackpotRollover, setJackpotRollover] = useState(false);
   const [msisdnData, setMsisdnData] = useState([]);
+  const [slotDigits, setSlotDigits] = useState(Array(11).fill('0'));
+  const [isSpinning, setIsSpinning] = useState(false);
   
   // Updated prize structure based on user specifications
   const prizeStructure = {
@@ -777,6 +888,63 @@ export default function DrawManagement() {
     return getRecommendedDigits().includes(digit);
   };
   
+  // Generate random digit for slot machine animation
+  const getRandomDigit = () => {
+    return Math.floor(Math.random() * 10).toString();
+  };
+  
+  // Start slot machine animation
+  const startSlotMachineAnimation = (winningMsisdn) => {
+    setIsSpinning(true);
+    setDrawStage('spinning');
+    
+    // Set initial random digits
+    setSlotDigits(Array(11).fill('0').map(() => getRandomDigit()));
+    
+    // Animate each digit with different timing
+    const revealDelays = [
+      1000,  // First digit
+      1200,  // Second digit
+      1400,  // Third digit
+      1600,  // Fourth digit
+      1800,  // Fifth digit
+      2000,  // Sixth digit
+      2200,  // Seventh digit
+      2400,  // Eighth digit
+      2600,  // Ninth digit
+      2800,  // Tenth digit
+      3000   // Eleventh digit
+    ];
+    
+    // Reveal digits one by one
+    revealDelays.forEach((delay, index) => {
+      setTimeout(() => {
+        setSlotDigits(prev => {
+          const newDigits = [...prev];
+          if (index < winningMsisdn.length) {
+            newDigits[index] = winningMsisdn[index];
+          } else {
+            newDigits[index] = '*';
+          }
+          return newDigits;
+        });
+        
+        // When all digits are revealed, stop spinning
+        if (index === revealDelays.length - 1) {
+          setTimeout(() => {
+            setIsSpinning(false);
+            setDrawStage('revealing');
+            
+            // Show complete results after a short delay
+            setTimeout(() => {
+              setDrawStage('complete');
+            }, 1000);
+          }, 500);
+        }
+      }, delay);
+    });
+  };
+  
   // Execute draw function
   const executeDraw = () => {
     if (!day) {
@@ -792,6 +960,7 @@ export default function DrawManagement() {
     setIsLoading(true);
     setDrawStage('loading');
     setJackpotRollover(false);
+    setWinners([]);
     
     // Format the selected date
     const formattedDate = formatDate(year, month, day);
@@ -814,15 +983,18 @@ export default function DrawManagement() {
     // Simulate API call to get winners
     setTimeout(() => {
       if (eligibleMsisdns.length > 0) {
+        // Create a copy of eligible MSISDNs to prevent duplicate selections
+        let remainingParticipants = [...eligibleMsisdns];
+        
         // Select a random winner from eligible MSISDNs
-        const winnerIndex = Math.floor(Math.random() * eligibleMsisdns.length);
-        const mainWinner = eligibleMsisdns[winnerIndex];
+        const winnerIndex = Math.floor(Math.random() * remainingParticipants.length);
+        const mainWinner = remainingParticipants[winnerIndex];
         
         // Generate winners list (including the main winner and some random ones)
         const winnersList = [
           { 
             msisdn: mainWinner.msisdn, 
-            prize: currentPrizes.jackpot, 
+            amount: currentPrizes.jackpot, 
             date: formattedDate,
             optInStatus: mainWinner.optInStatus, // Include opt-in status
             validWinner: mainWinner.optInStatus, // Mark as valid only if opted in
@@ -836,7 +1008,7 @@ export default function DrawManagement() {
         }
         
         // Remove the jackpot winner from the pool
-        const remainingParticipants = eligibleMsisdns.filter((_, index) => index !== winnerIndex);
+        remainingParticipants.splice(winnerIndex, 1);
         
         // Select 2nd prize winner
         if (remainingParticipants.length > 0) {
@@ -845,7 +1017,7 @@ export default function DrawManagement() {
           
           winnersList.push({
             msisdn: secondWinner.msisdn,
-            prize: currentPrizes.second,
+            amount: currentPrizes.second,
             date: formattedDate,
             optInStatus: secondWinner.optInStatus,
             validWinner: secondWinner.optInStatus,
@@ -863,7 +1035,7 @@ export default function DrawManagement() {
           
           winnersList.push({
             msisdn: thirdWinner.msisdn,
-            prize: currentPrizes.third,
+            amount: currentPrizes.third,
             date: formattedDate,
             optInStatus: thirdWinner.optInStatus,
             validWinner: thirdWinner.optInStatus,
@@ -885,7 +1057,7 @@ export default function DrawManagement() {
           
           winnersList.push({
             msisdn: consolationWinner.msisdn,
-            prize: currentPrizes.consolation,
+            amount: currentPrizes.consolation,
             date: formattedDate,
             optInStatus: consolationWinner.optInStatus,
             validWinner: consolationWinner.optInStatus,
@@ -897,6 +1069,10 @@ export default function DrawManagement() {
         }
         
         setWinners(winnersList);
+        
+        // Start slot machine animation with the jackpot winner's MSISDN
+        startSlotMachineAnimation(mainWinner.msisdn);
+        
       } else {
         // No eligible MSISDNs found
         alert('No eligible numbers found for the selected criteria');
@@ -905,12 +1081,24 @@ export default function DrawManagement() {
         return;
       }
       
-      // Set draw stage to complete after a delay
-      setTimeout(() => {
-        setDrawStage('complete');
-        setIsLoading(false);
-      }, 1000);
+      setIsLoading(false);
     }, 2000);
+  };
+  
+  // Get slot machine status text based on draw stage
+  const getSlotMachineStatus = () => {
+    switch (drawStage) {
+      case 'loading':
+        return 'Preparing draw...';
+      case 'spinning':
+        return 'Selecting winners...';
+      case 'revealing':
+        return 'Jackpot winner found!';
+      case 'complete':
+        return 'Draw complete';
+      default:
+        return '';
+    }
   };
   
   return (
@@ -940,7 +1128,7 @@ export default function DrawManagement() {
                 <DateSelectionGrid>
                   <Select 
                     value={month} 
-                    onChange={(e)  => setMonth(parseInt(e.target.value))}
+                    onChange={(e)   => setMonth(parseInt(e.target.value))}
                   >
                     {months.map(m => (
                       <option key={m.value} value={m.value}>{m.label}</option>
@@ -1004,21 +1192,14 @@ export default function DrawManagement() {
             </div>
             
             <div>
-              <CardTitle>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM7 10.82C5.84 10.4 5 9.3 5 8V7h2v3.82zM12 16c-1.65 0-3-1.35-3-3V5h6v8c0 1.65-1.35 3-3 3zm7-8c0 1.3-.84 2.4-2 2.82V7h2v1z"/>
-                </svg>
-                Prize Structure
-              </CardTitle>
-              
               <PrizeStructureGrid>
                 <PrizeCard>
                   <PrizeCardTitle>
-                    {isSaturday()  ? 'Saturday Mega Prizes' : 'Daily Prizes'}
+                    {isSaturday() ? 'Saturday Mega Prizes' : 'Daily Prizes'}
                   </PrizeCardTitle>
                   <PrizeList>
                     <PrizeItem>
-                      <PrizeName>Jackpot (1st Prize)</PrizeName>
+                      <PrizeName>Jackpot Winner</PrizeName>
                       <PrizeValue>
                         {formatCurrency(getCurrentPrizeStructure().jackpot)}
                       </PrizeValue>
@@ -1045,179 +1226,226 @@ export default function DrawManagement() {
                 </PrizeCard>
               </PrizeStructureGrid>
               
-              {day && (
-                <DrawDetailsGrid>
-                  <DetailItem>
-                    <DetailLabel>Day of Week</DetailLabel>
-                    <DetailValue>{getDayOfWeek(year, month, day)}</DetailValue>
-                  </DetailItem>
-                  <DetailItem>
-                    <DetailLabel>Selected Digits</DetailLabel>
-                    <DetailValue>{selectedDigits.join(', ') || 'None'}</DetailValue>
-                  </DetailItem>
-                  <DetailItem>
-                    <DetailLabel>Total Prize Pool</DetailLabel>
-                    <TotalPrizeValue>{formatCurrency(calculateTotalPrizePool())}</TotalPrizeValue>
-                  </DetailItem>
-                </DrawDetailsGrid>
-              )}
+              <DrawDetailsGrid>
+                <DetailItem>
+                  <DetailLabel>Day of Week</DetailLabel>
+                  <DetailValue>
+                    {day ? getDayOfWeek(year, month, day) : '-'}
+                  </DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Selected Digits</DetailLabel>
+                  <DetailValue>
+                    {selectedDigits.length > 0 ? selectedDigits.join(', ') : '-'}
+                  </DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Total Prize Pool</DetailLabel>
+                  <TotalPrizeValue>
+                    {day ? formatCurrency(calculateTotalPrizePool()) : '-'}
+                  </TotalPrizeValue>
+                </DetailItem>
+              </DrawDetailsGrid>
             </div>
           </FormGrid>
           
           <ButtonContainer>
             <Button 
               onClick={executeDraw}
-              disabled={isLoading || !day || selectedDigits.length === 0}
+              disabled={!day || selectedDigits.length === 0 || isLoading}
             >
-              {isLoading ? 'Processing...' : 'Execute Draw'}
+              Execute Draw
             </Button>
           </ButtonContainer>
         </Card>
         
-        {drawStage === 'loading' && (
-          <Card>
-            <LoadingSpinner>
-              <div className="spinner"></div>
-              <LoadingText>Drawing winners...</LoadingText>
-            </LoadingSpinner>
-          </Card>
-        )}
-        
-        {drawStage === 'complete' && (
+        {drawStage !== 'idle' && (
           <ResultsSection>
-            {jackpotRollover && (
-              <AlertBox type="warning">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                <div>
-                  <strong>Jackpot Rollover:</strong> The jackpot winner has not opted in to the promotion. 
-                  The jackpot prize will roll over to the next draw.
-                </div>
-              </AlertBox>
-            ) }
-            
             <Card>
-              <CardTitle>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-                </svg>
-                Draw Results
-              </CardTitle>
+              {drawStage === 'loading' && (
+                <LoadingSpinner>
+                  <div className="spinner"></div>
+                  <LoadingText>Drawing winners...</LoadingText>
+                </LoadingSpinner>
+              )}
               
-              <WinnersGrid>
-                {winners.length > 0 && winners.find(w => w.prizeCategory === 'jackpot')  && (
-                  <JackpotWinnerCard>
-                    <WinnerTitle>Jackpot Winner</WinnerTitle>
-                    <WinnerNumber>
-                      {formatMsisdn(winners.find(w => w.prizeCategory === 'jackpot').msisdn)}
-                    </WinnerNumber>
-                    <WinnerPrize>
-                      {formatCurrency(winners.find(w => w.prizeCategory === 'jackpot').prize)}
-                    </WinnerPrize>
-                    <div>
-                      <StatusBadge variant={winners.find(w => w.prizeCategory === 'jackpot').optInStatus ? 'success' : 'error'}>
-                        {winners.find(w => w.prizeCategory === 'jackpot').optInStatus ? 'Opted In' : 'Not Opted In'}
-                      </StatusBadge>
-                      <StatusBadge variant={winners.find(w => w.prizeCategory === 'jackpot').validWinner ? 'success' : 'error'}>
-                        {winners.find(w => w.prizeCategory === 'jackpot').validWinner ? 'Valid Winner' : 'Invalid - Jackpot Rolls Over'}
-                      </StatusBadge>
-                    </div>
-                  </JackpotWinnerCard>
+              {(drawStage === 'spinning' || drawStage === 'revealing' || drawStage === 'complete') && (
+                <>
+                  <SlotMachineContainer>
+                    <SlotMachineTitle>Drawing Jackpot Winner</SlotMachineTitle>
+                    <SlotDisplay>
+                      <DigitGroup>
+                        {slotDigits.slice(0, 4).map((digit, index) => (
+                          <DigitSlot key={`slot-${index}`}>
+                            {isSpinning && (
+                              <SpinningDigit 
+                                isSpinning={isSpinning} 
+                                speed={0.5 + (index * 0.1)}
+                              >
+                                {getRandomDigit()}
+                              </SpinningDigit>
+                            )}
+                            {(!isSpinning || drawStage === 'complete') && digit}
+                          </DigitSlot>
+                        ))}
+                      </DigitGroup>
+                      
+                      <DigitSeparator>-</DigitSeparator>
+                      
+                      <DigitGroup>
+                        {slotDigits.slice(4, 7).map((digit, index) => (
+                          <DigitSlot key={`slot-${index + 4}`}>
+                            {isSpinning && (
+                              <SpinningDigit 
+                                isSpinning={isSpinning} 
+                                speed={0.8 + (index * 0.1)}
+                              >
+                                {getRandomDigit()}
+                              </SpinningDigit>
+                            )}
+                            {(!isSpinning || drawStage === 'complete') && digit}
+                          </DigitSlot>
+                        ))}
+                      </DigitGroup>
+                      
+                      <DigitSeparator>-</DigitSeparator>
+                      
+                      <DigitGroup>
+                        {slotDigits.slice(7).map((digit, index) => (
+                          <DigitSlot key={`slot-${index + 7}`}>
+                            {isSpinning && (
+                              <SpinningDigit 
+                                isSpinning={isSpinning} 
+                                speed={1.1 + (index * 0.1)}
+                              >
+                                {getRandomDigit()}
+                              </SpinningDigit>
+                            )}
+                            {(!isSpinning || drawStage === 'complete') && digit}
+                          </DigitSlot>
+                        ))}
+                      </DigitGroup>
+                    </SlotDisplay>
+                    <SlotMachineStatus>{getSlotMachineStatus()}</SlotMachineStatus>
+                  </SlotMachineContainer>
+                  
+                  {jackpotRollover && (
+                    <AlertBox type="warning">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                      </svg>
+                      Jackpot winner has not opted in. Prize will roll over to the next draw.
+                    </AlertBox>
+                  ) }
+                  
+                  {drawStage === 'complete' && (
+                    <WinnersGrid>
+                      {winners.length > 0 && (
+                        <JackpotWinnerCard>
+                          <WinnerTitle>JACKPOT WINNER</WinnerTitle>
+                          <WinnerNumber>
+                            {formatMsisdn(winners[0].msisdn)}
+                          </WinnerNumber>
+                          <WinnerPrize>
+                            {formatCurrency(winners[0].amount)}
+                          </WinnerPrize>
+                          <div>
+                            <StatusBadge variant={winners[0].optInStatus ? 'success' : 'error'}>
+                              {winners[0].optInStatus ? 'OPTED IN' : 'NOT OPTED IN'}
+                            </StatusBadge>
+                            <StatusBadge variant={winners[0].validWinner ? 'success' : 'error'}>
+                              {winners[0].validWinner ? 'VALID WINNER' : 'INVALID WINNER'}
+                            </StatusBadge>
+                          </div>
+                        </JackpotWinnerCard>
+                        
+                        {winners.length > 1 && (
+                          <WinnerCard>
+                            <WinnerCardHeader>
+                              <WinnerCardTitle>2nd Prize Winner</WinnerCardTitle>
+                              <WinnerCardPrize>{formatCurrency(winners[1].amount)}</WinnerCardPrize>
+                            </WinnerCardHeader>
+                            <WinnerCardBody>
+                              <WinnerCardNumber>
+                                {formatMsisdn(winners[1].msisdn)}
+                              </WinnerCardNumber>
+                              <div>
+                                <StatusBadge variant={winners[1].optInStatus ? 'success' : 'error'}>
+                                  {winners[1].optInStatus ? 'OPTED IN' : 'NOT OPTED IN'}
+                                </StatusBadge>
+                                <StatusBadge variant={winners[1].validWinner ? 'success' : 'error'}>
+                                  {winners[1].validWinner ? 'VALID WINNER' : 'INVALID WINNER'}
+                                </StatusBadge>
+                              </div>
+                            </WinnerCardBody>
+                            <WinnerCardFooter>
+                              <WinnerCardDate>Draw Date: {winners[1].date}</WinnerCardDate>
+                            </WinnerCardFooter>
+                          </WinnerCard>
+                        )}
+                        
+                        {winners.length > 2 && (
+                          <WinnerCard>
+                            <WinnerCardHeader>
+                              <WinnerCardTitle>3rd Prize Winner</WinnerCardTitle>
+                              <WinnerCardPrize>{formatCurrency(winners[2].amount)}</WinnerCardPrize>
+                            </WinnerCardHeader>
+                            <WinnerCardBody>
+                              <WinnerCardNumber>
+                                {formatMsisdn(winners[2].msisdn)}
+                              </WinnerCardNumber>
+                              <div>
+                                <StatusBadge variant={winners[2].optInStatus ? 'success' : 'error'}>
+                                  {winners[2].optInStatus ? 'OPTED IN' : 'NOT OPTED IN'}
+                                </StatusBadge>
+                                <StatusBadge variant={winners[2].validWinner ? 'success' : 'error'}>
+                                  {winners[2].validWinner ? 'VALID WINNER' : 'INVALID WINNER'}
+                                </StatusBadge>
+                              </div>
+                            </WinnerCardBody>
+                            <WinnerCardFooter>
+                              <WinnerCardDate>Draw Date: {winners[2].date}</WinnerCardDate>
+                            </WinnerCardFooter>
+                          </WinnerCard>
+                        )}
+                        
+                        {/* Display consolation winners */}
+                        {winners.length > 3 && winners.slice(3).map((winner, index) => (
+                          <WinnerCard key={`consolation-${index}`}>
+                            <WinnerCardHeader>
+                              <WinnerCardTitle>Consolation Prize {index + 1}</WinnerCardTitle>
+                              <WinnerCardPrize>{formatCurrency(winner.amount)}</WinnerCardPrize>
+                            </WinnerCardHeader>
+                            <WinnerCardBody>
+                              <WinnerCardNumber>
+                                {formatMsisdn(winner.msisdn)}
+                              </WinnerCardNumber>
+                              <div>
+                                <StatusBadge variant={winner.optInStatus ? 'success' : 'error'}>
+                                  {winner.optInStatus ? 'OPTED IN' : 'NOT OPTED IN'}
+                                </StatusBadge>
+                                <StatusBadge variant={winner.validWinner ? 'success' : 'error'}>
+                                  {winner.validWinner ? 'VALID WINNER' : 'INVALID WINNER'}
+                                </StatusBadge>
+                              </div>
+                            </WinnerCardBody>
+                            <WinnerCardFooter>
+                              <WinnerCardDate>Draw Date: {winner.date}</WinnerCardDate>
+                            </WinnerCardFooter>
+                          </WinnerCard>
+                        ))}
+                      </WinnersGrid>
+                    )}
+                  </>
                 )}
-                
-                {winners.length > 0 && winners.find(w => w.prizeCategory === 'second') && (
-                  <WinnerCard>
-                    <WinnerCardHeader>
-                      <WinnerCardTitle>2nd Prize Winner</WinnerCardTitle>
-                      <WinnerCardPrize>
-                        {formatCurrency(winners.find(w => w.prizeCategory === 'second').prize)}
-                      </WinnerCardPrize>
-                    </WinnerCardHeader>
-                    <WinnerCardBody>
-                      <WinnerCardNumber>
-                        {formatMsisdn(winners.find(w => w.prizeCategory === 'second').msisdn)}
-                      </WinnerCardNumber>
-                      <div>
-                        <StatusBadge variant={winners.find(w => w.prizeCategory === 'second').optInStatus ? 'success' : 'error'}>
-                          {winners.find(w => w.prizeCategory === 'second').optInStatus ? 'Opted In' : 'Not Opted In'}
-                        </StatusBadge>
-                        <StatusBadge variant={winners.find(w => w.prizeCategory === 'second').validWinner ? 'success' : 'error'}>
-                          {winners.find(w => w.prizeCategory === 'second').validWinner ? 'Valid Winner' : 'Invalid'}
-                        </StatusBadge>
-                      </div>
-                    </WinnerCardBody>
-                    <WinnerCardFooter>
-                      <WinnerCardDate>
-                        Draw Date: {winners.find(w => w.prizeCategory === 'second').date}
-                      </WinnerCardDate>
-                    </WinnerCardFooter>
-                  </WinnerCard>
-                )}
-                
-                {winners.length > 0 && winners.find(w => w.prizeCategory === 'third') && (
-                  <WinnerCard>
-                    <WinnerCardHeader>
-                      <WinnerCardTitle>3rd Prize Winner</WinnerCardTitle>
-                      <WinnerCardPrize>
-                        {formatCurrency(winners.find(w => w.prizeCategory === 'third').prize)}
-                      </WinnerCardPrize>
-                    </WinnerCardHeader>
-                    <WinnerCardBody>
-                      <WinnerCardNumber>
-                        {formatMsisdn(winners.find(w => w.prizeCategory === 'third').msisdn)}
-                      </WinnerCardNumber>
-                      <div>
-                        <StatusBadge variant={winners.find(w => w.prizeCategory === 'third').optInStatus ? 'success' : 'error'}>
-                          {winners.find(w => w.prizeCategory === 'third').optInStatus ? 'Opted In' : 'Not Opted In'}
-                        </StatusBadge>
-                        <StatusBadge variant={winners.find(w => w.prizeCategory === 'third').validWinner ? 'success' : 'error'}>
-                          {winners.find(w => w.prizeCategory === 'third').validWinner ? 'Valid Winner' : 'Invalid'}
-                        </StatusBadge>
-                      </div>
-                    </WinnerCardBody>
-                    <WinnerCardFooter>
-                      <WinnerCardDate>
-                        Draw Date: {winners.find(w => w.prizeCategory === 'third').date}
-                      </WinnerCardDate>
-                    </WinnerCardFooter>
-                  </WinnerCard>
-                )}
-                
-                {winners.filter(w => w.prizeCategory === 'consolation').map((winner, index) => (
-                  <WinnerCard key={index}>
-                    <WinnerCardHeader>
-                      <WinnerCardTitle>Consolation Winner #{index + 1}</WinnerCardTitle>
-                      <WinnerCardPrize>
-                        {formatCurrency(winner.prize)}
-                      </WinnerCardPrize>
-                    </WinnerCardHeader>
-                    <WinnerCardBody>
-                      <WinnerCardNumber>
-                        {formatMsisdn(winner.msisdn)}
-                      </WinnerCardNumber>
-                      <div>
-                        <StatusBadge variant={winner.optInStatus ? 'success' : 'error'}>
-                          {winner.optInStatus ? 'Opted In' : 'Not Opted In'}
-                        </StatusBadge>
-                        <StatusBadge variant={winner.validWinner ? 'success' : 'error'}>
-                          {winner.validWinner ? 'Valid Winner' : 'Invalid'}
-                        </StatusBadge>
-                      </div>
-                    </WinnerCardBody>
-                    <WinnerCardFooter>
-                      <WinnerCardDate>
-                        Draw Date: {winner.date}
-                      </WinnerCardDate>
-                    </WinnerCardFooter>
-                  </WinnerCard>
-                ))}
-              </WinnersGrid>
-            </Card>
-          </ResultsSection>
-        )}
-      </MainContent>
-      <Footer />
-    </PageContainer>
-  );
+              </Card>
+            </ResultsSection>
+          )}
+        </MainContent>
+        
+        <Footer />
+      </PageContainer>
+    );
 }
