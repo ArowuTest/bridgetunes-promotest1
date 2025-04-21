@@ -1339,15 +1339,14 @@ export default function DrawManagement() {
                       Jackpot winner has not opted in. Prize will roll over to the next draw.
                     </AlertBox>
                   ) }
-                  
                   {drawStage === 'complete' && (
-                    <WinnersGrid>
-                      {winners.length > 0 && (
-                       <>
-                        <JackpotWinnerCard>
-                          <WinnerTitle>JACKPOT WINNER</WinnerTitle>
-                          <WinnerNumber>
-                            {formatMsisdn(winners[0].msisdn)}
+  <WinnersGrid>
+    {winners.length > 0 && (
+      <>
+        <JackpotWinnerCard>
+          <WinnerTitle>JACKPOT WINNER</WinnerTitle>
+          <WinnerNumber>
+            {formatMsisdn(winners[0].msisdn)}
                           </WinnerNumber>
                           <WinnerPrize>
                             {formatCurrency(winners[0].amount)}
@@ -1436,7 +1435,8 @@ export default function DrawManagement() {
                               <WinnerCardDate>Draw Date: {winner.date}</WinnerCardDate>
                             </WinnerCardFooter>
                           </WinnerCard>
-                          </>
+                        ))}
+                      </>
                     )}
                   </WinnersGrid>
                 )}
