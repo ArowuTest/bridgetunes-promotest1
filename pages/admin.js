@@ -6,6 +6,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearSca
 import { Doughnut, Bar } from 'react-chartjs-2';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SearchBar from '../components/SearchBar';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
@@ -273,6 +274,33 @@ export default function AdminDashboard() {
   const [recentDraws, setRecentDraws] = useState([]);
   const [recentWinners, setRecentWinners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredWinners, setFilteredWinners] = useState([]);
+
+  // Filter winners based on search term
+  useEffect(() => {
+    if (!recentWinners.length) return;
+    
+    if (!searchTerm) {
+      setFilteredWinners(recentWinners);
+      return;
+    }
+    
+    const filtered = recentWinners.filter(winner => {
+      const searchTermLower = searchTerm.toLowerCase();
+      return (
+        winner.msisdn.toLowerCase().includes(searchTermLower) ||
+        winner.fullMsisdn.toLowerCase().includes(searchTermLower) ||
+        winner.prize.toLowerCase().includes(searchTermLower) ||
+        winner.drawId.toLowerCase().includes(searchTermLower) ||
+        winner.date.toLowerCase().includes(searchTermLower) ||
+        winner.id.toLowerCase().includes(searchTermLower) ||
+        formatCurrency(winner.amount).toLowerCase().includes(searchTermLower)
+      );
+    });
+    
+    setFilteredWinners(filtered);
+  }, [searchTerm, recentWinners]);
 
   // Simulate loading dashboard data
   useEffect(() => {
@@ -341,6 +369,7 @@ export default function AdminDashboard() {
         { id: 'WIN-511', msisdn: '2348134567823', fullMsisdn: '2348134567823', prize: '3rd Prize', amount: 500000, drawId: 'DRW-36', date: 'Apr 14, 2025' }
       ];
       setRecentWinners(mockRecentWinners);
+      setFilteredWinners(mockRecentWinners);
 
       setIsLoading(false);
     }, 1500);
@@ -636,6 +665,11 @@ export default function AdminDashboard() {
             {/* Winners Tab */}
             {activeTab === 'winners' && (
               <div>
+                <SearchBar 
+                  placeholder="Search winners by MSISDN, prize, draw ID, or date..." 
+                  onSearch={setSearchTerm}
+                  fullWidth={true}
+                />
                 <TableCard>
                   <TableTitle>All Winners</TableTitle>
                   <TableWrapper>
@@ -652,7 +686,7 @@ export default function AdminDashboard() {
                         </tr>
                       </TableHead>
                       <TableBody>
-                        {recentWinners.map(winner => (
+                        {filteredWinners.map(winner => (
                           <TableRow key={winner.id}>
                             <TableCell>{winner.id}</TableCell>
                             <TableCell>{winner.fullMsisdn}</TableCell>
@@ -710,4 +744,3 @@ export default function AdminDashboard() {
     </PageContainer>
   );
 }
-
