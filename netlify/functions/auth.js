@@ -1,5 +1,5 @@
 exports.handler = async (event) => {
-  const AUTH_PIN = "1234"; // Change this to your desired PIN
+  const AUTH_PIN = "6750"; // Change this to your desired PIN
   
   // Check for existing authentication cookie
   const cookies = {};
