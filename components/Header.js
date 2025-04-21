@@ -68,14 +68,15 @@ const NavItem = styled.li`
 `;
 
 const NavLink = styled.a`
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-weight: ${props => props.theme.fontWeights.medium};
   color: ${props => props.theme.colors.white};
   text-decoration: none;
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  transition: color 0.2s ease;
   
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    color: ${props => props.theme.colors.mtnYellow};
   }
 `;
 
@@ -83,25 +84,21 @@ const MobileMenuButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: ${props => props.theme.colors.white};
   background: none;
   border: none;
-  color: ${props => props.theme.colors.white};
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0;
   border-radius: 4px;
-  transition: background-color 0.2s ease;
-  
-  @media (min-width: ${props => props.theme.breakpoints.md}) {
-    display: none;
-  }
   
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
   
-  svg {
-    width: 24px;
-    height: 24px;
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    display: none;
   }
 `;
 
@@ -111,54 +108,67 @@ const MobileMenu = styled.div`
   left: 0;
   right: 0;
   background-color: ${props => props.theme.colors.mtnBlack};
-  padding: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 40;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0;
+  z-index: 40;
+  
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    display: none;
+  }
 `;
 
 const MobileNavList = styled.ul`
+  display: flex;
+  flex-direction: column;
   list-style: none;
   padding: 0;
   margin: 0;
 `;
 
 const MobileNavItem = styled.li`
-  margin: 0.5rem 0;
+  margin: 0;
 `;
 
 const MobileNavLink = styled.a`
   display: block;
+  padding: 0.75rem 1.5rem;
+  font-weight: ${props => props.theme.fontWeights.medium};
   color: ${props => props.theme.colors.white};
   text-decoration: none;
-  padding: 0.75rem 1rem;
-  border-radius: 4px;
   transition: background-color 0.2s ease;
   
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
+    color: ${props => props.theme.colors.mtnYellow};
   }
 `;
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
   return (
     <HeaderContainer>
       <Container>
         <FlexContainer>
           <LogoContainer>
             <Link href="/" passHref>
-              <a>
-                <BrandText>
-                  Bridge<BrandHighlight>tunes</BrandHighlight>
-                </BrandText>
+              <a style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+                {/* Bridgetunes Logo */}
+                <BrandText>Bridge<BrandHighlight>tunes</BrandHighlight></BrandText>
+                {/* Divider */}
+                <Divider />
+                {/* MTN Logo */}
+                <BrandText><BrandHighlight>MTN</BrandHighlight></BrandText>
               </a>
             </Link>
-            <Divider />
-            <BrandHighlight>MTN</BrandHighlight>
           </LogoContainer>
           
+          {/* Desktop Navigation */}
           <DesktopNav>
             <NavList>
               <NavItem>
@@ -167,15 +177,15 @@ const Header = () => {
                 </Link>
               </NavItem>
               <NavItem>
+                <Link href="/dashboard" passHref>
+                  <NavLink>Dashboard</NavLink>
+                </Link>
+              </NavItem>
+              <NavItem>
                 <Link href="/opt-in" passHref>
                   <NavLink>Opt-In</NavLink>
                 </Link>
               </NavItem>
-    <NavItem>
-  <Link href="/dashboard" passHref>
-    <NavLink>Dashboard</NavLink>
-  </Link>
-</NavItem>
               <NavItem>
                 <Link href="/draw-management" passHref>
                   <NavLink>Draw Management</NavLink>
@@ -186,11 +196,17 @@ const Header = () => {
                   <NavLink>Admin Dashboard</NavLink>
                 </Link>
               </NavItem>
+              <NavItem>
+                <Link href="/admin/notifications" passHref>
+                  <NavLink>Notification Management</NavLink>
+                </Link>
+              </NavItem>
             </NavList>
           </DesktopNav>
           
-          <MobileMenuButton onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          {/* Mobile Menu Button */}
+          <MobileMenuButton onClick={toggleMobileMenu} aria-label="Toggle menu">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </MobileMenuButton>
@@ -202,7 +218,12 @@ const Header = () => {
             <MobileNavList>
               <MobileNavItem>
                 <Link href="/" passHref>
-                  <MobileNavLink onClick={()  => setMobileMenuOpen(false)}>Home</MobileNavLink>
+                  <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
+                </Link>
+              </MobileNavItem>
+              <MobileNavItem>
+                <Link href="/dashboard" passHref>
+                  <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Dashboard</MobileNavLink>
                 </Link>
               </MobileNavItem>
               <MobileNavItem>
@@ -220,6 +241,11 @@ const Header = () => {
                   <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Admin Dashboard</MobileNavLink>
                 </Link>
               </MobileNavItem>
+              <MobileNavItem>
+                <Link href="/admin/notifications" passHref>
+                  <MobileNavLink onClick={() => setMobileMenuOpen(false)}>Notification Management</MobileNavLink>
+                </Link>
+              </MobileNavItem>
             </MobileNavList>
           </MobileMenu>
         )}
@@ -229,4 +255,3 @@ const Header = () => {
 };
 
 export default Header;
-
