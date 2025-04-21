@@ -1343,6 +1343,7 @@ export default function DrawManagement() {
                   {drawStage === 'complete' && (
                     <WinnersGrid>
                       {winners.length > 0 && (
+                       <>
                         <JackpotWinnerCard>
                           <WinnerTitle>JACKPOT WINNER</WinnerTitle>
                           <WinnerNumber>
@@ -1435,10 +1436,9 @@ export default function DrawManagement() {
                               <WinnerCardDate>Draw Date: {winner.date}</WinnerCardDate>
                             </WinnerCardFooter>
                           </WinnerCard>
-                        ))}
-                      </WinnersGrid>
+                          </>
                     )}
-                  </>
+                  </WinnersGrid>
                 )}
               </Card>
             </ResultsSection>
