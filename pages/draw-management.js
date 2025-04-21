@@ -1439,9 +1439,11 @@ export default function DrawManagement() {
                       </>
                     )}
                   </WinnersGrid>
-                )}
-              </Card>
-            </ResultsSection>
+                  )}
+                </>
+              )}
+            </Card>
+          </ResultsSection>
           )}
         </MainContent>
         
