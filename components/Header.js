@@ -171,6 +171,11 @@ const Header = () => {
                   <NavLink>Opt-In</NavLink>
                 </Link>
               </NavItem>
+    <NavItem>
+  <Link href="/dashboard" passHref>
+    <NavLink>Dashboard</NavLink>
+  </Link>
+</NavItem>
               <NavItem>
                 <Link href="/draw-management" passHref>
                   <NavLink>Draw Management</NavLink>
