@@ -230,20 +230,20 @@ const Badge = styled.span`
   font-weight: ${props => props.theme.fontWeights.medium};
   background-color: ${props => {
     switch (props.variant) {
-      case 'success': return props.theme.colors.green100 || '#d1fae5';
-      case 'warning': return props.theme.colors.yellow100 || '#fef3c7';
-      case 'error': return props.theme.colors.red100 || '#fee2e2';
-      case 'info': return props.theme.colors.blue100 || '#dbeafe';
-      default: return props.theme.colors.gray100 || '#f3f4f6';
+      case 'success': return '#d1fae5';
+      case 'warning': return '#fef3c7';
+      case 'error': return '#fee2e2';
+      case 'info': return '#dbeafe';
+      default: return '#f3f4f6';
     }
   }};
   color: ${props => {
     switch (props.variant) {
-      case 'success': return props.theme.colors.green800 || '#065f46';
-      case 'warning': return props.theme.colors.yellow800 || '#92400e';
-      case 'error': return props.theme.colors.red800 || '#991b1b';
-      case 'info': return props.theme.colors.blue800 || '#1e40af';
-      default: return props.theme.colors.gray800 || '#1f2937';
+      case 'success': return '#065f46';
+      case 'warning': return '#92400e';
+      case 'error': return '#991b1b';
+      case 'info': return '#1e40af';
+      default: return '#1f2937';
     }
   }};
 `;
@@ -299,15 +299,15 @@ const Pagination = styled.div`
 const PaginationButton = styled.button`
   padding: 0.5rem 1rem;
   margin: 0 0.25rem;
-  background-color: ${props => props.active ? props.theme.colors.mtnBlue || '#0056b3' : 'white'};
-  color: ${props => props.active ? 'white' : props.theme.colors.mtnGray || '#333333'};
-  border: 1px solid ${props => props.active ? (props.theme.colors.mtnBlue || '#0056b3') : (props.theme.colors.mtnLightGray || '#dee2e6')};
+  background-color: ${props => props.active ? '#0056b3' : 'white'};
+  color: ${props => props.active ? 'white' : '#333333'};
+  border: 1px solid ${props => props.active ? '#0056b3' : '#dee2e6'};
   border-radius: 0.25rem;
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   opacity: ${props => props.disabled ? 0.5 : 1};
   
   &:hover:not(:disabled) {
-    background-color: ${props => props.active ? (props.theme.colors.mtnBlue || '#0056b3') : (props.theme.colors.mtnLightGray || '#dee2e6')};
+    background-color: ${props => props.active ? '#0056b3' : '#dee2e6'};
   }
 `;
 
@@ -461,15 +461,15 @@ const ProgressBar = styled.div`
 const ProgressFill = styled.div`
   height: 100%;
   background-color: ${props => {
-    if (props.value >= 80) return props.theme.colors.green500 || '#10b981';
-    if (props.value >= 40) return props.theme.colors.yellow500 || '#f59e0b';
-    return props.theme.colors.red500 || '#ef4444';
+    if (props.value >= 80) return '#10b981';
+    if (props.value >= 40) return '#f59e0b';
+    return '#ef4444';
   }};
   width: ${props => `${props.value}%`};
   transition: width 0.3s ease;
 `;
 
-const Modal = styled.div`
+const ModalBackdrop = styled.div`
   position: fixed;
   top: 0;
   left: 0;
@@ -746,7 +746,7 @@ const NotificationManagement = () => {
   const itemsPerPage = 10;
   
   // Handle modal open
-  const openModal = (type, item = null) => {
+  const handleOpenModal = (type, item = null) => {
     setModalType(type);
     setSelectedItem(item);
     
@@ -808,7 +808,7 @@ const NotificationManagement = () => {
   };
   
   // Handle modal close
-  const closeModal = () => {
+  const handleCloseModal = () => {
     setShowModal(false);
     setModalType('');
     setSelectedItem(null);
@@ -847,7 +847,7 @@ const NotificationManagement = () => {
       }
       
       setIsLoading(false);
-      closeModal();
+      handleCloseModal();
     }, 1000);
   };
   
@@ -890,7 +890,7 @@ const NotificationManagement = () => {
       }
       
       setIsLoading(false);
-      closeModal();
+      handleCloseModal();
     }, 1000);
   };
   
@@ -934,7 +934,7 @@ const NotificationManagement = () => {
       }
       
       setIsLoading(false);
-      closeModal();
+      handleCloseModal();
     }, 1000);
   };
   
@@ -1029,7 +1029,7 @@ const NotificationManagement = () => {
             {activeTab === 'segments' && (
               <Button 
                 variant="primary"
-                onClick={() => openModal('createSegment')}
+                onClick={() => handleOpenModal('createSegment')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -1041,7 +1041,7 @@ const NotificationManagement = () => {
             {activeTab === 'templates' && (
               <Button 
                 variant="primary"
-                onClick={() => openModal('createTemplate')}
+                onClick={() => handleOpenModal('createTemplate')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -1053,7 +1053,7 @@ const NotificationManagement = () => {
             {activeTab === 'campaigns' && (
               <Button 
                 variant="primary"
-                onClick={() => openModal('createCampaign')}
+                onClick={() => handleOpenModal('createCampaign')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -1132,10 +1132,10 @@ const NotificationManagement = () => {
                   </SegmentStats>
                   
                   <SegmentActions>
-                    <Button onClick={() => openModal('editSegment', segment)}>
+                    <Button onClick={() => handleOpenModal('editSegment', segment)}>
                       Edit
                     </Button>
-                    <Button variant="primary" onClick={() => openModal('createCampaign', { segmentId: segment.id })}>
+                    <Button variant="primary" onClick={() => handleOpenModal('createCampaign', { segmentId: segment.id })}>
                       Create Campaign
                     </Button>
                   </SegmentActions>
@@ -1183,10 +1183,10 @@ const NotificationManagement = () => {
                   </div>
                   
                   <TemplateActions>
-                    <Button onClick={() => openModal('editTemplate', template)}>
+                    <Button onClick={() => handleOpenModal('editTemplate', template)}>
                       Edit
                     </Button>
-                    <Button variant="primary" onClick={() => openModal('createCampaign', { templateId: template.id })}>
+                    <Button variant="primary" onClick={() => handleOpenModal('createCampaign', { templateId: template.id })}>
                       Use Template
                     </Button>
                   </TemplateActions>
@@ -1269,7 +1269,7 @@ const NotificationManagement = () => {
                   )}
                   
                   <CampaignActions>
-                    <Button onClick={() => openModal('editCampaign', campaign)}>
+                    <Button onClick={() => handleOpenModal('editCampaign', campaign)}>
                       Edit
                     </Button>
                     
@@ -1447,7 +1447,7 @@ const NotificationManagement = () => {
 
         {/* Modals */}
         {showModal && (
-          <Modal>
+          <ModalBackdrop>
             <ModalContent>
               {/* Create/Edit Segment Modal */}
               {(modalType === 'createSegment' || modalType === 'editSegment') && (
@@ -1456,7 +1456,7 @@ const NotificationManagement = () => {
                     <ModalTitle>
                       {modalType === 'createSegment' ? 'Create Segment' : 'Edit Segment'}
                     </ModalTitle>
-                    <ModalCloseButton onClick={closeModal}>&times;</ModalCloseButton>
+                    <ModalCloseButton onClick={handleCloseModal}>&times;</ModalCloseButton>
                   </ModalHeader>
                   
                   <form onSubmit={handleSegmentSubmit}>
@@ -1646,7 +1646,7 @@ const NotificationManagement = () => {
                     </FormGroup>
                     
                     <ModalFooter>
-                      <Button type="button" onClick={closeModal}>
+                      <Button type="button" onClick={handleCloseModal}>
                         Cancel
                       </Button>
                       <Button type="submit" variant="primary" disabled={isLoading}>
@@ -1664,7 +1664,7 @@ const NotificationManagement = () => {
                     <ModalTitle>
                       {modalType === 'createTemplate' ? 'Create Template' : 'Edit Template'}
                     </ModalTitle>
-                    <ModalCloseButton onClick={closeModal}>&times;</ModalCloseButton>
+                    <ModalCloseButton onClick={handleCloseModal}>&times;</ModalCloseButton>
                   </ModalHeader>
                   
                   <form onSubmit={handleTemplateSubmit}>
@@ -1712,7 +1712,7 @@ const NotificationManagement = () => {
                     </FormGroup>
                     
                     <ModalFooter>
-                      <Button type="button" onClick={closeModal}>
+                      <Button type="button" onClick={handleCloseModal}>
                         Cancel
                       </Button>
                       <Button type="submit" variant="primary" disabled={isLoading}>
@@ -1730,7 +1730,7 @@ const NotificationManagement = () => {
                     <ModalTitle>
                       {modalType === 'createCampaign' ? 'Create Campaign' : 'Edit Campaign'}
                     </ModalTitle>
-                    <ModalCloseButton onClick={closeModal}>&times;</ModalCloseButton>
+                    <ModalCloseButton onClick={handleCloseModal}>&times;</ModalCloseButton>
                   </ModalHeader>
                   
                   <form onSubmit={handleCampaignSubmit}>
@@ -1815,7 +1815,7 @@ const NotificationManagement = () => {
                     </FormGroup>
                     
                     <ModalFooter>
-                      <Button type="button" onClick={closeModal}>
+                      <Button type="button" onClick={handleCloseModal}>
                         Cancel
                       </Button>
                       <Button type="submit" variant="primary" disabled={isLoading}>
@@ -1826,7 +1826,7 @@ const NotificationManagement = () => {
                 </>
               )}
             </ModalContent>
-          </Modal>
+          </ModalBackdrop>
         )}
       </MainContent>
 
@@ -1837,3 +1837,4 @@ const NotificationManagement = () => {
 };
 
 export default NotificationManagement;
+
