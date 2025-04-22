@@ -1,4 +1,3 @@
-import '../styles/globals.css';
 import { ThemeProvider } from 'styled-components';
 import theme from '../theme';
 
@@ -11,3 +10,4 @@ function MyApp({ Component, pageProps }) {
 }
 
 export default MyApp;
+
