@@ -53,6 +53,11 @@ const countUp = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
+const spin = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+`;
+
 // Styled Components
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -1363,3 +1368,4 @@ const EnhancedDashboard = () => {
 };
 
 export default EnhancedDashboard;
+
